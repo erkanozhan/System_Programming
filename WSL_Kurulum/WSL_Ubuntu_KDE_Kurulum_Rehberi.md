@@ -10,7 +10,7 @@
 wsl --install
 ```
 
-> Bu komut WSL2 motorunu ve Ubuntu dağıtımını kurar. Kurulum sonunda bilgisayar yeniden başlatılabilir.
+> Bu komut WSL2 motorunu ve dağıtımı seçip -d parametresi ile adını yazmalısınız. İsterseniz Ubuntu dağıtımını kurar. Kurulum sonunda bilgisayar yeniden başlatılabilir.
 
 ------------------------------------------------------------------------
 
