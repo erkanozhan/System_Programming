@@ -27,7 +27,4 @@ while true
             *) echo "Lütfen Evet için E, Hayır için H kullanınız"
         esac   
         done
-
-
-
 done
