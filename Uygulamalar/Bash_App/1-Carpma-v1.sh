@@ -17,7 +17,7 @@ case $secim in
 	[Ee]*)
     	  break;;
 	[Hh]*)
-	echo "Programdan çıkılıyor. Hoşçakalın";;
+	echo "Programdan çıkılıyor. Hoşçakalın"
 	exit;;
 	*) echo "Lütfen Evet için E, Hayır için H giriniz";;
 esac
