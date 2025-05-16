@@ -33,7 +33,7 @@ yedek_file="${hedef_dir}/yedek_$DATE.tar.gz"
 #                  Yani, arşivin içinde 'kaynak/dosya1' yerine 'dosya1' bulunur.
 tar -czf "$yedek_file" -C "$kaynak_dir"
 
-
+```
 
 # Cron ile Otomatik Betik Çalıştırma (Günlük Yedekleme)
 
