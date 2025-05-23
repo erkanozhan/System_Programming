@@ -6,7 +6,7 @@ if [[ -f "deneme.txt" ]]; then
 	while IFS= read -r okudugu_sey; 
 	do
 	echo "Okunan Satır:$okudugu_sey"
-	done < "deneme.txt"
+	done < "deneme.txt" # < işareti ile dosya adı arasında boşluk olmalıdır.
 else
 echo "Dosya bulunamadı"
 fi
