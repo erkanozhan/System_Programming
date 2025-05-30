@@ -1,4 +1,4 @@
-# PowerShell Scriptleri: Satır Satır Açıklamalı Örnekler
+# PowerShell Scriptleri
 
 ## Örnek 1: Windows Servisini Kontrol Etme
 
