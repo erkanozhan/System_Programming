@@ -53,25 +53,23 @@ Set-Content -Path "sifre.txt" -Value $encrypted
 ## Örnek 4: Şifreli Parolayı Okuma ve Görüntüleme
 
 ```powershell
-```powershell
 $encrypted = Get-Content -Path "sifre.txt"
-# Daha önce şifrelenmiş olarak kaydedilen parolayı dosyadan okur ve $encrypted değişkenine atar
+# Şifreli metni dosyadan okur
 
 $securePassword = ConvertTo-SecureString -String $encrypted
-# Okunan şifreli metni tekrar SecureString (güvenli string) formatına dönüştürür
+# Şifreli metni tekrar güvenli stringe çevirir
 
 $marshal = [System.Runtime.InteropServices.Marshal]
-# .NET ortamında unmanaged (yönetilmeyen) bellek işlemleri yapmaya yarayan Marshal sınıfını çağırır
+# .NET ile native memory işlemleri yapacak sınıfı çağırır
 
 $bstr = $marshal::SecureStringToBSTR($securePassword)
-# SecureString tipindeki şifreyi, BSTR formatında unmanaged belleğe aktarır (şifreyi çözer)
+# Güvenli stringi unmanaged belleğe aktarır
 
 $plainPassword = $marshal::PtrToStringAuto($bstr)
-# Unmanaged bellekteki BSTR formatındaki şifreyi okunabilir düz metin (string) haline getirir
+# Unmanaged stringi okunabilir hale getirir
 
 Write-Host "Çözülmüş parola: $plainPassword"
-# Çözülen (düz metin) parolayı ekrana yazar
-```
+# Ekrana düz metin olarak yazdırır
 ```
 
 ---
