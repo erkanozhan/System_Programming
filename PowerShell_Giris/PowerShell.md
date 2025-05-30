@@ -74,7 +74,23 @@ Terminalden çalıştırmak için:
 
 ### 3. Execution Policy Ayarını Yapılandırma
 
-PowerShell betiklerinin çalışabilmesi için izin gerekli olabilir. Şu komutla izin verilir:
+PowerShell betiklerinin çalışabilmesi için uygun izinlerin ayarlanması gerekebilir. Özellikle bazı execution policy değişiklikleri için PowerShell'i **Yönetici (Administrator) olarak** çalıştırmanız gerekir. Bunu yapmak için:
+
+1. **Başlat menüsünde "PowerShell" arayın.**
+2. **PowerShell simgesine sağ tıklayın ve "Yönetici olarak çalıştır" seçeneğini seçin.**
+3. Açılan pencerede aşağıdaki komutu girerek gerekli izni verin:
+
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+> Not: Sadece kendi kullanıcınız için izin vermek istiyorsanız yukarıdaki komut yeterlidir. Tüm sistem için değiştirmek isterseniz `-Scope LocalMachine` kullanmalı ve yönetici olarak çalıştırmalısınız.
+
+Mevcut execution policy ayarlarını görmek için:
+
+```powershell
+Get-ExecutionPolicy -List
+```
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
