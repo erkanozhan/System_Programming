@@ -1,4 +1,4 @@
-$remotePC = "10.202.18.62"
+$remotePC = "Fx-Gigabyte"
 # Uzak bilgisayarın IP adresi bir değişkende saklanır.
 
 $cred = Get-Credential
