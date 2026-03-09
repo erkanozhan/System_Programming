@@ -29,7 +29,7 @@ Birkaç yol var:
 Açıldığında şöyle bir satır görürsünüz:
 
 ```
-C:\Users\Kullanici>
+C:\Users\KullaniciAdi>
 ```
 
 Bu satıra **prompt** (komut istemi) denir. Buradaki `C:\Users\Kullanici` sizin o an bulunduğunuz dizini (directory, klasör) gösterir. `>` işareti ise "komutunu bekliyorum" demektir. Bilgisayar tam anlamıyla sizinle konuşmaya hazır.
