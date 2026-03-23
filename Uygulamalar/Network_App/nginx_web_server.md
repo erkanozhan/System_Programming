@@ -101,21 +101,16 @@ hostname -I
 
 Aşağıdaki şemada, bir yerel ağdaki istemci-sunucu iletişiminin temel modeli görülmektedir:
 
-```graphviz
-digraph LAN_Network {
-    rankdir=LR;
-    node [shape=box, style=filled, color=lightblue, fontname="Helvetica"];
-    edge [fontname="Helvetica", fontsize=10];
-    
-    Client [label="İstemci (Client)\nWeb Tarayıcı"];
-    Router [label="Ağ Anahtarı\n(Switch)", shape=ellipse, color=lightgrey];
-    Server [label="Sunucu (Server)\nNginx (Örn: 192.168.1.50)"];
+```mermaid
+graph LR
+    Client["İstemci (Client)<br>Web Tarayıcı"]
+    Router(("Ağ Anahtarı<br>(Switch)"))
+    Server["Sunucu (Server)<br>Nginx (Örn: 10.220.17.50)"]
 
-    Client -> Router [label=" HTTP İsteği (Port 80)"];
-    Router -> Server;
-    Server -> Router [label=" HTTP Yanıtı (HTML)"];
-    Router -> Client;
-}
+    Client -->|" HTTP İsteği (Port 80)"| Router
+    Router --> Server
+    Server -->|" HTTP Yanıtı (HTML)"| Router
+    Router --> Client
 ```
 
 Bu mimaride istemci HTTP üzerinden 80 numaralı porta bir istek gönderir. Ağ anahtarı bu isteği doğru IP adresine yönlendirir ve sunucu işlediği belgeyi aynı yol üzerinden istemciye geri iletir. Bu yapı web teknolojilerinin temel çalışma prensibidir.
