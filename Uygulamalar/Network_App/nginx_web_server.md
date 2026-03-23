@@ -62,6 +62,8 @@ code /var/www/html
 
 VS Code açıldığında, dizindeki `index.nginx-debian.html` (veya `index.html`) dosyasını göreceksiniz. Açılan dosyadaki içeriği temizleyip, kendi metninizi barındıran basit bir HTML (HyperText Markup Language - Hipermetin İşaretleme Dili) kod bloğu ekleyebiliriz:
 
+> **Alternatif Yöntem:** Mevcut dosyayı düzenlemek yerine, VS Code'da yeni boş bir metin belgesi oluşturup aşağıdaki HTML kodunu yapıştırdıktan sonra, **Dosya > Farklı Kaydet (File > Save As)** seçeneğini kullanarak doğrudan `/var/www/html` klasörünün içine `index.html` ismiyle de kaydedebilirsiniz.
+
 ```html
 <!DOCTYPE html>
 <html lang="tr">
@@ -97,7 +99,15 @@ Terminal üzerinden IP adresinizi öğrenmek için şu komutu kullanın:
 hostname -I
 ```
 
-Çıktıda genellikle `192.168.x.x` veya `10.x.x.x` formatında bir adres yer alır. Bu adres, bulunduğunuz LAN içerisindeki kimliğinizdir. Diğer cihazlar, tarayıcılarının adres çubuğuna bu IP adresini girerek sizin sunucunuza ulaşabilirler.
+Çıktıda genellikle `192.168.x.x` veya `10.x.x.x` formatında bir adres yer alır. Bu adres, bulunduğunuz LAN içerisindeki kimliğiniz, yani bir nevi dijital ev adresinizdir.
+
+Gençler, laboratuvardaki diğer arkadaşlarınızın sunucularına ulaşmak aslında son derece doğrusal bir işlemdir. Tıpkı bir arkadaşınıza posta göndermek için onun ev adresini zarfın üzerine yazmanız gerektiği gibi, ağ üzerindeki düğümler (Node - Latince *nodus*, bağ/düğüm anlamına gelir) de birbirleriyle konuşabilmek için bu IP adreslerini kullanırlar. 
+
+Arkadaşınızın bilgisayarında çalışan web sunucusuna bağlanmak için kendi bilgisayarınızda Chrome, Firefox gibi bir web tarayıcısı (Web Browser) açın. Tarayıcının üst kısmında yer alan adres çubuğuna (URL Bar - Uniform Resource Locator), arkadaşınızın terminalinden az önce öğrendiği IP adresini yazıp Enter tuşuna basın. Örneğin, adres çubuğuna `http://10.220.1.50` gibi ip yazdığınızda, arkadaşınızın az önce hazırladığı HTML sayfasını kendi ekranınızda göreceksiniz.
+
+Peki siz Enter tuşuna bastığınız anda arka planda tam olarak ne gerçekleşiyor? Tarayıcınız, girdiğiniz IP adresine doğru yola çıkmak üzere bir HTTP İsteği (Request) paketi hazırlar. Bu paket, bilgisayarınızdan çıkıp laboratuvarımızdaki Ağ Anahtarına (Switch) ulaşır. Switch, ağdaki cihazların fiziksel adresleri (MAC - Media Access Control) ile bu mantıksal IP adreslerini eşleştiren bir yönlendirme tablosu (Routing Table) tutar. İstediğiniz IP adresinin hangi kablonun ucunda olduğunu bilir ve paketinizi doğrudan o arkadaşınızın makinesine yönlendirir.
+
+Arkadaşınızın bilgisayarında sessizce bekleyen Nginx sunucusu, 80 numaralı port üzerinden gelen bu isteği yakalar. Gelen isteğin içeriğine bakar, diskteki `/var/www/html/index.html` dosyasını okur ve sizin tarayıcınıza bir HTTP Yanıtı (Response) olarak geri gönderir. Son aşamada ise sizin tarayıcınız, gelen bu metin tabanlı kodları işleyerek (Rendering) ekranda okunabilir, düzenli bir web sayfası haline getirir.
 
 Aşağıdaki şemada, bir yerel ağdaki istemci-sunucu iletişiminin temel modeli görülmektedir:
 
