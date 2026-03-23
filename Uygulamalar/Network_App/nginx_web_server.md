@@ -82,7 +82,7 @@ VS Code açıldığında, dizindeki `index.nginx-debian.html` (veya `index.html`
     </style>
 </head>
 <body>
-    <h1>Merhaba!</h1>
+    <h1>Merhaba!Buraya adınızı yazınki size bağlandığımız anlaşılsın.</h1>
     <p>Bu metin, yerel ağda çalışan bir Nginx sunucusundan iletilmektedir.</p>
 </body>
 </html>
