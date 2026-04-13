@@ -1780,7 +1780,7 @@ Bu kısayollar, terminalde çalışma hızınızı önemli ölçüde artırır. 
 
 ---
 
-## Son Söz
+## İlerisi için tavsiyeler
 
 Linux terminali, MS-DOS'tan çok daha derin ve geniş bir araç setidir. İlk bakışta bunaltıcı görünebilir ama her komutu ezberlemeye çalışmak yerine "ne yapmak istiyorum" sorusundan yola çıkıp doğru aracı bulmak daha sağlıklı bir yaklaşımdır. `man` sayfaları, `--help` parametresi ve Tab tuşu her zaman yanınızdadır.
 
