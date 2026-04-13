@@ -1332,106 +1332,438 @@ apt show htop                           # Paket hakkında bilgi göster
 
 ---
 
-## BÖLÜM 8 — Kabuk Betikleri (Shell Scripts)
 
-Windows'taki batch dosyalarının Linux karşılığı kabuk betikleridir (shell scripts). Dosya uzantısı geleneksel olarak `.sh`'tir.
+## BÖLÜM 8 — Kabuk Programlama (Shell Programming)
 
-### İlk Betik
+Şimdiye kadar ele aldığımız komutların hepsi etkileşimli kullanım içindi: bir komut yazarsınız, sistem cevap verir, siz bir sonraki komutu yazarsınız. Kabuk programlama bu süreci tersine çevirir: ne yapılacağını önce bir dosyaya yazarsınız, sonra sisteme "git, bunu çalıştır" dersiniz. Sistem dosyayı okur, komutları sırayla yürütür.
 
-```bash
-#!/bin/bash
-# sistem_bilgi.sh — Sistem bilgilerini ekrana yazdıran betik
+Bu yaklaşım iki temel gözlemden doğar. Birincisi, bilgisayar mühendisliğinde tekrarlayan görevler vardır — her sabah log dosyalarını incelemek, her hafta yedek almak, her gece rapor üretmek. Bunları elle yapmak hem yorucu hem hata yaratıcıdır. İkincisi, insanlar tutarsızdır; bilgisayarlar tutarlıdır. Bir betik her çalıştığında aynı adımları, aynı sırayla uygular.
 
-echo "================================"
-echo "  Sistem Bilgi Raporu"
-echo "================================"
-echo ""
-echo "Bilgisayar : $(hostname)"
-echo "Kullanici  : $(whoami)"
-echo "Tarih      : $(date '+%d.%m.%Y %H:%M')"
-echo "Cekirdek   : $(uname -r)"
-echo "Calisma S. : $(uptime -p)"
-echo ""
-echo "================================"
-```
-
-Kaydetme ve çalıştırma:
-
-```bash
-nano sistem_bilgi.sh      # nano editörüyle yaz
-chmod +x sistem_bilgi.sh  # Çalıştırma izni ver
-./sistem_bilgi.sh         # Çalıştır
-```
-
-`$(komut)` yapısı, komutun çıktısını metin içine yerleştirir. `date '+%d.%m.%Y %H:%M'` tarihi istediğimiz formatta verir.
+Bir mutfak şefi tarifi yazıp aşçılara verdiğinde, her aşçı o tarifi takip ederek aynı yemeği üretir. Betik de tam olarak tarif gibidir: adım adım talimatları içeren bir metin dosyası.
 
 ---
 
-### Değişkenler ve Kullanıcı Girdisi
+### 8.1 Betik Dosyası Yapısı
+
+Bash betiği (bash script), `.sh` uzantılı — uzantı zorunlu değil, geleneğe uygundur — düz metin dosyasıdır. Çalıştırılabilmesi için iki koşul gerekir: çalıştırma izni (`chmod +x`) ve geçerli bir sözdizimi (syntax).
+
+```bash
+nano ilk_betik.sh
+```
+
+İçeriği:
 
 ```bash
 #!/bin/bash
+# ilk_betik.sh — İlk betik örneği
+# Yorum satırları # ile başlar, bash bunları atlar
 
-# Değişken tanımlama (= etrafında boşluk OLMAMALI)
-PROJE="Linux Dersi"
-VERSIYON=1
-
-echo "Proje: $PROJE, Versiyon: $VERSIYON"
-
-# Kullanıcıdan girdi alma
-read -p "Adinizi girin: " ISIM
-echo "Merhaba $ISIM!"
+echo "Merhaba, $(whoami)!"
+echo "Bugün: $(date '+%d %B %Y')"
+echo "Çalışma dizini: $(pwd)"
 ```
 
-> **Kritik not:** Bash'te değişken atamada `=` işaretinin etrafında boşluk olmamalıdır. `ISIM="Ali"` doğru, `ISIM = "Ali"` hatalıdır. Bu, Windows batch dosyalarından farklı bir kuraldır ve sık yapılan hatalardan biridir.
+Kaydet ve çalıştır:
+
+```bash
+chmod +x ilk_betik.sh
+./ilk_betik.sh
+```
 
 ---
 
-### Komut Satırı Parametreleri
+### 8.2 Shebang Satırı
+
+`#!/bin/bash` satırı iki parçadan oluşur:
+
+- `#!` — **shebang** (sharp + bang, yani `#` + `!`). Çekirdek bu iki karakteri görünce yorumlayıcıya yönlenir.
+- `/bin/bash` — yorumlayıcının (interpreter — Latince *interpretari*, "açıklamak") tam yolu.
+
+Çekirdeğin yaptığı şudur: dosyayı açar, ilk iki baytı okur; `#!` görürse gerisi yorumlayıcının yoludur. O programı başlatır ve betiği argüman olarak verir. Yani `./betik.sh` çalıştırmak ile `/bin/bash betik.sh` yazmak arasında çekirdek düzeyinde hiçbir fark yoktur — shebang bunu otomatik hale getirir.
+
+![Betik Çalışma Akışı](images/bash-script-execution.svg)
+
+**Taşınabilir shebang:**
+
+```bash
+#!/usr/bin/env bash
+```
+
+`env` (environment — ortam) komutu PATH içindeki ilk `bash`'i bulur. Farklı Linux dağıtımlarında bash `/usr/local/bin/bash` konumunda da olabilir; `#!/usr/bin/env bash` her zaman doğru yeri bulur ve betik farklı sistemlerde de çalışır.
+
+---
+
+### 8.3 Değişkenler (Variables)
+
+Bash'te değişken tanımı sade ama kuralları kesindir.
+
+```bash
+ISIM="Ahmet"             # Metin (string)
+YAS=22                   # Sayı (bash bunu da metin olarak saklar)
+PROJE_DIZIN=/home/kullanici/proje
+BOS=                     # Boş değişken (geçerlidir)
+```
+
+**Kural: `=` etrafında boşluk olmaz.**
+
+`ISIM = "Ahmet"` yazarsanız bash bunu "ISIM adlı komutu çalıştır, argüman `=` ve `Ahmet`" olarak yorumlar — hata verir. Bu kural başlangıçta şaşırtıcı gelir ama Bash'in sözdizimi tasarımından kaynaklanır.
+
+Değişkene erişmek için başına `$` koyulur:
+
+```bash
+echo $ISIM         # Ahmet
+echo "$ISIM"       # Ahmet — tercih edilen biçim
+echo "${ISIM}"     # Ahmet — belirsizlik olduğunda zorunlu
+```
+
+**Neden her zaman tırnak içinde kullanmalısınız?**
+
+```bash
+DOSYA="benim dosyam.txt"
+
+rm $DOSYA     # bash 3 ayrı kelime görür: rm benim dosyam.txt — hata!
+rm "$DOSYA"   # bash bir argüman görür: rm "benim dosyam.txt" — doğru
+```
+
+Boşluk içeren değerlerde tırnak güvenlik ağıdır. Bu kuralı içselleştirmek pek çok beklenmedik hatanın önüne geçer.
+
+#### 8.3.1 Özel Değişkenler (Special Variables)
+
+| Değişken | Anlam |
+|----------|-------|
+| `$0` | Betiğin adı veya yolu |
+| `$1`, `$2`, ... `$9` | Konumsal parametreler (positional parameters) |
+| `${10}`, `${11}`, ... | 9'dan büyük indisler için `{}` zorunlu |
+| `$#` | Parametre sayısı |
+| `$@` | Tüm parametreler — her biri ayrı kelime |
+| `$*` | Tüm parametreler — tek metin olarak |
+| `$?` | Son komutun çıkış kodu (exit code) |
+| `$$` | Geçerli betiğin süreç kimliği (PID) |
+| `$!` | Son arka plan sürecinin PID'i |
 
 ```bash
 #!/bin/bash
-# yedekle.sh — Basit yedekleme betiği
+echo "Betik adı    : $0"
+echo "1. parametre : $1"
+echo "2. parametre : $2"
+echo "Tüm params   : $@"
+echo "Param sayısı : $#"
+```
 
-if [ -z "$1" ]; then
-    echo "Kullanim: $0 [kaynak_dizin]"
-    exit 1
+Çalıştırma: `./betik.sh merhaba dunya`
+
+```
+Betik adı    : ./betik.sh
+1. parametre : merhaba
+2. parametre : dunya
+Tüm params   : merhaba dunya
+Param sayısı : 2
+```
+
+`$@` ve `$*` arasındaki fark ince ama önemlidir. `"$@"` her parametreyi ayrı kelime olarak korur; `"$*"` hepsini tek metin olarak birleştirir. Döngülerde ve fonksiyon çağrılarında her zaman `"$@"` tercih edilmelidir.
+
+#### 8.3.2 Ortam Değişkenleri (Environment Variables)
+
+Ortam değişkenleri, işletim sistemi tarafından sağlanan veya kullanıcı tarafından `export` ile dışarı açılan değişkenlerdir. Bu değişkenler alt süreçler (child processes) tarafından görünür.
+
+```bash
+echo $HOME        # /home/kullanici
+echo $PATH        # /usr/local/bin:/usr/bin:/bin:...
+echo $USER        # kullanici
+echo $SHELL       # /bin/bash
+echo $PWD         # Geçerli dizin
+echo $OLDPWD      # Önceki dizin
+echo $LANG        # tr_TR.UTF-8
+```
+
+`env` komutu tüm ortam değişkenlerini listeler. `export` bir değişkeni ortama ekler:
+
+```bash
+export PROJE_KOK="/home/kullanici/proje"
+```
+
+`export` olmadan tanımlanan değişken yalnızca geçerli betik içinde görünürdür — alt süreçlere geçmez. Bunu bir bina katı olarak düşünebilirsiniz: `export` olmadan değişken yalnızca kendi katında görünür; `export` ile alt katlara da iner.
+
+#### 8.3.3 Salt Okunur ve Silinemeyen Değişkenler
+
+```bash
+readonly PI=3.14159
+PI=3.2            # Hata! bash: PI: readonly variable
+
+unset GECICI      # Değişkeni kaldır
+```
+
+---
+
+### 8.4 Tırnak İşaretleri ve Genişleme (Quoting and Expansion)
+
+| Tırnak Türü | Davranış |
+|-------------|----------|
+| Çift tırnak `"..."` | Değişkenler ve komut ikameleri genişler |
+| Tek tırnak `'...'` | Hiçbir genişleme olmaz; her şey olduğu gibi kalır |
+| Ters tırnak `` `...` `` | Komut ikamesi (eski sözdizimi, `$(...)` tercih edilir) |
+
+```bash
+ISIM="Linux"
+
+echo "Merhaba $ISIM"      # Merhaba Linux
+echo 'Merhaba $ISIM'      # Merhaba $ISIM
+echo "Tarih: $(date)"     # Tarih: Pzt Nis 13 ...
+echo 'Tarih: $(date)'     # Tarih: $(date)
+```
+
+**Komut ikamesi (command substitution):**
+
+```bash
+SATIR_SAYISI=$(wc -l < dosya.txt)
+DISK_KULLANIM=$(df -h / | tail -1 | awk '{print $5}')
+echo "Disk doluluk oranı: $DISK_KULLANIM"
+```
+
+`$()` yapısı komutu çalıştırır ve çıktısını metin olarak yerine koyar. İç içe kullanılabilir; eski backtick sözdiziminde bu çok zordu, `$()` ile doğaldır.
+
+**Aritmetik genişleme (arithmetic expansion):**
+
+```bash
+SONUC=$((5 * 8 + 3))        # 43
+SONUC=$(( (10 + 5) * 2 ))   # 30
+```
+
+**Küme ayracı genişlemesi (brace expansion):**
+
+```bash
+echo dosya{1,2,3}.txt      # dosya1.txt dosya2.txt dosya3.txt
+echo {a..e}                # a b c d e
+echo {1..10..2}            # 1 3 5 7 9 (adım 2)
+mkdir -p proje/{src,lib,test,doc}    # 4 dizini tek seferde
+cp config.{conf,conf.bak}            # konfig dosyasını yedekle
+```
+
+---
+
+### 8.5 Aritmetik İşlemler (Arithmetic Operations)
+
+#### `$(( ))` ile Tam Sayı Aritmetiği
+
+```bash
+A=10
+B=3
+
+echo $((A + B))    # 13
+echo $((A - B))    # 7
+echo $((A * B))    # 30
+echo $((A / B))    # 3  — tam sayı bölmesi (3.333... değil)
+echo $((A % B))    # 1  — modulo (kalan)
+echo $((A ** B))   # 1000 — üs alma (Bash 4+)
+
+SAYAC=0
+((SAYAC++))        # Artır
+((SAYAC += 5))     # 5 ekle
+((SAYAC *= 2))     # 2 ile çarp
+echo $SAYAC        # 12
+```
+
+`(( ))` dönüş değeri de üretir: ifade sıfırdan farklıysa başarılı (0), sıfırsa başarısız (1) döner. Bu özellik koşullarda kullanışlıdır:
+
+```bash
+if (( A > B )); then
+    echo "A büyüktür"
 fi
-
-KAYNAK="$1"
-HEDEF="$HOME/Yedekler/$(date '+%Y%m%d_%H%M%S')"
-
-echo "Yedekleme basliyor..."
-echo "Kaynak : $KAYNAK"
-echo "Hedef  : $HEDEF"
-
-mkdir -p "$HEDEF"
-cp -rv "$KAYNAK" "$HEDEF/"
-
-echo "Yedekleme tamamlandi!"
 ```
 
-`$0` betik adı, `$1` birinci parametre, `$2` ikinci parametre. `$#` parametre sayısı, `$@` tüm parametreler.
+#### `bc` ile Ondalıklı Aritmetik
 
-`-z` testi "değişken boş mu" kontrol eder. `[ ]` Bash'te koşul testi yapmak için kullanılan yapıdır.
+Bash kendi başına ondalıklı sayı işleyemez. `bc` (Basic Calculator — Temel Hesap Makinesi) bu boşluğu doldurur:
+
+```bash
+echo "scale=4; 22 / 7" | bc          # 3.1428
+echo "scale=2; sqrt(2)" | bc -l      # 1.41  (-l matematik kütüphanesi)
+
+PI=$(echo "scale=10; 4 * a(1)" | bc -l)   # a(1) = arctan(1), pi/4
+echo $PI
+```
+
+`scale=N` ondalık basamak sayısını belirler. `bc` içinde `-l` parametresi sin, cos, sqrt gibi matematik fonksiyonlarını etkinleştirir.
 
 ---
 
-### Koşullu İfadeler
+### 8.6 Parametre Genişletme (Parameter Expansion)
+
+Bash'in `${}` sözdizimi içindeki genişletme seçenekleri, metin işleme için harici komutlara gerek kalmadan pek çok işlemi doğrudan yapmanızı sağlar.
+
+| Sözdizimi | Anlamı |
+|-----------|--------|
+| `${var}` | Değişkeni genişlet |
+| `${var:-varsayilan}` | var boşsa varsayılan değeri kullan (atama yapmaz) |
+| `${var:=varsayilan}` | var boşsa varsayılanı ata ve kullan |
+| `${var:?mesaj}` | var boşsa hata mesajı ver ve çık |
+| `${var:+deger}` | var doluysa değeri kullan, boşsa boş bırak |
+| `${#var}` | Değerin karakter uzunluğu |
+| `${var:N}` | N. karakterden itibaren |
+| `${var:N:L}` | N. karakterden itibaren L karakter |
+| `${var%patern}` | Sondaki en kısa eşleşmeyi kaldır |
+| `${var%%patern}` | Sondaki en uzun eşleşmeyi kaldır |
+| `${var#patern}` | Baştaki en kısa eşleşmeyi kaldır |
+| `${var##patern}` | Baştaki en uzun eşleşmeyi kaldır |
+| `${var/eski/yeni}` | İlk eşleşmeyi değiştir |
+| `${var//eski/yeni}` | Tüm eşleşmeleri değiştir |
+| `${var^^}` | Tüm harfleri büyüt |
+| `${var,,}` | Tüm harfleri küçült |
+
+Örnekler:
 
 ```bash
-#!/bin/bash
+DOSYA="/home/kullanici/belgeler/rapor.txt"
 
-read -p "Bir sayi girin: " SAYI
+echo ${#DOSYA}           # 38 — uzunluk
+echo ${DOSYA##*/}        # rapor.txt — son / sonrası (basename işlevi)
+echo ${DOSYA%/*}         # /home/kullanici/belgeler — son / öncesi (dirname)
+echo ${DOSYA##*.}        # txt — uzantı
+echo ${DOSYA%.*}         # /home/kullanici/belgeler/rapor — uzantısız
 
-if [ "$SAYI" -gt 100 ]; then
-    echo "$SAYI sayisi 100'den buyuktur."
-elif [ "$SAYI" -eq 100 ]; then
-    echo "$SAYI tam olarak 100'e esittir."
-else
-    echo "$SAYI sayisi 100'den kucuktur."
-fi
+METIN="linux programlama"
+echo ${METIN^}           # Linux programlama
+echo ${METIN^^}          # LINUX PROGRAMLAMA
+
+# Varsayılan değer — argüman yoksa "misafir" kullan
+KULLANICI=${1:-"misafir"}
+echo "Hos geldin, $KULLANICI"
 ```
+
+Bu özellikler sed veya awk kullanmadan metin dönüşümü yapmanızı sağlar. Her harici komut yeni bir süreç başlatır; parametre genişletme ise shell içinde gerçekleşir — hem daha hızlıdır hem de daha az kaynak harcar.
+
+---
+
+### 8.7 Diziler (Arrays)
+
+#### İndisli Dizi (Indexed Array)
+
+```bash
+MEYVELER=("elma" "armut" "kiraz" "uzum")
+
+echo ${MEYVELER[0]}      # elma
+echo ${MEYVELER[2]}      # kiraz
+echo ${MEYVELER[-1]}     # uzum — son eleman (Bash 4.3+)
+echo ${MEYVELER[@]}      # elma armut kiraz uzum — tüm elemanlar
+echo ${#MEYVELER[@]}     # 4 — eleman sayısı
+echo ${!MEYVELER[@]}     # 0 1 2 3 — indisler
+
+MEYVELER+=("mango")      # Sonuna ekle
+MEYVELER[5]="nar"        # Belirli indise yaz
+
+for meyve in "${MEYVELER[@]}"; do
+    echo "  - $meyve"
+done
+
+echo ${MEYVELER[@]:1:3}  # armut kiraz uzum — dilim: index 1'den 3 eleman
+```
+
+#### İlişkisel Dizi (Associative Array) — Bash 4+
+
+İlişkisel dizi, sayısal indis yerine metin anahtar kullanan yapıdır. Python'daki sözlük (dictionary) veya Java'daki `HashMap` ile aynı mantıktadır.
+
+```bash
+declare -A NOTLAR
+
+NOTLAR["Ali"]=85
+NOTLAR["Zeynep"]=92
+NOTLAR["Mehmet"]=78
+
+echo ${NOTLAR["Ali"]}     # 85
+echo ${!NOTLAR[@]}        # Anahtarlar: Ali Zeynep Mehmet (sıra garantisi yok)
+echo ${NOTLAR[@]}         # Değerler: 85 92 78
+
+for ogrenci in "${!NOTLAR[@]}"; do
+    echo "$ogrenci: ${NOTLAR[$ogrenci]}"
+done
+```
+
+---
+
+### 8.8 Giriş/Çıkış Yönetimi (I/O Management)
+
+#### Dosya Tanımlayıcıları (File Descriptors)
+
+Her Linux süreci başladığında üç akış (stream) açık gelir. Latince *filum* (iplik) kökünden türeyen "file" kelimesi burada bir veri kanalını simgeler; dosya tanımlayıcı ise bu kanala açılan numaralı bir kapıdır.
+
+| FD | Ad | Varsayılan Hedef |
+|----|----|----|
+| 0 | stdin (Standard Input — Standart Giriş) | Klavye |
+| 1 | stdout (Standard Output — Standart Çıkış) | Terminal |
+| 2 | stderr (Standard Error — Standart Hata) | Terminal |
+
+![Dosya Tanımlayıcıları ve Yönlendirme](images/io-redirection.svg)
+
+```bash
+komut > dosya.txt          # stdout'u dosyaya yaz (üzerine)
+komut >> dosya.txt         # stdout'u dosyaya ekle (sonuna)
+komut 2> hatalar.txt       # stderr'i dosyaya yaz
+komut > cikti.txt 2>&1     # stdout ve stderr'i aynı dosyaya
+komut &> cikti.txt         # Kısaltma (Bash'e özgü)
+komut < girdi.txt          # stdin'i dosyadan oku
+komut 2>/dev/null          # Hata mesajlarını yok say
+komut > /dev/null 2>&1     # Her şeyi yok say
+```
+
+`2>&1` ifadesi "stderr (FD 2) yönünü, stdout (FD 1) nereye gidiyorsa oraya bağla" demektir. **Sıra önemlidir:** önce stdout dosyaya yönlendirilmeli, sonra stderr stdout'a bağlanmalıdır. Ters yazılırsa stderr terminale gitmeye devam eder.
+
+#### Here Document (Satır İçi Belge)
+
+```bash
+# Değişken genişlemesi olan (EOF tırnaksız)
+cat << EOF
+Hostname: $(hostname)
+Kullanici: $USER
+EOF
+
+# Değişken genişlemesi olmayan (EOF tek tırnaklı)
+cat << 'EOF'
+Bu satırda $ISIM ve $(komut) olduğu gibi kalır.
+EOF
+
+# Doğrudan dosyaya yazma
+cat > yapilandirma.conf << 'EOF'
+HOST=localhost
+PORT=8080
+DEBUG=false
+EOF
+```
+
+Etiket herhangi bir kelime olabilir — `EOF` (End of File — Dosya Sonu) bir konvansiyondur.
+
+#### Here String (Satır İçi Metin)
+
+```bash
+grep "linux" <<< "Linux bir isletim sistemidir"
+wc -w <<< "bir iki uc dort bes"    # 5
+```
+
+`<<<` tek bir metin değerini komutun stdin'ine gönderir.
+
+---
+
+### 8.9 Koşullu İfadeler (Conditional Statements)
+
+#### Test Yapıları
+
+Bash'te üç farklı test mekanizması vardır:
+
+| Yapı | Açıklama |
+|------|----------|
+| `[ ]` | POSIX (Portable Operating System Interface — Taşınabilir İşletim Sistemi Arayüzü) uyumlu test |
+| `[[ ]]` | Bash genişletmesi — regex desteği, daha güvenli |
+| `(( ))` | Aritmetik test |
+
+**Metin (string) testleri:**
+
+```bash
+[ "$A" = "$B" ]     # Eşit mi?
+[ "$A" != "$B" ]    # Eşit değil mi?
+[ -z "$A" ]         # Boş mu? (zero length)
+[ -n "$A" ]         # Boş değil mi? (non-zero length)
+```
+
+**Sayısal testler:**
 
 | Operatör | Anlam | İngilizce |
 |----------|-------|-----------|
@@ -1446,140 +1778,509 @@ fi
 
 | Test | Anlam |
 |------|-------|
-| `-f dosya` | Dosya var mı? |
-| `-d dizin` | Dizin var mı? |
-| `-r dosya` | Okunabilir mi? |
-| `-w dosya` | Yazılabilir mi? |
-| `-x dosya` | Çalıştırılabilir mi? |
-| `-s dosya` | Dosya boş değil mi? (size > 0) |
+| `-e dosya` | Var mı? (exists) |
+| `-f dosya` | Düz dosya mı? (regular file) |
+| `-d dosya` | Dizin mi? (directory) |
+| `-l dosya` | Sembolik bağlantı mı? (link) |
+| `-r dosya` | Okunabilir mi? (readable) |
+| `-w dosya` | Yazılabilir mi? (writable) |
+| `-x dosya` | Çalıştırılabilir mi? (executable) |
+| `-s dosya` | Boyutu > 0 mü? (size) |
+| `f1 -nt f2` | f1 daha yeni mi? (newer than) |
+| `f1 -ot f2` | f1 daha eski mi? (older than) |
+
+#### `[[ ]]` ile Genişletilmiş Test
 
 ```bash
-if [ -f "/etc/passwd" ]; then
-    echo "/etc/passwd dosyasi mevcut."
-fi
+[[ "$ISIM" == "Ali" ]]           # Metin eşitliği
+[[ "$ISIM" =~ ^[A-Z] ]]         # Regex eşleştirme (=~ operatörü)
+[[ "$A" -gt 5 && "$A" -lt 10 ]] # AND, tek ifade içinde
+[[ -f "$DOSYA" || -d "$DOSYA" ]] # OR, tek ifade içinde
+```
 
-if [ -d "$HOME/Yedekler" ]; then
-    echo "Yedek dizini var."
+`[[ ]]` boşluklu metinleri tırnak gerekmeksizin doğru işler ve regex operatörü `=~` içerir. Bash yazarken `[[ ]]` tercih edilir.
+
+#### if / elif / else
+
+```bash
+#!/bin/bash
+
+read -p "Notunuzu girin (0-100): " NOT
+
+if [[ ! "$NOT" =~ ^[0-9]+$ ]]; then
+    echo "Hata: Gecerli bir sayi giriniz." >&2
+    exit 1
+elif (( NOT >= 90 )); then
+    echo "AA — Mukemmel"
+elif (( NOT >= 80 )); then
+    echo "BA — Iyi"
+elif (( NOT >= 70 )); then
+    echo "BB — Orta"
+elif (( NOT >= 60 )); then
+    echo "CB — Gecer"
 else
-    mkdir -p "$HOME/Yedekler"
-    echo "Yedek dizini olusturuldu."
+    echo "FF — Basarisiz"
 fi
 ```
 
----
+Hata mesajları her zaman `>&2` ile stderr'e gönderilmelidir. Bu sayede programın normal çıktısını hata mesajlarından ayırt etmek, log kayıtlarında ve pipe zincirlerinde büyük önem taşır.
 
-### Döngüler
+#### case
 
-**for döngüsü:**
+`case`, birden fazla olası değeri `if`'ten çok daha temiz biçimde ele alır:
 
 ```bash
 #!/bin/bash
 
-# Dosyaları dolaş
-for dosya in *.txt; do
-    echo "Dosya: $dosya"
+read -p "Secim yapın [b/g/c/q]: " SECIM
+
+case "$SECIM" in
+    b|B|bas)
+        echo "Baslatiliyor..."
+        ;;
+    g|G|goster)
+        echo "Gosteriliyor..."
+        ;;
+    c|C|cik)
+        echo "Cikiliyor."
+        exit 0
+        ;;
+    q|Q)
+        exit 0
+        ;;
+    *)
+        echo "Bilinmeyen secim: $SECIM" >&2
+        exit 1
+        ;;
+esac
+```
+
+`;;` her dalın sonunu işaret eder. `|` birden fazla deseni aynı dala bağlar. `*)` varsayılan dal — C dilindeki `default:` gibidir.
+
+---
+
+### 8.10 Döngüler (Loops)
+
+#### for Döngüsü — Liste Üzerinde
+
+```bash
+# Metin listesi
+for isim in Ali Zeynep Mehmet; do
+    echo "Merhaba, $isim!"
 done
 
-# Sayısal döngü
+# Glob ile dosya listesi
+for dosya in *.log; do
+    echo "Log dosyasi: $dosya ($(wc -l < "$dosya") satir)"
+done
+
+# Aralık
 for i in {1..10}; do
-    echo "Sayi: $i"
+    echo "Adim $i"
 done
 
-# C-stili döngü
-for ((i=1; i<=10; i++)); do
-    echo "Sayi: $i"
+# Adım miktarıyla (Bash 4+)
+for i in {0..20..5}; do    # 0, 5, 10, 15, 20
+    echo $i
 done
 ```
 
-**while döngüsü:**
+> `for i in $(komut)` yazmak yerine `while IFS= read -r` tercih edilir; komut çıktısında boşluk veya özel karakter varsa `for ... $(...)` beklenmedik davranışlar gösterir.
+
+#### for Döngüsü — C Tarzı
 
 ```bash
-#!/bin/bash
-SAYAC=1
-while [ $SAYAC -le 5 ]; do
-    echo "Adim: $SAYAC"
-    SAYAC=$((SAYAC + 1))
+for ((i=0; i<10; i++)); do
+    echo $i
+done
+
+# Geri sayım
+for ((i=10; i>=1; i--)); do
+    echo "$i..."
 done
 ```
 
-`$(( ))` aritmetik işlem yapısıdır. `SAYAC=$((SAYAC + 1))` ifadesi sayacı bir artırır.
+#### while Döngüsü
+
+```bash
+SAYAC=1
+while (( SAYAC <= 5 )); do
+    echo "Adim $SAYAC"
+    (( SAYAC++ ))
+done
+
+# Dosyadan satır satır okuma
+while IFS= read -r satir; do
+    echo ">> $satir"
+done < dosya.txt
+```
+
+`IFS=` (Internal Field Separator — İç Alan Ayırıcı), satır başı/sonu boşluklarını korumak için boş bırakılır. `-r` ters eğik çizgileri özel karakter olarak yorumlamaz.
+
+#### until Döngüsü
+
+`until`, koşul yanlış olduğu sürece çalışır — `while`'ın tersine çevrilmiş halidir:
+
+```bash
+SAYAC=1
+until (( SAYAC > 5 )); do
+    echo "Adim $SAYAC"
+    (( SAYAC++ ))
+done
+```
+
+#### break ve continue
+
+```bash
+for i in {1..20}; do
+    (( i % 2 == 0 )) && continue   # Çift sayıları atla
+    (( i > 15 ))     && break      # 15'ten sonra dur
+    echo $i
+done
+# Çıktı: 1 3 5 7 9 11 13 15
+```
+
+`break N` ile N seviye iç içe döngüden çıkılabilir.
 
 ---
 
-### 🔨 Uygulama 7 — Kapsamlı Betik
+### 8.11 Fonksiyonlar (Functions)
 
-Aşağıdaki betiği `tam_rapor.sh` olarak kaydedin:
+Fonksiyonlar, bir grup komutu adlandırılmış bir blok altında toplar. Aynı kodu farklı yerlerde kullanmayı ve betiği parçalara bölmeyi sağlar.
+
+```bash
+# İki sözdizim de geçerlidir
+selamla() {
+    echo "Merhaba, $1!"
+}
+
+function selamla2 {
+    echo "Hos geldin, $1!"
+}
+
+selamla "Ahmet"
+selamla2 "Zeynep"
+```
+
+Fonksiyonun kendi `$1`, `$2`, `$#`, `$@` değişkenleri vardır; bunlar betiğin komut satırı argümanlarından **bağımsızdır**.
+
+#### Dönüş Değerleri (Return Values)
+
+Bash'te `return` yalnızca 0-255 arasında bir sayı döndürür (çıkış kodu). Gerçek bir değer döndürmek için `echo` ve komut ikamesi kullanılır:
+
+```bash
+karesi_al() {
+    local sayi=$1
+    echo $(( sayi * sayi ))    # Sonucu stdout'a yaz
+}
+
+SONUC=$(karesi_al 7)
+echo "7'nin karesi: $SONUC"    # 49
+
+# Hata kodu döndürme
+dosya_kontrol() {
+    [[ -f "$1" ]] && return 0 || return 1
+}
+
+if dosya_kontrol "/etc/passwd"; then
+    echo "Dosya mevcut."
+fi
+```
+
+#### Yerel Değişkenler (Local Variables)
+
+```bash
+x=10   # Global
+
+fonksiyon() {
+    local x=99                 # Yalnızca bu fonksiyona ait
+    echo "Fonksiyon ici: $x"  # 99
+}
+
+fonksiyon
+echo "Disarida: $x"           # 10 — değişmedi
+```
+
+`local` kullanmazsanız fonksiyon içindeki değişken global kapsamı değiştirir. Beklenmedik hatalara yol açar. Fonksiyonlarda her zaman `local` kullanın.
+
+![Değişken Kapsamı](images/variable-scope.svg)
+
+#### Özyinelemeli Fonksiyon (Recursive Function)
+
+```bash
+faktoriyel() {
+    local n=$1
+    if (( n <= 1 )); then
+        echo 1
+    else
+        local alt=$(faktoriyel $(( n - 1 )))
+        echo $(( n * alt ))
+    fi
+}
+
+echo "5! = $(faktoriyel 5)"    # 120
+```
+
+Bash özyinelemeyi destekler ama her çağrı yeni bir alt süreç oluşturduğundan büyük değerlerde performans düşer. Gerçek sayısal hesaplamalar için Python veya C daha uygun seçimlerdir.
+
+---
+
+### 8.12 Hata Yönetimi (Error Handling)
+
+#### Çıkış Kodları (Exit Codes)
+
+Her komut çalıştıktan sonra bir çıkış kodu üretir. `0` başarıyı, `1-255` arası hataları ifade eder. Bu Unix'te evrensel bir sözleşmedir.
+
+```bash
+ls /var/log > /dev/null 2>&1
+echo $?    # 0 — başarılı
+
+ls /olmayan/dizin > /dev/null 2>&1
+echo $?    # 2 — dizin bulunamadı
+```
+
+`exit N` betiği N koduyla sonlandırır. Standart kullanım: `exit 0` başarı, `exit 1` genel hata.
+
+#### Savunmacı Betik — `set` Seçenekleri
 
 ```bash
 #!/bin/bash
-# tam_rapor.sh — Kapsamlı sistem raporu betiği
+set -e          # Herhangi bir komut hata dönerse betiği durdur (exit on error)
+set -u          # Tanımlanmamış değişken kullanımını hata say (unset)
+set -o pipefail # Pipe içindeki herhangi bir komut hata dönerse hata say
+```
 
-RAPOR="$HOME/Masaustu/sistem_raporu_$(date '+%Y%m%d').txt"
+Bu üçü birlikte sık kullanılır:
 
-# Başlık
+```bash
+#!/bin/bash
+set -euo pipefail
+```
+
+`set -e` olmadan yanlış giden bir komut sessizce atlanıp betik devam edebilir. Bu, fark edilmeden veri kaybına veya sistemin tutarsız bir duruma girmesine neden olabilir.
+
+**`set -u` neden kritik:**
+
+```bash
+# set -u olmadan
+DIZIN=""
+rm -rf $DIZIN/   # rm -rf / çalışır — felakete giden yol!
+
+# set -u ile
+DIZIN=""
+rm -rf $DIZIN/   # Hata: unbound variable — betik durur
+```
+
+#### trap — Sinyal Yakalama
+
+`trap`, betik sonlandığında veya belirli bir sinyal (signal) geldiğinde çalışacak kodu tanımlar:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+temizle() {
+    echo "Temizleniyor..." >&2
+    rm -f /tmp/gecici_$$
+}
+
+trap temizle EXIT    # Betik her nasıl çıkarsa çıksın
+trap 'echo "Iptal edildi." >&2; exit 1' INT   # Ctrl+C
+
+touch /tmp/gecici_$$
+echo "Islemler yurutüluyor..."
+sleep 5
+echo "Tamamlandi."
+```
+
+`$$` betiğin PID'idir. Geçici dosyaları `_$$` ile adlandırmak, birden fazla betik aynı anda çalışırken çakışmayı önler — her betiğin kendi PID'i farklıdır.
+
+| Sinyal | Kodu | Anlamı |
+|--------|------|--------|
+| `EXIT` | — | Betik her türlü çıkışta |
+| `INT` | 2 | Ctrl+C (interrupt — kesme) |
+| `TERM` | 15 | `kill` ile yumuşak sonlandırma (terminate) |
+| `ERR` | — | `set -e` ile hata oluştuğunda |
+| `HUP` | 1 | Terminal kapandığında (hangup) |
+
+---
+
+### 8.13 Betik Hata Ayıklama (Debugging)
+
+#### set -x ile İzleme
+
+```bash
+#!/bin/bash
+set -x    # Her komut çalıştırılmadan önce ekrana yazdır
+```
+
+Ya da yalnızca belirli bir bölümü izlemek için:
+
+```bash
+set -x
+# Hata aranan kod
+set +x
+```
+
+Dışarıdan da başlatılabilir:
+
+```bash
+bash -x betik.sh
+```
+
+`set -x` çıktısı `+` ile işaretlenir:
+
+```
++ echo "Merhaba"
+Merhaba
++ ls /etc/passwd
+/etc/passwd
+```
+
+#### Sözdizimi Kontrolü (Syntax Check)
+
+```bash
+bash -n betik.sh    # Çalıştırmadan sözdizimi denetle
+```
+
+#### Sık Yapılan Hatalar
+
+| Hata | Açıklama | Doğrusu |
+|------|----------|---------|
+| `ISIM = "Ali"` | `=` etrafında boşluk | `ISIM="Ali"` |
+| `if[$A -gt 0]` | `[` sonrası boşluk zorunlu | `if [ "$A" -gt 0 ]` |
+| `rm $DOSYA` | Boşluklu isimlerde bozulur | `rm "$DOSYA"` |
+| `[ $A == $B ]` | Boş değişken sözdizimi hatasına yol açar | `[ "$A" == "$B" ]` |
+| `for i in $(ls)` | ls çıktısı güvenilmez | `for f in *.ext` |
+| `exit` unutmak | Hatalı yol `exit 1` ile bitmeli | `exit 0` / `exit 1` ekleyin |
+
+---
+
+### 8.14 İş Denetimi (Job Control)
+
+Bash betiği içinde süreçleri arka planda çalıştırmak ve yönetmek mümkündür. Bu özellik özellikle paralel işlem gerektiren durumlarda — örneğin çok sayıda sunucuya aynı anda bağlanmak veya birden fazla dosyayı eş zamanlı işlemek — vazgeçilmez olur.
+
+```bash
+uzun_islem &
+ISLEM_PID=$!       # Arka plan sürecinin PID'i
+
+echo "Arka plan islemi calisiyor, PID: $ISLEM_PID"
+# Bu arada başka işler yapılabilir
+
+wait $ISLEM_PID    # Tamamlanmasını bekle
+echo "Islem tamamlandi."
+```
+
+#### Paralel Çalıştırma Deseni
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+islem() {
+    local id=$1
+    echo "Islem $id basladi"
+    sleep $(( RANDOM % 5 + 1 ))
+    echo "Islem $id bitti"
+}
+
+# 5 işlemi paralel başlat
+PIDLER=()
+for i in {1..5}; do
+    islem "$i" &
+    PIDLER+=($!)
+done
+
+# Hepsinin bitmesini bekle
+for pid in "${PIDLER[@]}"; do
+    wait "$pid"
+done
+
+echo "Tüm islemler tamamlandi."
+```
+
+![Paralel İş Akışı](images/job-control.svg)
+
+Bunu bir fabrika montaj hattına benzetebilirsiniz: her işçi (süreç) kendi istasyonunda bağımsız çalışır; `wait` ise kalite kontrol noktasıdır — tüm istasyonlar tamamlamadan hat ilerlemez. Seri çalışmada toplam süre tüm işlerin sürelerinin toplamıdır; paralel çalışmada ise en uzun işin süresidir.
+
+`RANDOM` Bash'in yerleşik sözde rastgele sayı üreticisidir — 0 ile 32767 arasında değer verir.
+
+---
+
+### 🔨 Uygulama 8 — Log Analiz Betiği
+
+Aşağıdaki betiği `log_analiz.sh` olarak kaydedin:
+
+```bash
+#!/bin/bash
+# log_analiz.sh — Sistem log dosyasını analiz eder
+
+set -euo pipefail
+
+LOG_DOSYASI="${1:-/var/log/syslog}"
+RAPOR_DIZINI="$HOME/raporlar"
+TARIH=$(date '+%Y%m%d_%H%M%S')
+RAPOR="$RAPOR_DIZINI/log_analiz_${TARIH}.txt"
+
+temizle() {
+    [[ -f "$RAPOR" && ! -s "$RAPOR" ]] && rm -f "$RAPOR"
+}
+trap temizle EXIT
+
+mkdir -p "$RAPOR_DIZINI"
+
+if [[ ! -f "$LOG_DOSYASI" ]]; then
+    echo "Hata: $LOG_DOSYASI bulunamadi." >&2
+    exit 1
+fi
+
+if [[ ! -r "$LOG_DOSYASI" ]]; then
+    echo "Hata: $LOG_DOSYASI okunamıyor (yetki yetersiz)." >&2
+    exit 1
+fi
+
 {
-    echo "======================================="
-    echo "  SISTEM RAPORU"
-    echo "  Tarih: $(date '+%d.%m.%Y %H:%M:%S')"
-    echo "======================================="
-
-    # Temel bilgiler
+    echo "================================================"
+    echo "  LOG ANALIZ RAPORU"
+    echo "  Tarih   : $(date)"
+    echo "  Dosya   : $LOG_DOSYASI"
+    echo "  Boyut   : $(du -sh "$LOG_DOSYASI" | cut -f1)"
+    echo "  Satır   : $(wc -l < "$LOG_DOSYASI")"
+    echo "================================================"
     echo ""
-    echo "--- SISTEM BILGILERI ---"
-    echo "Bilgisayar : $(hostname)"
-    echo "Kullanici  : $(whoami)"
-    echo "Cekirdek   : $(uname -r)"
-    echo "Calisma S. : $(uptime -p)"
 
-    # Bellek
+    echo "--- OZET ---"
+    printf "ERROR : %d\n" "$(grep -c -i "error"   "$LOG_DOSYASI" || echo 0)"
+    printf "WARN  : %d\n" "$(grep -c -i "warning" "$LOG_DOSYASI" || echo 0)"
+    printf "INFO  : %d\n" "$(grep -c -i "info"    "$LOG_DOSYASI" || echo 0)"
     echo ""
-    echo "--- BELLEK DURUMU ---"
-    free -h
 
-    # Disk
+    echo "--- EN FAZLA HATA URETEN KAYNAKLAR (Ilk 10) ---"
+    grep -i "error" "$LOG_DOSYASI" \
+        | awk '{print $5}' \
+        | sort \
+        | uniq -c \
+        | sort -rn \
+        | head -10
     echo ""
-    echo "--- DISK KULLANIMI ---"
-    df -h | grep -v tmpfs
 
-    # Ev dizini boyutu
-    echo ""
-    echo "--- EV DIZINI BOYUTU ---"
-    du -sh "$HOME" 2>/dev/null
-
-    # En çok kaynak kullanan süreçler
-    echo ""
-    echo "--- EN COK CPU KULLANAN 5 SUREC ---"
-    ps aux --sort=-%cpu | head -6
-
-    echo ""
-    echo "--- EN COK BELLEK KULLANAN 5 SUREC ---"
-    ps aux --sort=-%mem | head -6
-
-    # Ağ bilgisi
-    echo ""
-    echo "--- AG BILGISI ---"
-    ip -4 addr show | grep inet | grep -v 127.0.0.1
-
-    echo ""
-    echo "--- ACIK PORTLAR ---"
-    ss -tuln 2>/dev/null
-
-    # Oturum açmış kullanıcılar
-    echo ""
-    echo "--- AKTIF KULLANICILAR ---"
-    who
+    echo "--- SON 20 HATA SATIRI ---"
+    grep -i "error" "$LOG_DOSYASI" | tail -20
 
 } > "$RAPOR"
 
 echo "Rapor olusturuldu: $RAPOR"
-echo ""
-echo "Ilk 30 satir:"
-head -30 "$RAPOR"
 ```
 
-Burada `{ }` (küme parantezi) birden fazla komutun çıktısını gruplayıp tek bir yönlendirmeyle dosyaya yazmanızı sağlar. Her satırda ayrı ayrı `>> "$RAPOR"` yazmaktan çok daha temizdir.
+Çalıştırma:
 
-`grep -v tmpfs` ifadesi, tmpfs dosya sistemlerini çıktıdan çıkarır (geçici, bellek tabanlı dosya sistemleri olduğu için disk raporunda genellikle ilgilenilmez).
+```bash
+chmod +x log_analiz.sh
+./log_analiz.sh                       # Varsayılan: /var/log/syslog
+./log_analiz.sh /var/log/auth.log     # Farklı log dosyası
+```
+
+`{ } > "$RAPOR"` yapısı birden fazla komutun çıktısını gruplayıp tek bir yönlendirmeyle dosyaya yazar. Her satıra ayrı ayrı `>> "$RAPOR"` yazmaktan çok daha temiz ve hızlıdır.
 
 ---
 
@@ -1587,47 +2288,71 @@ Burada `{ }` (küme parantezi) birden fazla komutun çıktısını gruplayıp te
 
 ### `find` — Dosya Bul
 
-Linux'taki `find`, Windows'taki `dir /s` komutunun çok daha güçlü bir versiyonudur.
+`find` komutu, dosya sisteminde güçlü koşullarla arama yapar. Basit bir isim aramasından, belirli yaş, boyut, izin ve kullanıcıya göre karmaşık sorgulara kadar genişletilebilir.
 
 ```bash
 find /home -name "*.txt"                    # İsme göre bul
-find /home -name "*.txt" -mtime -7          # Son 7 günde değiştirilmiş txt dosyaları
-find /var/log -size +10M                    # 10 MB'dan büyük dosyalar
-find . -type d -name "test"                 # "test" adlı dizinleri bul
-find . -name "*.tmp" -delete               # .tmp dosyalarını bul ve sil
-find . -name "*.java" -exec grep -l "main" {} \;  # main içeren java dosyaları
+find /home -iname "*.TXT"                   # Büyük-küçük harf duyarsız
+find /home -name "*.txt" -mtime -7          # Son 7 günde değiştirilmiş
+find /var/log -size +10M                    # 10 MB'dan büyük
+find . -type d -name "test"                 # "test" adlı dizinler
+find . -name "*.tmp" -delete               # Bul ve sil
+find . -name "*.java" -exec grep -l "main" {} \;   # main içeren Java dosyaları
+find . -newer referans.txt                  # referans.txt'den daha yeni
+find . -empty                               # Boş dosya ve dizinler
 ```
 
 | Parametre | Anlam |
 |-----------|-------|
-| `-name` | Dosya adına göre ara |
-| `-iname` | Büyük-küçük harf duyarsız isim |
-| `-type f` | Sadece dosyalar |
-| `-type d` | Sadece dizinler |
+| `-name` | Dosya adına göre |
+| `-iname` | Büyük-küçük harf duyarsız |
+| `-type f` | Düz dosya |
+| `-type d` | Dizin |
+| `-type l` | Sembolik bağlantı |
 | `-size +10M` | 10 MB'dan büyük |
 | `-mtime -7` | Son 7 günde değiştirilmiş |
+| `-newer dosya` | dosya'dan daha yeni |
 | `-user ali` | ali kullanıcısına ait |
-| `-perm 644` | İzni 644 olanlar |
-| `-exec cmd {} \;` | Bulunan her dosya için komut çalıştır |
+| `-perm 644` | İzni 644 |
+| `-exec cmd {} \;` | Her eşleşme için komut çalıştır |
+| `-exec cmd {} +` | Tüm eşleşmeleri tek komuta topla (daha hızlı) |
 
-`-exec` parametresi `find`'ı son derece güçlü kılar. `{}` bulunan dosyanın yerine geçer, `\;` exec bloğunun sonunu belirtir.
+`-exec ... {} \;` her dosya için ayrı komut çağırır. `-exec ... {} +` ise tüm dosyaları tek komuta argüman olarak toplar — çok daha hızlıdır.
+
+**Betik içinde kullanım:**
+
+```bash
+# 30 günden eski log dosyalarını temizle
+find /var/log -name "*.log" -mtime +30 -exec rm -f {} +
+
+# Büyük dosyaları bul ve boyutlarıyla raporla
+find "$HOME" -size +100M -exec du -sh {} \; | sort -rh
+```
 
 ---
 
 ### `tar` — Arşivleme
 
-**tar** (Tape Archive — Bant Arşivi), birden fazla dosya ve dizini tek bir arşiv dosyasında toplar. Adı manyetik bant döneminden kalmadır.
+**tar** (Tape Archive — Bant Arşivi), birden fazla dosyayı tek pakette toplar. Adı manyetik bant döneminden kalmadır ama günümüzde disk ve ağ yedeklemelerinde yaygın olarak kullanılmaktadır.
 
 ```bash
-# Arşiv oluştur ve sıkıştır (gzip)
-$ tar -czvf yedek.tar.gz Projeler/
+# Oluştur ve gzip ile sıkıştır
+tar -czvf yedek.tar.gz Projeler/
 
-# Arşiv içeriğini listele
-$ tar -tzvf yedek.tar.gz
+# İçeriği listele
+tar -tzvf yedek.tar.gz
 
-# Arşivi aç
-$ tar -xzvf yedek.tar.gz
-$ tar -xzvf yedek.tar.gz -C /hedef/dizin/   # Belirli dizine aç
+# Aç
+tar -xzvf yedek.tar.gz
+
+# Belirli dizine aç
+tar -xzvf yedek.tar.gz -C /hedef/
+
+# bzip2 ile sıkıştır (daha iyi sıkıştırma, daha yavaş)
+tar -cjvf yedek.tar.bz2 Projeler/
+
+# xz ile sıkıştır (en iyi oran, en yavaş)
+tar -cJvf yedek.tar.xz Projeler/
 ```
 
 | Parametre | Anlam |
@@ -1637,67 +2362,84 @@ $ tar -xzvf yedek.tar.gz -C /hedef/dizin/   # Belirli dizine aç
 | `-t` | İçeriği listele (list) |
 | `-z` | gzip sıkıştırması |
 | `-j` | bzip2 sıkıştırması |
+| `-J` | xz sıkıştırması |
 | `-v` | Ayrıntılı çıktı (verbose) |
 | `-f` | Dosya adı belirt (file) |
+| `-C` | Hedef dizin (change directory) |
 
-`.tar.gz` (veya `.tgz`) hem arşivlenmiş hem gzip ile sıkıştırılmış dosya demektir. Windows dünyasındaki `.zip` dosyasının Linux karşılığı olarak düşünebilirsiniz, ama mekanizma farklıdır: `tar` arşivler, `gzip` sıkıştırır — iki ayrı iş, iki ayrı araç, birlikte kullanılır.
+`.tar.gz` hem arşivlenmiş hem sıkıştırılmış demektir. `tar` arşivler, `gzip` sıkıştırır — iki ayrı iş, iki ayrı araç. Windows'taki `.zip` bu iki işi tek adımda yapar; Linux'ta kavramlar ayrıdır.
 
 ---
 
-### `which` ve `whereis` — Komut Konumu
+### `which`, `whereis`, `type` — Komut Konumu
 
 ```bash
 $ which python3
 /usr/bin/python3
 
+$ which -a python     # Tüm eşleşmeler
+/usr/bin/python
+/usr/local/bin/python
+
 $ whereis python3
 python3: /usr/bin/python3 /usr/lib/python3 /usr/share/man/man1/python3.1.gz
+
+$ type ls
+ls, `/usr/bin/ls' icin takma addır
+
+$ type cd
+cd bir yerlesik kabuk komutudur
 ```
 
-`which` sadece çalıştırılabilir dosyanın yolunu gösterir. `whereis` ayrıca kaynak kodu ve kılavuz (man) sayfasının yerini de bulur.
-
-Windows'taki `where` komutunun karşılığıdır.
+`which` çalıştırılabilir dosyanın yolunu gösterir. `whereis` kaynak kodu ve kılavuz sayfasını da bulur. `type` ise komutun ne olduğunu — alias, function, builtin, ya da harici dosya — açıklar.
 
 ---
 
 ### `man` — Kılavuz Sayfaları
 
-**man** (Manual — Kılavuz), Linux'un yerleşik dokümantasyon sistemidir. Her komutun ayrıntılı bir kılavuz sayfası vardır.
+**man**, Latince *manualis* (elle tutulan, elle taşınan) kökünden gelir. Her komutun ayrıntılı kılavuz sayfası vardır ve bu sayfalar `less` ile gösterilir.
 
 ```bash
 man ls
-man grep
-man chmod
+man 5 passwd     # Bölüm 5: dosya formatları (/etc/passwd açıklaması)
+man -k "copy"    # "copy" ile ilgili tüm kılavuzları ara
+apropos copy     # man -k ile eşdeğerdir
 ```
 
-Kılavuz `less` komutuyla gösterilir, aynı tuşlarla gezinilir (`/` ile ara, `q` ile çık).
+Kılavuz sayfaları bölümlere ayrılmıştır:
 
-```bash
-man -k "copy"    # "copy" ile ilgili tüm kılavuz sayfalarını ara
-```
+| Bölüm | İçerik |
+|-------|--------|
+| 1 | Kullanıcı komutları |
+| 2 | Sistem çağrıları (system calls) |
+| 3 | C kütüphane fonksiyonları |
+| 5 | Dosya formatları |
+| 8 | Sistem yönetim komutları |
 
-Windows'taki `komut /?` yardımının çok daha kapsamlı karşılığıdır. Bir komut hakkında her şeyi öğrenmek istiyorsanız `man` ilk durağınızdır.
+`man 2 open` sistem programlamada sıkça kullanılır — `open()` sistem çağrısının C arayüzünü açıklar. Sistem programlama derslerinde bu bölüm özellikle değerli olacaktır.
 
 ---
 
 ### `alias` — Komut Kısayolu
 
-Sık kullandığınız uzun komutlara kısa isimler verebilirsiniz:
-
 ```bash
 alias ll='ls -la'
+alias la='ls -A'
 alias guncelle='sudo apt update && sudo apt upgrade -y'
-alias rapor='ps aux --sort=-%mem | head -10'
+
+# Mevcut aliasları listele
+alias
+
+# Alias kaldır
+unalias ll
 ```
 
-Artık `ll` yazarak `ls -la` çalıştırabilirsiniz. Bu tanımlar oturum sonunda kaybolur. Kalıcı olması için `~/.bashrc` dosyasına eklenmesi gerekir:
+Kalıcı aliaslar için `~/.bashrc` dosyasına eklenmesi gerekir:
 
 ```bash
 echo "alias ll='ls -la'" >> ~/.bashrc
-source ~/.bashrc    # Değişiklikleri uygula (yeniden oturum açmadan)
+source ~/.bashrc    # Değişiklikleri bu terminal oturumuna uygula
 ```
-
-`.bashrc` dosyası her yeni terminal açıldığında otomatik çalışan betiktir — terminalin başlangıç ayarları dosyası.
 
 ---
 
@@ -1706,14 +2448,109 @@ source ~/.bashrc    # Değişiklikleri uygula (yeniden oturum açmadan)
 ```bash
 history            # Tüm geçmiş
 history 20         # Son 20 komut
-!100               # 100 numaralı komutu tekrar çalıştır
+!100               # 100. komutu tekrar çalıştır
 !!                 # Son komutu tekrar çalıştır
 !grep              # "grep" ile başlayan son komutu çalıştır
+!$                 # Son komutun son argümanı
 ```
 
-`sudo !!` özellikle kullanışlıdır: bir komutu normal kullanıcı olarak çalıştırıp yetki hatası aldığınızda, `sudo !!` yazarak aynı komutu root yetkisiyle tekrar çalıştırırsınız.
+`sudo !!` yaygın bir kısayoldur: yetki hatası alan bir komutu `sudo !!` ile yönetici yetkisiyle tekrar çalıştırmak.
 
-**Ctrl + R** ile geçmişte arama yapabilirsiniz: basın, aramak istediğiniz kelimeyi yazın, eşleşen komut görünür. Enter ile çalıştırın.
+Geçmiş dosyası `~/.bash_history`'de saklanır. `HISTSIZE` bellekte, `HISTFILESIZE` dosyada tutulan komut sayısını belirler.
+
+**Ctrl+R** ile geçmişte interaktif arama yapılır: tuşa basın, kelimeyi yazın, eşleşen komut görünür; Enter ile çalıştırın ya da ok tuşuyla düzenleyin.
+
+---
+
+### `cron` — Zamanlanmış Görevler (Scheduled Tasks)
+
+`cron`, belirli zamanlarda otomatik komut çalıştıran bir servis programıdır (daemon — arka plan servisi). Latince daemonlar gibi arka planda sessizce çalışır; görünmez ama iş yapar. Windows'taki Görev Zamanlayıcı'nın (Task Scheduler) terminal karşılığıdır.
+
+```bash
+crontab -e    # Cron görevlerini düzenle
+crontab -l    # Mevcut görevleri listele
+crontab -r    # Tüm görevleri sil (dikkatli!)
+```
+
+**Cron sözdizimi:**
+
+```
+# Dakika  Saat  GunAy  Ay  GunHafta  Komut
+  *       *     *      *   *         /path/to/komut
+```
+
+| Alan | Değer Aralığı | Özel Sözdizimi |
+|------|--------------|---------------|
+| Dakika | 0-59 | `*/5` her 5 dakikada |
+| Saat | 0-23 | `0` gece yarısı |
+| Gün (ay) | 1-31 | |
+| Ay | 1-12 | |
+| Gün (hafta) | 0-7 (0 ve 7 = Pazar) | `1-5` hafta içi |
+
+```
+# Her gece 02:00'de yedek al
+0 2 * * * /home/kullanici/yedekle.sh >> /var/log/yedek.log 2>&1
+
+# Her 15 dakikada kontrol et
+*/15 * * * * /home/kullanici/kontrol.sh
+
+# Hafta ici her sabah 09:00'da rapor gönder
+0 9 * * 1-5 /home/kullanici/rapor.sh
+
+# Her ayin 1'i gece 23:30'da aylik arsiv
+30 23 1 * * /home/kullanici/aylik_arsiv.sh
+```
+
+Cron görevlerinin çıktısını log dosyasına yönlendirmek iyi bir alışkanlıktır:
+
+```
+0 2 * * * /home/kullanici/yedekle.sh >> /var/log/yedek.log 2>&1
+```
+
+---
+
+### Ortam ve Başlangıç Dosyaları (Startup Files)
+
+Bash başladığında belirli dosyaları sırayla okur. Bu dosyalar PATH, alias ve fonksiyon tanımlarının kalıcı olmasını sağlar.
+
+**Login shell (oturum açma kabuğu) için:**
+1. `/etc/profile` — sistem geneli
+2. `~/.bash_profile` veya `~/.bash_login` veya `~/.profile` — kullanıcıya özel
+
+**Interactive non-login shell (yeni terminal penceresi/sekmesi) için:**
+1. `/etc/bash.bashrc` — sistem geneli
+2. `~/.bashrc` — kullanıcıya özel
+
+MATE Terminal'de yeni sekme açıldığında genellikle non-login interactive shell başlar; bu yüzden `~/.bashrc` en sık düzenlenen yapılandırma dosyasıdır.
+
+```bash
+# ~/.bashrc içine ekleme örnekleri
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+echo 'alias ll="ls -la"'                    >> ~/.bashrc
+echo 'export EDITOR=nano'                   >> ~/.bashrc
+source ~/.bashrc    # Değişiklikleri hemen uygula
+```
+
+---
+
+### Boru Hatları (Pipes) — Komutları Zincirleme
+
+![Boru Hattı (Pipe) Zinciri](images/pipe-chain.svg)
+
+Linux'un felsefesi "tek bir işi iyi yapan küçük araçlar"dır. Bu araçlar `|` (pipe — boru) ile birbirine bağlanarak karmaşık işlemler gerçekleştirilir. Bir komutun stdout'u, bir sonraki komutun stdin'ine bağlanır.
+
+```bash
+# En çok disk kullanan 5 dizini bul
+du -sh /var/* 2>/dev/null | sort -rh | head -5
+
+# Sistemdeki kullanıcıları alfabetik listele
+cut -d ":" -f 1 /etc/passwd | sort
+
+# Log'da en çok tekrar eden hata kaynağını bul
+grep "ERROR" /var/log/syslog | awk '{print $5}' | sort | uniq -c | sort -rn | head -10
+```
+
+Her `|` bir montaj hattının bağlantı noktasıdır. Fabrikada her istasyon bir işlem yapar ve ürünü bir sonrakine geçirir. Pipe zincirlerinde de her komut veriyi işler ve sonucu bir sonraki komuta aktarır.
 
 ---
 
@@ -1757,6 +2594,7 @@ history 20         # Son 20 komut
 | Dosya izinleri | `attrib` | `chmod` / `chown` |
 | Paket kurma | (yok — .exe indirme) | `apt install` |
 | Arşivleme | (yok — harici araç) | `tar` |
+| Zamanlanmış görev | Görev Zamanlayıcı (GUI) | `cron` / `crontab` |
 
 ---
 
@@ -1779,12 +2617,24 @@ history 20         # Son 20 komut
 | **!!** | Son komutu tekrar çalıştır |
 | **!$** | Son komutun son argümanı |
 
-Bu kısayollar, terminalde çalışma hızınızı önemli ölçüde artırır. Özellikle **Tab** tuşu ve **Ctrl + R** günlük kullanımda en çok vakit kazandıran ikilidir.
+Bu kısayollar terminal hızını belirgin biçimde artırır. Özellikle **Tab** ve **Ctrl+R** günlük kullanımda en çok vakit kazandıran ikidir.
 
 ---
 
-## İlerisi için tavsiyeler
+## İlerisi için Tavsiyeler
 
-Linux terminali, MS-DOS'tan çok daha derin ve geniş bir araç setidir. İlk bakışta bunaltıcı görünebilir ama her komutu ezberlemeye çalışmak yerine "ne yapmak istiyorum" sorusundan yola çıkıp doğru aracı bulmak daha sağlıklı bir yaklaşımdır. `man` sayfaları, `--help` parametresi ve Tab tuşu her zaman yanınızdadır.
+Kabuk programlama, öğrenilmesi kolay ama ustalaşılması zaman isteyen bir alandır. Komutları tek tek ezberlemekten çok "bu işi nasıl otomatize edebilirim?" sorusunu sormayı alışkanlık haline getirmek, uzun vadede çok daha değerlidir.
 
-Linux felsefesi "küçük araçları birleştirerek büyük işler yap" üzerine kuruludur. Tek bir karmaşık program yerine, `grep`, `sort`, `cut`, `awk` gibi basit araçları pipe (`|`) ile birbirine bağlayarak inanılmaz esnek çözümler üretebilirsiniz. Bu düşünce biçimini benimsemek, sadece Linux'ta değil, genel olarak yazılım mühendisliğinde size avantaj sağlayacaktır.
+Güçlü bir sistem programcısı olmanın yolu bash içinde her şeyi çözmeye çalışmaktan değil, bash'in sınırlarını bilip doğru araçları seçmekten geçer. Metin işleme için `awk`, `sed`, `grep`; sistem yönetimi otomasyonu için bash; veri analizi ve API çağrıları için Python; performans gerektiren görevler için C/C++ — her aracın bir amacı ve bir sınırı vardır.
+
+Bir sonraki adım olarak şu konular önerilir:
+
+- **Düzenli ifadeler (Regular Expressions):** `grep -E`, `sed`, `awk` ile ileri metin işleme; sistem programlamada log analizi ve protokol ayrıştırmasında günlük ihtiyaç
+- **Python scripting:** Bash'in zayıf kaldığı sayısal işlemler, HTTP istekleri, JSON işleme için
+- **Ansible:** Büyük ölçekli sistem otomasyonu — birden fazla sunucuya aynı anda betik uygulamak
+- **Docker ve konteyner yönetimi:** Shell bilgisi Dockerfile ve konteyner orkestrasyon betiklerinde doğrudan kullanılır
+- **Git hooks:** Commit, push gibi git olaylarında otomatik betik çalıştırma — kod kalitesini otomatik denetleme
+- **Systemd unit dosyaları:** Servisleri systemd ile yönetme — cron'un modern alternatifi
+- **Advanced Bash Scripting Guide (TLDP):** Kapsamlı, ücretsiz açık kaynaklı referans
+
+Komutları bir ağaç gibi düşünün: kökleri sağlam oturursa — süreç, dosya, akış, izin gibi temel kavramlar — dallar kendiliğinden anlamlı hale gelir. Her yeni komut öğrenildiğinde "bu nereye oturur, hangi problemi çözer?" diye sormak, ezber yerine anlayışla öğrenmeyi getirir.
