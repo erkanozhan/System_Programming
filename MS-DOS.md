@@ -28,7 +28,7 @@ Birkaç yol var:
 
 Açıldığında şöyle bir satır görürsünüz:
 
-```
+```text
 C:\Users\KullaniciAdi>
 ```
 
@@ -42,7 +42,7 @@ Bu satıra **prompt** (komut istemi) denir. Buradaki `C:\Users\Kullanici` sizin 
 
 Windows'un dosya sistemi bir ağaç (tree) yapısındadır. Kök (root) en üsttedir ve `C:\` ile gösterilir. Her şey bu kökten dallanır.
 
-```
+```text
 C:\
 ├── Users\
 │   ├── Kullanici\
@@ -64,7 +64,7 @@ Her `\` (ters eğik çizgi, backslash) bir dizin seviyesini ayırır. `C:\Users\
 
 **ver** (version — sürüm) komutu, işletim sisteminin sürüm numarasını gösterir.
 
-```
+```text
 C:\>ver
 
 Microsoft Windows [Sürüm 10.0.19045.3803]
@@ -78,7 +78,7 @@ Kısa, öz, işe yarar. Özellikle uzaktan bağlandığınız bir makinede "Bu h
 
 **cls** (Clear Screen — Ekranı Temizle) komutu ekrandaki tüm yazıları siler ve imleci sol üst köşeye taşır.
 
-```
+```cmd
 C:\>cls
 ```
 
@@ -88,7 +88,7 @@ Ekran kalabalıklaştığında `cls` yazıp temiz bir sayfa açmak, defterde yen
 
 ### `date` ve `time` — Tarih ve Saat
 
-```
+```cmd
 C:\>date /t
 16.02.2026
 
@@ -104,13 +104,13 @@ C:\>time /t
 
 **dir** (Directory — Dizin) komutu, bulunduğunuz klasörün içeriğini listeler. Latince *dirigere* (yönlendirmek) kökünden gelir — sizi dosyalarınıza yönlendirir.
 
-```
+```cmd
 C:\Users\Kullanici>dir
 ```
 
 Çıktıda her satırda bir dosya veya klasör görürsünüz:
 
-```
+```text
  C:\Users\Kullanici dizini
 
 16.02.2026  10:30    <DIR>          Desktop
@@ -136,7 +136,7 @@ C:\Users\Kullanici>dir
 | `dir /o:s` | Boyuta göre (size) sıralar |
 | `dir /o:d` | Tarihe göre (date) sıralar |
 
-```
+```cmd
 C:\>dir /s *.txt
 ```
 
@@ -148,7 +148,7 @@ Bu komut, C:\ altındaki tüm `.txt` dosyalarını alt klasörler dahil arar. Bi
 
 **cd** (Change Directory — Dizin Değiştir) komutu, dosya sistemi ağacında hareket etmenizi sağlar.
 
-```
+```cmd
 C:\>cd Users
 C:\Users>cd Kullanici
 C:\Users\Kullanici>cd Desktop
@@ -157,7 +157,7 @@ C:\Users\Kullanici\Desktop>
 
 Bu üç adımı tek satırda da yazabilirsiniz:
 
-```
+```cmd
 C:\>cd Users\Kullanici\Desktop
 ```
 
@@ -180,7 +180,7 @@ C:\>cd Users\Kullanici\Desktop
 
 `cd` komutu sürücü değiştirmez. Başka bir sürücüye geçmek için sadece sürücü harfini ve iki noktayı yazın:
 
-```
+```cmd
 C:\>D:
 D:\>
 ```
@@ -191,7 +191,7 @@ D:\>
 
 **md** (Make Directory — Dizin Oluştur) komutu yeni bir klasör yaratır.
 
-```
+```cmd
 C:\>md Projeler
 C:\>md Projeler\Odev1\Veriler
 ```
@@ -204,13 +204,13 @@ C:\>md Projeler\Odev1\Veriler
 
 **rd** (Remove Directory — Dizin Kaldır) komutu bir klasörü siler. Latince *removere* (kaldırmak, uzaklaştırmak) kökünden.
 
-```
+```cmd
 C:\>rd Projeler\Odev1\Veriler
 ```
 
 Varsayılan olarak sadece boş dizinleri siler. İçi dolu bir dizini silmek için:
 
-```
+```cmd
 C:\>rd /s /q Projeler
 ```
 
@@ -225,7 +225,7 @@ C:\>rd /s /q Projeler
 
 **tree** komutu, bulunduğunuz dizinden itibaren ağaç yapısını çizer.
 
-```
+```text
 C:\Projeler>tree
 C:\PROJELER
 ├───Odev1
@@ -243,7 +243,7 @@ C:\PROJELER
 
 Aşağıdaki klasör yapısını komut satırından oluşturun:
 
-```
+```text
 C:\DersTest\
 ├── Belgeler\
 │   ├── Raporlar\
@@ -280,7 +280,7 @@ Son `tree` komutuyla yapıyı doğrulayın.
 
 **echo**, kendisinden sonra gelen metni ekrana yazar. Ama asıl gücü, yönlendirme (redirection) ile birlikte kullanıldığında ortaya çıkar.
 
-```
+```cmd
 C:\>echo Merhaba Dunya
 Merhaba Dunya
 
@@ -289,7 +289,7 @@ C:\>echo Bu bir test dosyasidir > test.txt
 
 İkinci komut, `test.txt` adında bir dosya yaratır ve içine "Bu bir test dosyasidir" yazar. `>` operatörü çıktıyı ekran yerine dosyaya yönlendirir. Dosya zaten varsa üzerine yazar.
 
-```
+```cmd
 C:\>echo Ikinci satir >> test.txt
 ```
 
@@ -303,7 +303,7 @@ Bunu şöyle düşünün: `>` yeni bir sayfa açar, `>>` sayfanın altına not d
 
 **type** komutu, bir metin dosyasının içeriğini ekrana döker.
 
-```
+```cmd
 C:\>type test.txt
 Bu bir test dosyasidir
 Ikinci satir
@@ -311,7 +311,7 @@ Ikinci satir
 
 Dosya uzunsa ekrandan kayıp gider. Bunu engellemek için `more` ile birlikte kullanın:
 
-```
+```cmd
 C:\>type uzundosya.txt | more
 ```
 
@@ -323,7 +323,7 @@ Buradaki `|` (pipe, boru) operatörü, bir komutun çıktısını başka bir kom
 
 **copy** komutu, bir dosyayı başka bir konuma kopyalar.
 
-```
+```cmd
 C:\>copy test.txt Belgeler\test.txt
         1 dosya kopyalandı.
 
@@ -335,7 +335,7 @@ C:\>copy test.txt yedek.txt
 
 **Birden fazla dosyayı kopyalamak:**
 
-```
+```cmd
 C:\>copy *.txt Belgeler\
 ```
 
@@ -348,7 +348,7 @@ Bir diğer joker karakter `?` ise tam olarak bir karakteri temsil eder:
 | `*` | Sıfır veya daha fazla karakter | `*.txt` | rapor.txt, a.txt, notlar.txt |
 | `?` | Tam olarak bir karakter | `rapor?.txt` | rapor1.txt, raporA.txt |
 
-```
+```cmd
 C:\>copy rapor?.txt Yedek\
 ```
 
@@ -360,7 +360,7 @@ Bu komut rapor1.txt, rapor2.txt gibi dosyaları kopyalar ama rapor10.txt'yi kopy
 
 **move** komutu, dosyayı bir yerden başka bir yere taşır. Kaynak konumdan silinir, hedef konuma yazılır. Aynı klasör içinde kullanılırsa yeniden adlandırma (rename) işlevi görür.
 
-```
+```cmd
 C:\>move test.txt Belgeler\
         1 dosya taşındı.
 
@@ -374,13 +374,13 @@ C:\>move eskiisim.txt yeniisim.txt
 
 **ren** (Rename — Yeniden Adlandır) sadece isim değiştirmeye odaklıdır. Taşıma yapmaz.
 
-```
+```cmd
 C:\>ren rapor.txt rapor_v2.txt
 ```
 
 Joker karakterlerle toplu yeniden adlandırma yapılabilir:
 
-```
+```cmd
 C:\>ren *.txt *.bak
 ```
 
@@ -392,7 +392,7 @@ Bu komut tüm `.txt` uzantılı dosyaların uzantısını `.bak` yapar. Yedeklem
 
 **del** (Delete — Sil) komutu dosyaları siler. Latince *delere* (yok etmek, silmek) kökünden.
 
-```
+```cmd
 C:\>del test.txt
 C:\>del *.tmp
 C:\>del /p *.txt
@@ -410,14 +410,14 @@ C:\>del /p *.txt
 
 `copy` basit işler içindir. Daha karmaşık kopyalama işlerinde `xcopy` ve `robocopy` (Robust File Copy — Sağlam Dosya Kopyalama) kullanılır.
 
-```
+```cmd
 C:\>xcopy Kaynak Hedef /s /e
 ```
 
 - `/s` — alt dizinleri de kopyala (boş olanlar hariç)
 - `/e` — boş alt dizinleri de dahil et (empty)
 
-```
+```cmd
 C:\>robocopy Kaynak Hedef /mir
 ```
 
@@ -429,7 +429,7 @@ C:\>robocopy Kaynak Hedef /mir
 
 **attrib** (Attribute — Öznitelik) komutu, dosyaların gizli (hidden), salt okunur (read-only), arşiv (archive) gibi özelliklerini gösterir ve değiştirir.
 
-```
+```cmd
 C:\>attrib test.txt
 A            C:\test.txt
 
@@ -447,7 +447,7 @@ A  R  H      C:\test.txt
 
 `+` ekler, `-` kaldırır:
 
-```
+```cmd
 C:\>attrib -r -h test.txt
 ```
 
@@ -532,7 +532,7 @@ Yönlendirme operatörleri bu kanalları farklı yerlere bağlar. Bir su tesisat
 
 **find** komutu, bir dosya içinde veya bir komutun çıktısında belirli bir metni arar.
 
-```
+```cmd
 C:\>find "hata" log.txt
 C:\>dir | find "txt"
 C:\>find /i "ARANACAK" dosya.txt
@@ -554,7 +554,7 @@ Aranacak metin çift tırnak içinde yazılır. Bu zorunludur.
 
 **findstr** (Find String — Dize Bul), `find` komutunun daha güçlü versiyonudur. Düzenli ifade (regular expression, regex) desteği sunar.
 
-```
+```cmd
 C:\>findstr /r "^hata" log.txt
 C:\>findstr /s /i "parola" *.txt
 ```
@@ -569,7 +569,7 @@ C:\>findstr /s /i "parola" *.txt
 
 ### `sort` — Sırala
 
-```
+```cmd
 C:\>sort isimler.txt
 C:\>dir /b | sort
 C:\>sort /r isimler.txt
@@ -615,7 +615,7 @@ type sirali_ogrenciler.txt
 
 Ortam değişkenleri (Environment Variables), işletim sisteminin ve programların kullandığı anahtar-değer çiftleridir. Bir telefon rehberi gibidir: bir isme karşılık bir değer tutar.
 
-```
+```cmd
 C:\>set
 ```
 
@@ -632,7 +632,7 @@ Parametresiz `set` komutu, tanımlı tüm ortam değişkenlerini listeler. Önem
 
 Bir ortam değişkenine erişmek için `%` işaretleri arasına alırsınız:
 
-```
+```cmd
 C:\>echo %USERNAME%
 Kullanici
 
@@ -644,7 +644,7 @@ C:\>cd %USERPROFILE%\Desktop
 
 **Kendi değişkeninizi tanımlamak:**
 
-```
+```cmd
 C:\>set PROJE=C:\Projeler\Odev1
 C:\>cd %PROJE%
 C:\>echo %PROJE%
@@ -659,7 +659,7 @@ Bu tanım sadece o komut satırı penceresi açık olduğu sürece geçerlidir. 
 
 **PATH** değişkeni özel bir ortam değişkenidir. Bir komut yazdığınızda, sistem o komutu önce bulunduğunuz dizinde, sonra PATH'teki dizinlerde arar.
 
-```
+```cmd
 C:\>path
 PATH=C:\Windows\System32;C:\Windows;C:\Python39;...
 
@@ -674,7 +674,7 @@ PATH'e yeni bir dizin eklemek, sisteme "komut ararken buraya da bak" demektir. N
 
 Bu komut, bilgisayar hakkında kapsamlı bir bilgi raporu üretir.
 
-```
+```cmd
 C:\>systeminfo
 ```
 
@@ -682,7 +682,7 @@ C:\>systeminfo
 
 Belirli bir bilgiyi çekmek için `find` ile birlikte kullanabilirsiniz:
 
-```
+```cmd
 C:\>systeminfo | find "Toplam Fiziksel Bellek"
 C:\>systeminfo | find "Son Önyükleme"
 ```
@@ -691,7 +691,7 @@ C:\>systeminfo | find "Son Önyükleme"
 
 ### `hostname` — Bilgisayar Adı
 
-```
+```cmd
 C:\>hostname
 MASAUSTU-01
 ```
@@ -702,7 +702,7 @@ Kısa ve öz. Ağ üzerinde hangi makinede olduğunuzu anında söyler.
 
 ### `whoami` — Kim Olduğunuzu Gösterir
 
-```
+```cmd
 C:\>whoami
 masaustu-01\kullanici
 ```
@@ -719,13 +719,13 @@ Bir bilgisayar mühendisi için ağ komutları, bir doktorun stetoskopu gibidir.
 
 **ipconfig** (IP Configuration — IP Yapılandırması), ağ bağdaştırıcılarının (network adapter) bilgilerini gösterir.
 
-```
+```cmd
 C:\>ipconfig
 ```
 
 Temel çıktı:
 
-```
+```text
 Ethernet bağdaştırıcısı Ethernet:
    IPv4 Adresi. . . . . . . . . . . : 192.168.1.105
    Alt Ağ Maskesi . . . . . . . . .  : 255.255.255.0
@@ -749,7 +749,7 @@ Ethernet bağdaştırıcısı Ethernet:
 
 **ping** komutu, hedef bir bilgisayara küçük paketler gönderir ve cevap süresini ölçer. Adı, denizaltıların sonar sinyalinden gelir.
 
-```
+```cmd
 C:\>ping google.com
 
 google.com [142.250.187.206] sunucusuna ping atılıyor 32 bayt veri ile:
@@ -769,7 +769,7 @@ Ortalama gidiş-dönüş (ms): Minimum = 11ms, Maksimum = 12ms, Ortalama = 11ms
 - **TTL (Time to Live — Yaşam Süresi):** Paketin kaç yönlendirici (router) geçebileceğini belirler.
 - **Kayıp (loss):** %0 olmalı. Kayıp varsa ağda sorun var demektir.
 
-```
+```cmd
 C:\>ping -t google.com       REM Sürekli ping at (Ctrl+C ile durdur)
 C:\>ping -n 10 google.com    REM 10 paket gönder
 C:\>ping 192.168.1.1          REM Yerel ağ geçidine ping
@@ -790,7 +790,7 @@ Her adım başarılıysa bir sonrakine geçin. Hangi adımda başarısız olursa
 
 **tracert** (Trace Route — Yol İzleme), paketlerin hedefe ulaşana kadar geçtiği her yönlendiriciyi (router/hop) gösterir.
 
-```
+```text
 C:\>tracert google.com
 
   1     1 ms     1 ms     1 ms  192.168.1.1
@@ -808,7 +808,7 @@ Her satır bir "atlama" (hop) noktasıdır. Sürelerin aniden arttığı veya `*
 
 **nslookup** (Name Server Lookup — Ad Sunucusu Sorgusu), bir alan adının (domain name) IP adresini sorgular.
 
-```
+```text
 C:\>nslookup google.com
 Sunucu:  dns.example.com
 Adres:  192.168.1.1
@@ -820,7 +820,7 @@ Adres:  142.250.187.206
 
 "Yetkili olmayan yanıt" (non-authoritative answer), cevabın doğrudan o alan adının yetkili DNS sunucusundan değil, yerel DNS sunucunuzun önbelleğinden geldiğini ifade eder.
 
-```
+```cmd
 C:\>nslookup -type=mx google.com    REM E-posta sunucularını sorgula
 C:\>nslookup -type=ns google.com    REM Ad sunucularını sorgula
 ```
@@ -831,7 +831,7 @@ C:\>nslookup -type=ns google.com    REM Ad sunucularını sorgula
 
 **netstat** (Network Statistics — Ağ İstatistikleri), bilgisayarınızın aktif ağ bağlantılarını gösterir.
 
-```
+```cmd
 C:\>netstat -an
 C:\>netstat -b
 C:\>netstat -ano
@@ -885,7 +885,7 @@ type ag_raporu.txt | more
 
 **tasklist** komutu, çalışan tüm süreçleri (process) listeler. Windows Görev Yöneticisi'nin (Task Manager) komut satırı karşılığıdır.
 
-```
+```text
 C:\>tasklist
 
 Görüntü Adı                 PID Oturum Adı       Otr# Bellek Kullanımı
@@ -898,7 +898,7 @@ notepad.exe                   8832 Console             1      8.192 K
 
 **Filtreleme:**
 
-```
+```cmd
 C:\>tasklist | find "chrome"
 C:\>tasklist /fi "memusage gt 100000"
 ```
@@ -909,7 +909,7 @@ C:\>tasklist /fi "memusage gt 100000"
 
 ### `taskkill` — Süreç Sonlandır
 
-```
+```cmd
 C:\>taskkill /pid 12456
 C:\>taskkill /im notepad.exe
 C:\>taskkill /im chrome.exe /f
@@ -960,8 +960,8 @@ pause
 
 ```bat
 @echo off
-set /p ISIM=Adinizi girin: 
-echo Merhaba %ISIM%, sisteme hosgeldiniz!
+set /p ISIM=Adinizi girin:
+echo Merhaba %ISIM%, sisteme hos geldiniz!
 ```
 
 `set /p` kullanıcıdan girdi alır (prompt). Girilen değer `ISIM` değişkenine atanır.

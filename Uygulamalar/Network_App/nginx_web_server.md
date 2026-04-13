@@ -1,6 +1,7 @@
 # Nginx Web Sunucusu Kurulumu ve Yerel Ağda İletişim
 
 Ön Koşullar:
+
 - İnternet bağlantısı.
 - Sistemde Visual Studio Code (VS Code) yüklü olması.
 - Tüm bilgisayarların aynı Yerel Ağa (Local Area Network - LAN) bağlı olması.
@@ -27,19 +28,23 @@ Sunucu kendi içimizde sorunsuz çalışsa da, dışarıdan gelen isteklere kapa
 Ağ üzerindeki iletişim, belirli mantıksal kapılar üzerinden sağlanır. Bilişimde bu kapılara Port denir (Latince *porta* yani kapı kelimesinden gelir). Web trafiği olan HTTP (Hypertext Transfer Protocol - Hipermetin Aktarım Protokolü) standart olarak 80 numaralı portu kullanır.
 
 Sistemdeki güvenlik duvarı profillerini listelemek için:
+
 ```bash
 sudo ufw app list
 ```
 
 HTTP trafiğine (80 portu) izin vermek için:
+
 ```bash
 sudo ufw allow 'Nginx HTTP'
 ```
 
 Durumu doğrulamak için:
+
 ```bash
 sudo ufw status
 ```
+
 Eğer sistem "inactive" yanıtı veriyorsa, güvenlik duvarı devrede değildir ve dışarıdan gelen tüm trafiğe zaten açıktır.
 
 ## Adım 3: Web Kök Dizininde Yetki Ayarlaması
@@ -82,7 +87,7 @@ VS Code açıldığında, dizindeki `index.nginx-debian.html` (veya `index.html`
     </style>
 </head>
 <body>
-    <h1>Merhaba!Buraya adınızı yazınki size bağlandığımız anlaşılsın.</h1>
+    <h1>Merhaba! Buraya adınızı yazın ki size bağlandığımız anlaşılsın.</h1>
     <p>Bu metin, yerel ağda çalışan bir Nginx sunucusundan iletilmektedir.</p>
 </body>
 </html>
@@ -95,13 +100,14 @@ Dosyayı kaydettikten sonra tarayıcıdan `http://localhost` adresini yenilediğ
 Yerel ağdaki diğer makinelerin sunucunuza erişebilmesi için, IP (Internet Protocol - İnternet Protokolü) adresinize ihtiyaçları vardır. IP adresi, ağ üzerindeki cihazların birbirini bulmasını sağlayan mantıksal bir numaralandırma sistemidir.
 
 Terminal üzerinden IP adresinizi öğrenmek için şu komutu kullanın:
+
 ```bash
 hostname -I
 ```
 
 Çıktıda genellikle `192.168.x.x` veya `10.x.x.x` formatında bir adres yer alır. Bu adres, bulunduğunuz LAN içerisindeki kimliğiniz, yani bir nevi dijital ev adresinizdir.
 
-Gençler, laboratuvardaki diğer arkadaşlarınızın sunucularına ulaşmak aslında son derece doğrusal bir işlemdir. Tıpkı bir arkadaşınıza posta göndermek için onun ev adresini zarfın üzerine yazmanız gerektiği gibi, ağ üzerindeki düğümler (Node - Latince *nodus*, bağ/düğüm anlamına gelir) de birbirleriyle konuşabilmek için bu IP adreslerini kullanırlar. 
+Gençler, laboratuvardaki diğer arkadaşlarınızın sunucularına ulaşmak aslında son derece doğrusal bir işlemdir. Tıpkı bir arkadaşınıza posta göndermek için onun ev adresini zarfın üzerine yazmanız gerektiği gibi, ağ üzerindeki düğümler (Node - Latince *nodus*, bağ/düğüm anlamına gelir) de birbirleriyle konuşabilmek için bu IP adreslerini kullanırlar.
 
 Arkadaşınızın bilgisayarında çalışan web sunucusuna bağlanmak için kendi bilgisayarınızda Chrome, Firefox gibi bir web tarayıcısı (Web Browser) açın. Tarayıcının üst kısmında yer alan adres çubuğuna (URL Bar - Uniform Resource Locator), arkadaşınızın terminalinden az önce öğrendiği IP adresini yazıp Enter tuşuna basın. Örneğin, adres çubuğuna `http://10.220.1.50` gibi ip yazdığınızda, arkadaşınızın az önce hazırladığı HTML sayfasını kendi ekranınızda göreceksiniz.
 
