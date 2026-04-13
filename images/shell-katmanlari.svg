@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 260" width="820" height="260" font-family="sans-serif">
+  <rect width="820" height="260" fill="#f7f8fa" rx="12"/>
+
+  <text x="410" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#253243">Kabuk, Çekirdek ve Donanım İlişkisi</text>
+
+  <rect x="40" y="86" width="150" height="90" rx="10" fill="#e3f2fd" stroke="#2b6cb0" stroke-width="2.5"/>
+  <text x="115" y="118" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e4f7a">Kullanıcı</text>
+  <text x="115" y="142" text-anchor="middle" font-size="12" fill="#1e4f7a">(User)</text>
+  <text x="115" y="162" text-anchor="middle" font-size="11" fill="#4a5568">Komut ve niyet</text>
+
+  <rect x="240" y="70" width="170" height="120" rx="10" fill="#e6fffa" stroke="#2c7a7b" stroke-width="2.5"/>
+  <text x="325" y="105" text-anchor="middle" font-size="16" font-weight="bold" fill="#1f5f61">Kabuk</text>
+  <text x="325" y="129" text-anchor="middle" font-size="12" fill="#1f5f61">(Shell)</text>
+  <text x="325" y="151" text-anchor="middle" font-size="11" fill="#425466">Ayrıştırır</text>
+  <text x="325" y="167" text-anchor="middle" font-size="11" fill="#425466">Değişken çözer</text>
+  <text x="325" y="183" text-anchor="middle" font-size="11" fill="#425466">Süreç başlatır</text>
+
+  <rect x="460" y="70" width="170" height="120" rx="10" fill="#fff5e6" stroke="#c05621" stroke-width="2.5"/>
+  <text x="545" y="105" text-anchor="middle" font-size="16" font-weight="bold" fill="#8b3d17">Çekirdek</text>
+  <text x="545" y="129" text-anchor="middle" font-size="12" fill="#8b3d17">(Kernel)</text>
+  <text x="545" y="151" text-anchor="middle" font-size="11" fill="#5f6b7a">Sistem çağrısı</text>
+  <text x="545" y="167" text-anchor="middle" font-size="11" fill="#5f6b7a">Kaynak yönetimi</text>
+  <text x="545" y="183" text-anchor="middle" font-size="11" fill="#5f6b7a">Koruma ve zamanlama</text>
+
+  <rect x="680" y="86" width="100" height="90" rx="10" fill="#f3e8ff" stroke="#7b2cbf" stroke-width="2.5"/>
+  <text x="730" y="118" text-anchor="middle" font-size="16" font-weight="bold" fill="#5b1e91">Donanım</text>
+  <text x="730" y="142" text-anchor="middle" font-size="12" fill="#5b1e91">(Hardware)</text>
+  <text x="730" y="162" text-anchor="middle" font-size="11" fill="#5f6b7a">Disk, bellek, işlemci</text>
+
+  <line x1="190" y1="131" x2="240" y2="131" stroke="#4a5568" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="215" y="121" text-anchor="middle" font-size="11" fill="#4a5568">Komut</text>
+
+  <line x1="410" y1="131" x2="460" y2="131" stroke="#4a5568" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="435" y="121" text-anchor="middle" font-size="11" fill="#4a5568">Sistem çağrısı</text>
+
+  <line x1="630" y1="131" x2="680" y2="131" stroke="#4a5568" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="655" y="121" text-anchor="middle" font-size="11" fill="#4a5568">Donanım erişimi</text>
+
+  <line x1="680" y1="156" x2="630" y2="156" stroke="#7b2cbf" stroke-width="2.5" marker-end="url(#arrowBack)"/>
+  <line x1="460" y1="156" x2="410" y2="156" stroke="#c05621" stroke-width="2.5" marker-end="url(#arrowBack2)"/>
+  <line x1="240" y1="156" x2="190" y2="156" stroke="#2c7a7b" stroke-width="2.5" marker-end="url(#arrowBack3)"/>
+
+  <text x="410" y="228" text-anchor="middle" font-size="12" fill="#4a5568">Kabuk, kullanıcı isteğini düzenler; çekirdek ise gerçek kaynak yönetimini yürütür.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#4a5568"/>
+    </marker>
+    <marker id="arrowBack" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#7b2cbf"/>
+    </marker>
+    <marker id="arrowBack2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#c05621"/>
+    </marker>
+    <marker id="arrowBack3" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <polygon points="0 0, 10 4, 0 8" fill="#2c7a7b"/>
+    </marker>
+  </defs>
+</svg>

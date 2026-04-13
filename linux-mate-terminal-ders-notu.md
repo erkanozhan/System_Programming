@@ -1335,196 +1335,251 @@ apt show htop                           # Paket hakkında bilgi göster
 
 ## BÖLÜM 8 — Kabuk Programlama (Shell Programming)
 
-Gençler, şimdiye kadar incelediğimiz komutlar etkileşimli (Interactive) kullanım içindi. Terminale bir komut girersiniz, çekirdek (Kernel) bunu işler ve sizden bir sonraki komutu bekler. Kabuk programlama (Shell Programming) ise bu ardışık süreci otomatikleştirir.
+Şimdiye kadar komutları tek tek çalıştırdık. Bu kullanım biçimi etkileşimli (Interactive) çalışmadır. Komutu yazarsınız, kabuk (Shell) onu yorumlar, çekirdek (Kernel) uygular, sonra sizden yeni komut beklenir. Kabuk programlama (Shell Programming) ise bu tekil adımları sıraya koyup iş akışına dönüştürür.
 
-Bir işletim sisteminin mimarisini incelerken, hangi aracı nerede kullanacağımızı bilmek, o aracı kullanmayı bilmekten çok daha değerlidir. Neden kabuk betiklerine (Shell Scripts) ihtiyaç duyarız? Kabuk, sistemdeki mevcut küçük programları ve araçları (`awk`, `sed`, `grep` vb.) birbirine bağlayan bir yapıştırıcı (Glue) görevi görür. Sistem yöneticilerinin her sabah log dosyalarını incelemesi, yedeklemeleri (Backup) başlatması gibi tekrarlayan ve zaman alan sistem yönetimi (System Administration) görevlerini üstlenir. Ayrıca, karmaşık bir yazılım projesine başlamadan önce hızlı prototipleme (Rapid Prototyping) yapmak için ideal bir ortamdır. Bunu bir fabrikada yeni bir üretim bandı kurmadan önce, mühendislerin küçük bir masa etrafında süreci manuel olarak simüle etmesine benzetebiliriz; eğer iş akışı doğru çalışıyorsa, daha sonra ağır sanayi makineleriyle (yani C/C++ gibi derlenen dillerle) asıl hat kurulur.
+Bir işletim sistemi (Operating System, OS) katmanlı yapıdadır. En altta donanım (Hardware), onun üzerinde çekirdek, kullanıcıya dönük yüzeyde ise kabuk bulunur. Kullanıcı doğrudan çekirdekle konuşmaz; kabuk aradaki düzenleyici katmandır. Fabrikadaki ana elektrik panosuna herkesin elini uzatması nasıl doğru değilse, çekirdeğe doğrudan yaklaşmak da o ölçüde risklidir. Kabuk, bu işi düzenli düğmeler ve kurallarla yapan kontrol masasıdır.
 
-Ancak kabuk betikleri her probleme uygun bir çözüm değildir. Tasarım felsefesi gereği bir yorumlayıcı (Interpreter) tarafından satır satır işlendikleri için görece yavaştırlar. Aşağıdaki durumlarda kabuk programlamadan kesinlikle kaçınmalıyız:
+![Kabuk, çekirdek ve donanım ilişkisi](images/shell-katmanlari.svg)
 
-* **Yoğun Kaynak Tüketimi:** Hızın kritik olduğu, işlemciyi veya belleği yoğun kullanan algoritmalar.
-* **Ağır Matematiksel İşlemler:** Kayan noktalı (Floating-Point) sayılar veya karmaşık hesaplamalar.
-* **Donanım Erişimi:** Doğrudan bellek adreslerine, portlara veya donanım sürücülerine (Drivers) müdahale edilecekse.
-* **Karmaşık Veri Yapıları:** Nesne yönelimli (Object-Oriented) tasarıma veya çok boyutlu dizilere ihtiyaç duyuluyorsa.
-* **Platform Bağımsızlığı:** Yazılan kodun UNIX tabanlı olmayan farklı işletim sistemlerinde de çalışması bekleniyorsa.
+Kabuk bilgisi yalnızca betik yazanlar için gerekli değildir. Linux açılırken hizmetlerin devreye alınması, oturum ortamının hazırlanması, bakım görevlerinin zamanlanması ve sistem günlüklerinin işlenmesi gibi pek çok işin arkasında kabuk mantığı vardır. Bir sistem yöneticisi sıfırdan betik yazmasa bile, var olan betiği okuyabilmeli, ne yaptığını anlayabilmeli ve gerektiğinde düzeltebilmelidir.
 
-Eğer projeniz bu maddelerden birini içeriyorsa; C, C++, Python gibi derlenen (Compiled) veya sistem düzeyine daha hakim dillere yönelmeniz gerekir.
+Kabuk özellikle şu işlerde güçlüdür:
 
-!Kabuk ve Derlenen Dil Karşılaştırması
+| İş Türü | Neden Uygun? |
+|---------|--------------|
+| Günlük bakım işleri | Dosya temizleme, arşivleme, yedekleme ve raporlama kısa komut zincirleriyle yapılır. |
+| Log inceleme | `grep`, `awk`, `sort`, `uniq` gibi araçlar birlikte çok verimli çalışır. |
+| Hızlı prototip | Büyük bir yazılım kurmadan önce iş akışını küçük ölçekte sınamak kolaydır. |
+| Sistem otomasyonu | Kurulum, servis başlatma, dosya üretme ve görev planlama rahatça betikleştirilebilir. |
+| Araçları birleştirme | Kabuk tek başına dev bir araç değil, küçük araçları birbirine bağlayan iskelettir. |
 
-Kabuk betiği yazmak, bir baş aşçının mutfaktaki diğer çalışanlara her yemeğin hazırlanış aşamalarını anlatan yazılı bir reçete vermesi gibidir. Aşçılar bu reçeteyi adım adım takip ettiklerinde, yemeğin standartları her seferinde aynı kalır. İşletim sisteminde yazdığımız her bir betik, çekirdeğin tam olarak hangi adımları izlemesi gerektiğini belirten bu reçetelerin dijital karşılığıdır.
+Burada önemli olan nokta şudur: kabuk çoğu zaman işin tamamını tek başına yapan araç değildir. Daha çok, atölyedeki tezgahlar arasında malzeme taşıyan düzenli bir üretim bandı gibi çalışır. `grep` ayıklar, `awk` biçimler, `sort` sıralar, `uniq` tekrarları sayar; kabuk ise bunların sırasını kurar.
+
+Kabuk programlama her işe uygun değildir. Aşağıdaki durumlarda başka araçlar daha doğru seçim olur:
+
+* **Yoğun işlem gücü isteyen hesaplamalar:** Yorumlanan yapı, derlenen dillere göre daha yavaştır.
+* **Karmaşık matematik:** Ondalıklı ve hassas hesaplamalarda ek araç gerekir.
+* **Doğrudan donanım erişimi:** Bellek, port ve sürücü düzeyi işler için C benzeri araçlar daha uygundur.
+* **Karmaşık veri yapıları:** Çok katmanlı veri modellerinde kabuk sınırlı kalır.
+* **Büyük ve modüler projeler:** Derleme zinciri ve tip denetimi gereken işlerde başka diller daha düzenlidir.
+
+![Kabuk ve derlenen dil karşılaştırması](images/shell-vs-compiled.svg)
+
+Kabuk betiğini mutfaktaki yazılı reçeteye benzetmek yerindedir. Usta aynı yemeği her seferinde aynı düzende çıkarmak istediğinde talimatı yazar. Betik de çekirdeğe hangi adımların hangi sırayla uygulanacağını söyleyen bu yazılı düzenin sayısal karşılığıdır.
 
 ---
 
 ### 8.1 Betik Dosyası Yapısı
 
-Bash betiği (bash script), `.sh` uzantılı — uzantı zorunlu değil, geleneğe uygundur — düz metin dosyasıdır. Çalıştırılabilmesi için iki koşul gerekir: çalıştırma izni (`chmod +x`) ve geçerli bir sözdizimi (syntax).
+Bash betiği (Bash Script), düz metin dosyasıdır. `.sh` uzantısı zorunlu değildir, ama yerleşik ve okunur bir tercihtir. Çalıştırılabilmesi için iki temel koşul vardır:
 
-```text
-nano ilk_betik.sh
-```
+1. Çalıştırma izni taşıması
+2. Geçerli bir sözdizimine (Syntax, Eski Yunanca *syntaxis*, düzen) sahip olması
 
-İçeriği:
+Örnek bir betik:
 
 ```bash
-#!/bin/bash
-# ilk_betik.sh — İlk betik örneği
-# Yorum satırları # ile başlar, bash bunları atlar
+#!/usr/bin/env bash
 
-echo "Merhaba, $(whoami)!"
+echo "Kullanıcı: $USER"
 echo "Bugün: $(date '+%d %B %Y')"
-echo "Çalışma dizini: $(pwd)"
+echo "Çalışma dizini: $PWD"
 ```
 
-Kaydet ve çalıştır:
+Çalıştırma:
 
 ```bash
-chmod +x ilk_betik.sh
+chmod u+rx ilk_betik.sh
 ./ilk_betik.sh
 ```
+
+Bir betiği şu yollarla da çağırabilirsiniz:
+
+```bash
+bash ilk_betik.sh
+sh ilk_betik.sh
+./ilk_betik.sh
+```
+
+En doğal kullanım `./ilk_betik.sh` biçimidir. Çünkü bu çağrı, dosyanın başındaki yorumlayıcı satırına uyar. `sh < betik.sh` biçimi ise genellikle tercih edilmez; betiğin standart girdisini (Standard Input, stdin) kendi üzerine kapatabildiği için `read` gibi yapılarda beklenmeyen sonuç üretebilir.
 
 ---
 
 ### 8.2 Shebang Satırı
 
-`#!/bin/bash` satırı iki parçadan oluşur:
+`#!/usr/bin/env bash` satırı iki parçadan oluşur:
 
-- `#!` — **shebang** (sharp + bang, yani `#` + `!`). Çekirdek bu iki karakteri görünce yorumlayıcıya yönlenir.
-- `/bin/bash` — yorumlayıcının (interpreter — Latince *interpretari*, "açıklamak") tam yolu.
+- `#!` işareti: *shebang* adı verilir.
+- Sonraki yol ya da komut: yorumlayıcıyı (Interpreter, Latince *interpretari*, açıklamak) belirtir.
 
-Çekirdeğin yaptığı şudur: dosyayı açar, ilk iki baytı okur; `#!` görürse gerisi yorumlayıcının yoludur. O programı başlatır ve betiği argüman olarak verir. Yani `./betik.sh` çalıştırmak ile `/bin/bash betik.sh` yazmak arasında çekirdek düzeyinde hiçbir fark yoktur — shebang bunu otomatik hale getirir.
+Çekirdek dosyayı açar, ilk iki baytı okur, `#!` görürse devamındaki programı çalıştırır ve betiği ona verir. Yani `./betik.sh` ile `/usr/bin/env bash betik.sh` çağrıları aynı yürütme mantığına bağlanır; shebang bunu dosyanın içine yerleştirilmiş hale getirir.
 
 ![Betik Çalışma Akışı](images/bash-script-execution.svg)
 
-**Taşınabilir shebang:**
-
-```bash
-#!/usr/bin/env bash
-```
-
-`env` (environment — ortam) komutu PATH içindeki ilk `bash`'i bulur. Farklı Linux dağıtımlarında bash `/usr/local/bin/bash` konumunda da olabilir; `#!/usr/bin/env bash` her zaman doğru yeri bulur ve betik farklı sistemlerde de çalışır.
+`#!/bin/bash` yazımı da yaygındır. Ancak `#!/usr/bin/env bash` daha taşınabilir çözümdür. Çünkü sistemde `bash` yorumlayıcısı her zaman aynı dizinde bulunmayabilir.
 
 ---
 
-### 8.3 Değişkenler (Variables)
+### 8.3 Değişkenler ve Parametreler (Variables and Parameters)
 
-Bash'te değişken tanımı sade ama kuralları kesindir.
-
-```bash
-ISIM="Ahmet"             # Metin (string)
-YAS=22                   # Sayı (bash bunu da metin olarak saklar)
-PROJE_DIZIN=/home/kullanici/proje
-BOS=                     # Boş değişken (geçerlidir)
-```
-
-**Kural: `=` etrafında boşluk olmaz.**
-
-`ISIM = "Ahmet"` yazarsanız bash bunu "ISIM adlı komutu çalıştır, argüman `=` ve `Ahmet`" olarak yorumlar — hata verir. Bu kural başlangıçta şaşırtıcı gelir ama Bash'in sözdizimi tasarımından kaynaklanır.
-
-Değişkene erişmek için başına `$` koyulur:
+Kabukta değişkenlerin büyük bölümü metin gibi ele alınır. Bu nedenle değişkeni, üzerine etiket yapıştırılmış bir kavanoz gibi düşünmek yararlı olur. Etiket isimdir, kavanozun içeriği değerdir. Bash bu bakımdan tip bağımsızdır (Untyped); sayı da çoğu zaman metin gibi taşınır.
 
 ```bash
-echo $ISIM         # Ahmet
-echo "$ISIM"       # Ahmet — tercih edilen biçim
-echo "${ISIM}"     # Ahmet — belirsizlik olduğunda zorunlu
+DERS_ADI="Sistem Programlama"
+HAFTA=8
+RAPOR_DOSYASI="hafta_08_rapor.txt"
 ```
 
-**Neden her zaman tırnak içinde kullanmalısınız?**
+Temel kural kesindir: `=` işaretinin çevresinde boşluk bırakılmaz.
+
+```bash
+ISIM="Ayse"      # doğru
+ISIM = "Ayse"    # yanlış
+```
+
+İkinci satırda kabuk bunu atama değil, `ISIM` adlı bir komut çağrısı olarak algılar.
+
+Değişkene erişmek için başına `$` koyarız:
+
+```bash
+echo "$DERS_ADI"
+echo "${DERS_ADI}"
+```
+
+Tırnak kullanımı burada güvenlik ağı gibidir. Özellikle boşluk içeren değerlerde çok önemlidir:
 
 ```bash
 DOSYA="benim dosyam.txt"
 
-rm $DOSYA     # bash 3 ayrı kelime görür: rm benim dosyam.txt — hata!
-rm "$DOSYA"   # bash bir argüman görür: rm "benim dosyam.txt" — doğru
+rm $DOSYA      # yanlış
+rm "$DOSYA"    # doğru
 ```
-
-Boşluk içeren değerlerde tırnak güvenlik ağıdır. Bu kuralı içselleştirmek pek çok beklenmedik hatanın önüne geçer.
 
 #### 8.3.1 Özel Değişkenler (Special Variables)
 
-| Değişken | Anlam |
-|----------|-------|
+| Değişken | Anlamı |
+|----------|--------|
 | `$0` | Betiğin adı veya yolu |
-| `$1`, `$2`, ... `$9` | Konumsal parametreler (positional parameters) |
-| `${10}`, `${11}`, ... | 9'dan büyük indisler için `{}` zorunlu |
+| `$1`, `$2`, ... `$9` | Konumsal parametreler (Positional Parameters) |
+| `${10}`, `${11}` | 9'dan büyük indisler için açık yazım |
 | `$#` | Parametre sayısı |
-| `$@` | Tüm parametreler — her biri ayrı kelime |
-| `$*` | Tüm parametreler — tek metin olarak |
-| `$?` | Son komutun çıkış kodu (exit code) |
-| `$$` | Geçerli betiğin süreç kimliği (PID) |
-| `$!` | Son arka plan sürecinin PID'i |
+| `$@` | Tüm parametreler |
+| `$*` | Tüm parametreler, tek metne daha yatkın açılım |
+| `$?` | Son komutun çıkış kodu (Exit Code) |
+| `$$` | Geçerli betiğin süreç kimliği (Process ID, PID) |
+| `$!` | Son arka plan sürecinin PID değeri |
 
 ```bash
-#!/bin/bash
+#!/usr/bin/env bash
+
 echo "Betik adı    : $0"
 echo "1. parametre : $1"
 echo "2. parametre : $2"
-echo "Tüm params   : $@"
 echo "Param sayısı : $#"
+echo "Tum parametreler: $@"
 ```
 
-Çalıştırma: `./betik.sh merhaba dunya`
-
-```
-Betik adı    : ./betik.sh
-1. parametre : merhaba
-2. parametre : dunya
-Tüm params   : merhaba dunya
-Param sayısı : 2
-```
-
-`$@` ve `$*` arasındaki fark ince ama önemlidir. `"$@"` her parametreyi ayrı kelime olarak korur; `"$*"` hepsini tek metin olarak birleştirir. Döngülerde ve fonksiyon çağrılarında her zaman `"$@"` tercih edilmelidir.
+`"$@"` ile `"$*"` arasındaki fark küçük görünür ama önemlidir. `"$@"` her parametreyi ayrı kelime olarak korur. Fonksiyon çağrılarında ve döngülerde daha güvenli seçim odur.
 
 #### 8.3.2 Ortam Değişkenleri (Environment Variables)
 
-Ortam değişkenleri, işletim sistemi tarafından sağlanan veya kullanıcı tarafından `export` ile dışarı açılan değişkenlerdir. Bu değişkenler alt süreçler (child processes) tarafından görünür.
+Ortam değişkenleri, alt süreçlere (Child Processes) de aktarılan değişkenlerdir.
 
 ```bash
-echo $HOME        # /home/kullanici
-echo $PATH        # /usr/local/bin:/usr/bin:/bin:...
-echo $USER        # kullanici
-echo $SHELL       # /bin/bash
-echo $PWD         # Geçerli dizin
-echo $OLDPWD      # Önceki dizin
-echo $LANG        # tr_TR.UTF-8
+echo "$HOME"
+echo "$PATH"
+echo "$USER"
+echo "$SHELL"
+echo "$PWD"
+echo "$OLDPWD"
+echo "$LANG"
 ```
 
-`env` komutu tüm ortam değişkenlerini listeler. `export` bir değişkeni ortama ekler:
+Yeni bir ortam değişkeni dışarı açmak için `export` kullanılır:
 
 ```bash
-export PROJE_KOK="/home/kullanici/proje"
+export PROJE_KOK="$PWD/proje"
 ```
 
-`export` olmadan tanımlanan değişken yalnızca geçerli betik içinde görünürdür — alt süreçlere geçmez. Bunu bir bina katı olarak düşünebilirsiniz: `export` olmadan değişken yalnızca kendi katında görünür; `export` ile alt katlara da iner.
+Bu satırı apartman benzetmesiyle düşünmek yararlı olur. Normal değişken kendi dairenizde kalır. `export` edildiğinde alt katlarda çalışan süreçler de bu bilgiyi görür.
 
-#### 8.3.3 Salt Okunur ve Silinemeyen Değişkenler
+#### 8.3.3 Alan Ayırıcı ve Güvenli Okuma (IFS and Safe Reading)
+
+Alan ayırıcı (Internal Field Separator, IFS), kabuğun sözcük bölmede kullandığı özel değişkendir. Varsayılan olarak boşluk, sekme ve satır sonu üzerinden çalışır. Dosya satırlarını güvenli okumak istediğinizde `IFS=` ile geçici olarak boş bırakmak ve `read -r` kullanmak doğru alışkanlıktır.
+
+```bash
+while IFS= read -r SATIR; do
+    echo "$SATIR"
+done < rapor.txt
+```
+
+Buradaki `-r`, ters eğik çizgiyi olduğu gibi korur. Özellikle yol adlarında ve kaçış karakteri içeren verilerde fark yaratır.
+
+#### 8.3.4 Salt Okunur ve Silinen Değişkenler
 
 ```bash
 readonly PI=3.14159
-PI=3.2            # Hata! bash: PI: readonly variable
-
-unset GECICI      # Değişkeni kaldır
+unset GECICI
 ```
+
+`readonly`, değişkenin değiştirilmesini engeller. `unset` ise değişkeni bellekten kaldırır.
 
 ---
 
-### 8.4 Tırnak İşaretleri ve Genişleme (Quoting and Expansion)
+### 8.4 Özel Karakterler, Tırnaklama ve Genişleme (Special Characters, Quoting and Expansion)
+
+Kabukta bazı karakterler yazıldıkları halin ötesinde anlam taşır. Bunlara özel karakterler (Special Characters) denir.
+
+| Karakter | İşlevi |
+|----------|--------|
+| `#` | Yorum başlatır |
+| `;` | Aynı satırda komut ayırır |
+| `;;` | `case` yapısında bir seçeneği kapatır |
+| `.` | `source` ile eşdeğer yerleşik komuttur |
+| `*` | Joker karakter, çoklu eşleşme |
+| `?` | Tek karakter eşleşmesi |
+| `|` | Boru hattı (Pipe) kurar |
+| `&` | Komutu arka planda başlatır |
+| `<` `>` | Girdi ve çıktı yönlendirmesi yapar |
+| `\` | Kaçış (Escape) karakteridir |
+
+```bash
+echo "ilk"; echo "ikinci"
+. ./ortam.sh
+```
+
+İlk satırda iki komut vardır. İkinci satırda ise `ortam.sh` dosyası yeni süreç açılmadan aynı kabuk içinde çalıştırılır.
+
+Tırnaklama (Quoting), bu özel anlamların gereksiz yere devreye girmesini önler:
 
 | Tırnak Türü | Davranış |
 |-------------|----------|
-| Çift tırnak `"..."` | Değişkenler ve komut ikameleri genişler |
-| Tek tırnak `'...'` | Hiçbir genişleme olmaz; her şey olduğu gibi kalır |
-| Ters tırnak `` `...` `` | Komut ikamesi (eski sözdizimi, `$(...)` tercih edilir) |
+| Çift tırnak `"..."` | Değişkenler ve komut ikameleri genişler, metin tek parça kalır |
+| Tek tırnak `'...'` | Neredeyse her şeyi olduğu gibi korur |
+| `$'...'` | Kaçış dizilerini yorumlar |
+| Ters tırnak `` `...` `` | Eski komut ikamesi biçimi |
+| `\` | Tek karakteri düz metne çevirir |
 
 ```bash
-ISIM="Linux"
+DOSYA_YOLU="C:\\Windows\\System32"
+MALIYET=100
 
-echo "Merhaba $ISIM"      # Merhaba Linux
-echo 'Merhaba $ISIM'      # Merhaba $ISIM
-echo "Tarih: $(date)"     # Tarih: Pzt Nis 13 ...
-echo 'Tarih: $(date)'     # Tarih: $(date)
+echo "Merhaba $USER"
+echo 'Merhaba $USER'
+echo "Toplam maliyet: \$MALIYET"
+echo "Tarih: $(date)"
 ```
 
-**Komut ikamesi (command substitution):**
+Desen eşleme ile tırnaklama ilişkisi de önemlidir:
+
+```bash
+ls [Vv]*
+ls '[Vv]*'
+```
+
+İlk satır deseni genişletir, ikincisi düz metin kabul eder. Mutfakta ölçü kabını açık bırakmakla kapağını kapatmak arasındaki fark gibi düşünülebilir.
+
+Komut ikamesi (Command Substitution) için güncel tercih `$(...)` yapısıdır:
 
 ```bash
 SATIR_SAYISI=$(wc -l < dosya.txt)
@@ -1532,23 +1587,16 @@ DISK_KULLANIM=$(df -h / | tail -1 | awk '{print $5}')
 echo "Disk doluluk oranı: $DISK_KULLANIM"
 ```
 
-`$()` yapısı komutu çalıştırır ve çıktısını metin olarak yerine koyar. İç içe kullanılabilir; eski backtick sözdiziminde bu çok zordu, `$()` ile doğaldır.
+`$()` yapısı komutu çalıştırır ve çıktısını metin olarak yerine koyar. İç içe kullanılabilir; eski ters tırnak yazımı bu konuda daha hantaldır.
 
-**Aritmetik genişleme (arithmetic expansion):**
-
-```bash
-SONUC=$((5 * 8 + 3))        # 43
-SONUC=$(( (10 + 5) * 2 ))   # 30
-```
-
-**Küme ayracı genişlemesi (brace expansion):**
+Küme ayracı genişlemesi (Brace Expansion) ise kısa yazım sağlar:
 
 ```bash
-echo dosya{1,2,3}.txt      # dosya1.txt dosya2.txt dosya3.txt
-echo {a..e}                # a b c d e
-echo {1..10..2}            # 1 3 5 7 9 (adım 2)
-mkdir -p proje/{src,lib,test,doc}    # 4 dizini tek seferde
-cp config.{conf,conf.bak}            # konfig dosyasını yedekle
+echo dosya{1,2,3}.txt
+echo {a..e}
+echo {1..10..2}
+mkdir -p proje/{src,lib,test,doc}
+cp config.{conf,conf.bak}
 ```
 
 ---
@@ -1715,10 +1763,13 @@ komut >> dosya.txt         # stdout'u dosyaya ekle (sonuna)
 komut 2> hatalar.txt       # stderr'i dosyaya yaz
 komut > log.txt 2>&1       # stderr akışını, stdout akışının olduğu konuma bağla
 komut < girdi.txt          # stdout akışına girdi.txt içeriğini yönlendir
+komut &> birlikte.log      # stdout ve stderr'i birlikte yönlendir
 komut > /dev/null 2>&1     # Tüm çıktıları işletim sisteminin kara deliğine (/dev/null) gönder
 ```
 
 `2>&1` ifadesi "stderr (FD 2) yönünü, stdout (FD 1) nereye gidiyorsa oraya bağla" demektir. **Sıra önemlidir:** önce stdout dosyaya yönlendirilmeli, sonra stderr stdout'a bağlanmalıdır. Ters yazılırsa stderr terminale gitmeye devam eder.
+
+`/dev/null`, işletim sisteminin boşaltım kutusu gibidir. Oraya giden veri yazılır ama saklanmaz.
 
 #### Here Document (Satır İçi Belge)
 
@@ -1758,6 +1809,14 @@ wc -w <<< "bir iki uc dort bes"    # 5
 ### 8.9 Koşullu İfadeler (Conditional Statements)
 
 #### Test Yapıları
+
+Kabukta doğruluk ölçütü çoğu öğrencinin ilk anda beklediğinden farklıdır. Burada temel mesele “ifade doğru mu” değil, “komut başarıyla bitti mi” sorusudur. UNIX geleneğinde `0` başarı demektir. Bu yüzden `if`, yalnız köşeli parantez içindeki testleri değil, herhangi bir komutun sonucunu da sınayabilir:
+
+```bash
+if grep -q "ERROR" uygulama.log; then
+    echo "Hata kaydi bulundu."
+fi
+```
 
 Bash'te üç farklı test mekanizması vardır:
 
@@ -1811,7 +1870,7 @@ Bash'te üç farklı test mekanizması vardır:
 [[ -f "$DOSYA" || -d "$DOSYA" ]] # OR, tek ifade içinde
 ```
 
-`[[ ]]` boşluklu metinleri tırnak gerekmeksizin doğru işler ve regex operatörü `=~` içerir. Bash yazarken `[[ ]]` tercih edilir.
+`[[ ]]` boşluklu metinleri daha güvenli işler ve regex operatörü `=~` içerir. Bash yazarken çoğu durumda `[[ ]]` tercih edilir.
 
 #### if / elif / else
 
@@ -1872,7 +1931,7 @@ esac
 
 ---
 
-### 8.10 Döngüler (Loops)
+### 8.10 Döngüler ve Alt Kabuklar (Loops and Subshells)
 
 #### for Döngüsü — Liste Üzerinde
 
@@ -1955,6 +2014,33 @@ done
 
 `break N` ile N seviye iç içe döngüden çıkılabilir.
 
+#### Alt Kabuklar ve Kod Blokları (Subshells and Code Blocks)
+
+Parantez içinde çalışan komut grubu alt kabuk (Subshell) üretir:
+
+```bash
+DEGER=10
+
+(
+    DEGER=99
+    echo "Ic kisim: $DEGER"
+)
+
+echo "Disarisi: $DEGER"
+```
+
+İçeride `99`, dışarıda `10` görülür. Çünkü parantez içi ayrı çocuk süreçte çalışır. Orada yapılan değişiklik ana kabuğa geri taşınmaz.
+
+Süslü parantez farklı davranır:
+
+```bash
+DEGER=10
+{ DEGER=99; }
+echo "$DEGER"
+```
+
+Burada yeni süreç açılmaz; değişiklik dışarı taşar. Ayrı laboratuvar odasında deneme yapmakla aynı masa üzerinde deneme yapmak arasındaki fark gibi düşünülebilir.
+
 ---
 
 ### 8.11 Fonksiyonlar (Functions)
@@ -2016,7 +2102,7 @@ echo "Disarida: $x"           # 10 — değişmedi
 
 `local` kullanmazsanız fonksiyon içindeki değişken global kapsamı değiştirir. Beklenmedik hatalara yol açar. Fonksiyonlarda her zaman `local` kullanın.
 
-![Değişken Kapsamı](images/variable-scope.svg)
+![Değişken Kapsamı](images/bash-variable-scope.svg)
 
 #### Özyinelemeli Fonksiyon (Recursive Function)
 
@@ -2076,12 +2162,10 @@ set -euo pipefail
 
 ```bash
 # set -u olmadan
-DIZIN=""
-rm -rf $DIZIN/   # rm -rf / çalışır — felakete giden yol!
+rm -rf "$HEDEF_DIZIN"/   # HEDEF_DIZIN tanimli degilse bos gibi davranabilir
 
 # set -u ile
-DIZIN=""
-rm -rf $DIZIN/   # Hata: unbound variable — betik durur
+rm -rf "$HEDEF_DIZIN"/   # Hata: unbound variable — betik durur
 ```
 
 #### trap — Sinyal Yakalama
@@ -2220,7 +2304,7 @@ Bunu bir fabrika montaj hattına benzetebilirsiniz: her işçi (süreç) kendi i
 
 ---
 
-### 🔨 Uygulama 8 — Log Analiz Betiği
+### Uygulama 8 — Log Analiz Betiği
 
 Aşağıdaki betiği `log_analiz.sh` olarak kaydedin:
 
