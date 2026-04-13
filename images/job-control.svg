@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 310" width="700" height="310" font-family="monospace,sans-serif">
+  <rect width="700" height="310" fill="#f8f9fa" rx="8"/>
+  <text x="350" y="26" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Paralel İş Denetimi (Job Control)</text>
+
+  <!-- Main process -->
+  <rect x="260" y="45" width="180" height="55" fill="#d0e8ff" stroke="#3a86c8" stroke-width="2.5" rx="8"/>
+  <text x="350" y="68" text-anchor="middle" font-size="13" fill="#1a3a5c" font-weight="bold">Ana Süreç</text>
+  <text x="350" y="88" text-anchor="middle" font-size="11" fill="#1a3a5c">islem_1 &amp; islem_2 &amp; islem_3 &amp;</text>
+
+  <!-- Arrow down -->
+  <line x1="350" y1="100" x2="350" y2="118" stroke="#555" stroke-width="1.5"/>
+  <line x1="185" y1="118" x2="515" y2="118" stroke="#555" stroke-width="1.5"/>
+
+  <!-- Child processes -->
+  <!-- Job 1 -->
+  <line x1="185" y1="118" x2="185" y2="138" stroke="#555" stroke-width="1.5" marker-end="url(#arrD)"/>
+  <rect x="110" y="140" width="150" height="60" fill="#d5f5d5" stroke="#2a8a2a" stroke-width="2" rx="6"/>
+  <text x="185" y="165" text-anchor="middle" font-size="12" fill="#1a5c1a" font-weight="bold">islem_1</text>
+  <text x="185" y="183" text-anchor="middle" font-size="10" fill="#444">PID: 1234</text>
+  <text x="185" y="197" text-anchor="middle" font-size="10" fill="#888">arka planda çalışır</text>
+
+  <!-- Job 2 -->
+  <line x1="350" y1="118" x2="350" y2="138" stroke="#555" stroke-width="1.5" marker-end="url(#arrD)"/>
+  <rect x="275" y="140" width="150" height="60" fill="#d5f5d5" stroke="#2a8a2a" stroke-width="2" rx="6"/>
+  <text x="350" y="165" text-anchor="middle" font-size="12" fill="#1a5c1a" font-weight="bold">islem_2</text>
+  <text x="350" y="183" text-anchor="middle" font-size="10" fill="#444">PID: 1235</text>
+  <text x="350" y="197" text-anchor="middle" font-size="10" fill="#888">arka planda çalışır</text>
+
+  <!-- Job 3 -->
+  <line x1="515" y1="118" x2="515" y2="138" stroke="#555" stroke-width="1.5" marker-end="url(#arrD)"/>
+  <rect x="440" y="140" width="150" height="60" fill="#d5f5d5" stroke="#2a8a2a" stroke-width="2" rx="6"/>
+  <text x="515" y="165" text-anchor="middle" font-size="12" fill="#1a5c1a" font-weight="bold">islem_3</text>
+  <text x="515" y="183" text-anchor="middle" font-size="10" fill="#444">PID: 1236</text>
+  <text x="515" y="197" text-anchor="middle" font-size="10" fill="#888">arka planda çalışır</text>
+
+  <!-- wait command -->
+  <line x1="185" y1="200" x2="185" y2="225" stroke="#c8a020" stroke-width="1.5"/>
+  <line x1="350" y1="200" x2="350" y2="225" stroke="#c8a020" stroke-width="1.5"/>
+  <line x1="515" y1="200" x2="515" y2="225" stroke="#c8a020" stroke-width="1.5"/>
+  <line x1="185" y1="225" x2="515" y2="225" stroke="#c8a020" stroke-width="1.5"/>
+  <line x1="350" y1="225" x2="350" y2="244" stroke="#c8a020" stroke-width="1.5" marker-end="url(#arrY)"/>
+
+  <text x="230" y="220" font-size="10" fill="#c8a020">wait — tüm işler bitsin</text>
+
+  <!-- Result box -->
+  <rect x="245" y="245" width="210" height="42" fill="#ffe8a0" stroke="#c8a020" stroke-width="2" rx="6"/>
+  <text x="350" y="263" text-anchor="middle" font-size="12" fill="#6b4c00" font-weight="bold">Tüm işler tamamlandı</text>
+  <text x="350" y="280" text-anchor="middle" font-size="11" fill="#6b4c00">Ana süreç devam eder</text>
+
+  <!-- Timeline label -->
+  <text x="350" y="302" text-anchor="middle" font-size="10" fill="#888">Paralel çalışma: toplam süre = en uzun işin süresi (seri çalışmaya göre çok daha hızlı)</text>
+
+  <defs>
+    <marker id="arrD" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#555"/>
+    </marker>
+    <marker id="arrY" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#c8a020"/>
+    </marker>
+  </defs>
+</svg>

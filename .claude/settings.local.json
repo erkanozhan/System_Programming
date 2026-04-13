@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(head -1334 \"e:/Repolar/SystemProgramming/System_Programming-1/linux-mate-terminal-ders-notu.md\")",
+      "Read(//tmp/**)"
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 300" width="740" height="300" font-family="monospace,sans-serif">
+  <rect width="740" height="300" fill="#f8f9fa" rx="8"/>
+
+  <!-- Title -->
+  <text x="370" y="24" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Dosya Tanımlayıcıları (File Descriptors) ve Yönlendirme</text>
+
+  <!-- Process box (center) -->
+  <rect x="280" y="110" width="180" height="80" fill="#e8e8f8" stroke="#4444aa" stroke-width="2.5" rx="8"/>
+  <text x="370" y="145" text-anchor="middle" font-size="14" fill="#222" font-weight="bold">Süreç</text>
+  <text x="370" y="165" text-anchor="middle" font-size="11" fill="#444">(Process)</text>
+
+  <!-- stdin arrow (left) -->
+  <rect x="30" y="125" width="110" height="50" fill="#d0eedd" stroke="#2a8a4a" stroke-width="1.5" rx="5"/>
+  <text x="85" y="147" text-anchor="middle" font-size="12" fill="#1a5c2a" font-weight="bold">stdin</text>
+  <text x="85" y="163" text-anchor="middle" font-size="10" fill="#1a5c2a">FD 0 — Klavye</text>
+  <line x1="140" y1="150" x2="278" y2="150" stroke="#2a8a4a" stroke-width="2" marker-end="url(#arrowG)"/>
+  <text x="210" y="143" text-anchor="middle" font-size="10" fill="#2a8a4a">  &lt; dosya.txt</text>
+
+  <!-- stdout arrow (right) -->
+  <rect x="600" y="90" width="120" height="50" fill="#d0e8ff" stroke="#2255aa" stroke-width="1.5" rx="5"/>
+  <text x="660" y="112" text-anchor="middle" font-size="12" fill="#1a3a8a" font-weight="bold">stdout</text>
+  <text x="660" y="128" text-anchor="middle" font-size="10" fill="#1a3a8a">FD 1 — Terminal</text>
+  <line x1="460" y1="135" x2="598" y2="115" stroke="#2255aa" stroke-width="2" marker-end="url(#arrowB)"/>
+  <text x="540" y="118" text-anchor="middle" font-size="10" fill="#2255aa">&gt; dosya.txt</text>
+
+  <!-- stderr arrow (right-down) -->
+  <rect x="600" y="175" width="120" height="50" fill="#ffe0d0" stroke="#cc4422" stroke-width="1.5" rx="5"/>
+  <text x="660" y="197" text-anchor="middle" font-size="12" fill="#8a1a1a" font-weight="bold">stderr</text>
+  <text x="660" y="213" text-anchor="middle" font-size="10" fill="#8a1a1a">FD 2 — Terminal</text>
+  <line x1="460" y1="165" x2="598" y2="195" stroke="#cc4422" stroke-width="2" marker-end="url(#arrowR)"/>
+  <text x="548" y="191" text-anchor="middle" font-size="10" fill="#cc4422">2&gt; hata.txt</text>
+
+  <!-- /dev/null box -->
+  <rect x="300" y="225" width="140" height="38" fill="#e0e0e0" stroke="#888" stroke-width="1.5" rx="5"/>
+  <text x="370" y="249" text-anchor="middle" font-size="12" fill="#444">/dev/null</text>
+  <line x1="370" y1="190" x2="370" y2="223" stroke="#888" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowGr)"/>
+  <text x="400" y="214" font-size="10" fill="#888">&gt;/dev/null</text>
+
+  <!-- 2&gt;&amp;1 note -->
+  <text x="370" y="275" text-anchor="middle" font-size="11" fill="#555">2&gt;&amp;1 — stderr'i stdout'ın gittiği yere yönlendir</text>
+  <text x="370" y="292" text-anchor="middle" font-size="11" fill="#555">&amp;&gt; dosya.txt — stdout ve stderr'i birlikte yönlendir</text>
+
+  <defs>
+    <marker id="arrowG" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#2a8a4a"/>
+    </marker>
+    <marker id="arrowB" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#2255aa"/>
+    </marker>
+    <marker id="arrowR" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#cc4422"/>
+    </marker>
+    <marker id="arrowGr" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto">
+      <polygon points="0 0, 9 3.5, 0 7" fill="#888"/>
+    </marker>
+  </defs>
+</svg>
