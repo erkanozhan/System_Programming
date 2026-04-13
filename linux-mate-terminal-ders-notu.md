@@ -1335,11 +1335,23 @@ apt show htop                           # Paket hakkında bilgi göster
 
 ## BÖLÜM 8 — Kabuk Programlama (Shell Programming)
 
-Şimdiye kadar ele aldığımız komutların hepsi etkileşimli kullanım içindi: bir komut yazarsınız, sistem cevap verir, siz bir sonraki komutu yazarsınız. Kabuk programlama bu süreci tersine çevirir: ne yapılacağını önce bir dosyaya yazarsınız, sonra sisteme "git, bunu çalıştır" dersiniz. Sistem dosyayı okur, komutları sırayla yürütür.
+Gençler, şimdiye kadar incelediğimiz komutlar etkileşimli (Interactive) kullanım içindi. Terminale bir komut girersiniz, çekirdek (Kernel) bunu işler ve sizden bir sonraki komutu bekler. Kabuk programlama (Shell Programming) ise bu ardışık süreci otomatikleştirir.
 
-Bu yaklaşım iki temel gözlemden doğar. Birincisi, bilgisayar mühendisliğinde tekrarlayan görevler vardır — her sabah log dosyalarını incelemek, her hafta yedek almak, her gece rapor üretmek. Bunları elle yapmak hem yorucu hem hata yaratıcıdır. İkincisi, insanlar tutarsızdır; bilgisayarlar tutarlıdır. Bir betik her çalıştığında aynı adımları, aynı sırayla uygular.
+Bir işletim sisteminin mimarisini incelerken, hangi aracı nerede kullanacağımızı bilmek, o aracı kullanmayı bilmekten çok daha değerlidir. Neden kabuk betiklerine (Shell Scripts) ihtiyaç duyarız? Kabuk, sistemdeki mevcut küçük programları ve araçları (`awk`, `sed`, `grep` vb.) birbirine bağlayan bir yapıştırıcı (Glue) görevi görür. Sistem yöneticilerinin her sabah log dosyalarını incelemesi, yedeklemeleri (Backup) başlatması gibi tekrarlayan ve zaman alan sistem yönetimi (System Administration) görevlerini üstlenir. Ayrıca, karmaşık bir yazılım projesine başlamadan önce hızlı prototipleme (Rapid Prototyping) yapmak için ideal bir ortamdır. Bunu bir fabrikada yeni bir üretim bandı kurmadan önce, mühendislerin küçük bir masa etrafında süreci manuel olarak simüle etmesine benzetebiliriz; eğer iş akışı doğru çalışıyorsa, daha sonra ağır sanayi makineleriyle (yani C/C++ gibi derlenen dillerle) asıl hat kurulur.
 
-Bir mutfak şefi tarifi yazıp aşçılara verdiğinde, her aşçı o tarifi takip ederek aynı yemeği üretir. Betik de tam olarak tarif gibidir: adım adım talimatları içeren bir metin dosyası.
+Ancak kabuk betikleri her probleme uygun bir çözüm değildir. Tasarım felsefesi gereği bir yorumlayıcı (Interpreter) tarafından satır satır işlendikleri için görece yavaştırlar. Aşağıdaki durumlarda kabuk programlamadan kesinlikle kaçınmalıyız:
+
+* **Yoğun Kaynak Tüketimi:** Hızın kritik olduğu, işlemciyi veya belleği yoğun kullanan algoritmalar.
+* **Ağır Matematiksel İşlemler:** Kayan noktalı (Floating-Point) sayılar veya karmaşık hesaplamalar.
+* **Donanım Erişimi:** Doğrudan bellek adreslerine, portlara veya donanım sürücülerine (Drivers) müdahale edilecekse.
+* **Karmaşık Veri Yapıları:** Nesne yönelimli (Object-Oriented) tasarıma veya çok boyutlu dizilere ihtiyaç duyuluyorsa.
+* **Platform Bağımsızlığı:** Yazılan kodun UNIX tabanlı olmayan farklı işletim sistemlerinde de çalışması bekleniyorsa.
+
+Eğer projeniz bu maddelerden birini içeriyorsa; C, C++, Python gibi derlenen (Compiled) veya sistem düzeyine daha hakim dillere yönelmeniz gerekir.
+
+!Kabuk ve Derlenen Dil Karşılaştırması
+
+Kabuk betiği yazmak, bir baş aşçının mutfaktaki diğer çalışanlara her yemeğin hazırlanış aşamalarını anlatan yazılı bir reçete vermesi gibidir. Aşçılar bu reçeteyi adım adım takip ettiklerinde, yemeğin standartları her seferinde aynı kalır. İşletim sisteminde yazdığımız her bir betik, çekirdeğin tam olarak hangi adımları izlemesi gerektiğini belirten bu reçetelerin dijital karşılığıdır.
 
 ---
 
@@ -1347,7 +1359,7 @@ Bir mutfak şefi tarifi yazıp aşçılara verdiğinde, her aşçı o tarifi tak
 
 Bash betiği (bash script), `.sh` uzantılı — uzantı zorunlu değil, geleneğe uygundur — düz metin dosyasıdır. Çalıştırılabilmesi için iki koşul gerekir: çalıştırma izni (`chmod +x`) ve geçerli bir sözdizimi (syntax).
 
-```bash
+```text
 nano ilk_betik.sh
 ```
 
@@ -1563,7 +1575,7 @@ SAYAC=0
 echo $SAYAC        # 12
 ```
 
-`(( ))` dönüş değeri de üretir: ifade sıfırdan farklıysa başarılı (0), sıfırsa başarısız (1) döner. Bu özellik koşullarda kullanışlıdır:
+Bu yapılar aynı zamanda matematiksel ifadenin mantıksal sonucuna göre bir değer üretir; bu özellik Koşullu İfadelerde (Conditional Statements) mantıksal kontroller için kullanılır:
 
 ```bash
 if (( A > B )); then
@@ -1573,11 +1585,11 @@ fi
 
 #### `bc` ile Ondalıklı Aritmetik
 
-Bash kendi başına ondalıklı sayı işleyemez. `bc` (Basic Calculator — Temel Hesap Makinesi) bu boşluğu doldurur:
+İşletim sisteminin kabuğu doğası gereği tam sayılar (Integer) üzerinden çalışır. Ondalıklı sayılarla (Float) veya daha karmaşık fonksiyonlarla çalışmak gerektiğinde sisteme ait `bc` (Basic Calculator) aracı kullanılır:
 
 ```bash
 echo "scale=4; 22 / 7" | bc          # 3.1428
-echo "scale=2; sqrt(2)" | bc -l      # 1.41  (-l matematik kütüphanesi)
+echo "scale=2; sqrt(2)" | bc -l      # -l parametresi standart matematik kütüphanesini dahil eder
 
 PI=$(echo "scale=10; 4 * a(1)" | bc -l)   # a(1) = arctan(1), pi/4
 echo $PI
@@ -1589,7 +1601,7 @@ echo $PI
 
 ### 8.6 Parametre Genişletme (Parameter Expansion)
 
-Bash'in `${}` sözdizimi içindeki genişletme seçenekleri, metin işleme için harici komutlara gerek kalmadan pek çok işlemi doğrudan yapmanızı sağlar.
+Bir metin dizgisinin içerisinden belirli bir bölümü almak veya değiştirmek için harici araçlara başvurmadan sadece kabuk referanslarını kullanma yöntemine Parametre Genişletme (Parameter Expansion) denir. Bunu bir fabrikadaki hassas kesim ve kalıp çıkarma tezgahlarına benzetebiliriz; veriyi (ham maddeyi) istediğimiz forma sokmamızı sağlar.
 
 | Sözdizimi | Anlamı |
 |-----------|--------|
@@ -1630,7 +1642,7 @@ KULLANICI=${1:-"misafir"}
 echo "Hos geldin, $KULLANICI"
 ```
 
-Bu özellikler sed veya awk kullanmadan metin dönüşümü yapmanızı sağlar. Her harici komut yeni bir süreç başlatır; parametre genişletme ise shell içinde gerçekleşir — hem daha hızlıdır hem de daha az kaynak harcar.
+Parametre genişletme işlemleri doğrudan kabuğun kendi bellek alanında gerçekleştiği için, dışarıdan sistem süreçleri başlatmaya kıyasla donanım kaynaklarını çok daha verimli kullanır.
 
 ---
 
@@ -1658,23 +1670,22 @@ done
 echo ${MEYVELER[@]:1:3}  # armut kiraz uzum — dilim: index 1'den 3 eleman
 ```
 
-#### İlişkisel Dizi (Associative Array) — Bash 4+
+#### İlişkisel Dizi (Associative Array)
 
-İlişkisel dizi, sayısal indis yerine metin anahtar kullanan yapıdır. Python'daki sözlük (dictionary) veya Java'daki `HashMap` ile aynı mantıktadır.
+Verilere sıralı indeksler üzerinden erişmek yerine, bir anahtar-değer (key-value) eşleşmesi üzerinden erişmeye imkan tanıyan veri yapılarıdır. İndisli dizileri eczanedeki numaralandırılmış ilaç çekmeceleri, ilişkisel dizileri ise çekmecelerin üzerinde "Ağrı Kesiciler", "Vitaminler" yazan etiketler olarak düşünebiliriz.
 
 ```bash
-declare -A NOTLAR
+declare -A SICAKLIKLAR
 
-NOTLAR["Ali"]=85
-NOTLAR["Zeynep"]=92
-NOTLAR["Mehmet"]=78
+SICAKLIKLAR["Ankara"]=12
+SICAKLIKLAR["Izmir"]=15
+SICAKLIKLAR["Istanbul"]=18
 
-echo ${NOTLAR["Ali"]}     # 85
-echo ${!NOTLAR[@]}        # Anahtarlar: Ali Zeynep Mehmet (sıra garantisi yok)
-echo ${NOTLAR[@]}         # Değerler: 85 92 78
+echo ${SICAKLIKLAR["Ankara"]}     # 12
+echo ${!SICAKLIKLAR[@]}           # Sisteme kaydedilmiş olan tüm anahtarları gösterir
 
-for ogrenci in "${!NOTLAR[@]}"; do
-    echo "$ogrenci: ${NOTLAR[$ogrenci]}"
+for sehir in "${!SICAKLIKLAR[@]}"; do
+    echo "$sehir: ${SICAKLIKLAR[$sehir]}"
 done
 ```
 
@@ -1684,25 +1695,27 @@ done
 
 #### Dosya Tanımlayıcıları (File Descriptors)
 
-Her Linux süreci başladığında üç akış (stream) açık gelir. Latince *filum* (iplik) kökünden türeyen "file" kelimesi burada bir veri kanalını simgeler; dosya tanımlayıcı ise bu kanala açılan numaralı bir kapıdır.
+İşletim sistemi bir süreci (Process) belleğe yerleştirip çalıştırdığında, o sürecin çevresiyle iletişim kurabilmesi için üç adet varsayılan akış (Stream) kanalı açar. Sistem programlama terminolojisinde bu numaralandırılmış donanım erişim noktalarına Dosya Tanımlayıcı (File Descriptor - FD) adı verilir.
+
+Bu yapıyı bir su tesisatına benzetebiliriz: 0 numaralı ana hattan binaya temiz su (veri) girer, 1 numaralı hattan işlenmiş temiz su binayı terk eder, 2 numaralı kanal ise sistemde oluşan atıkları ve sızıntıları (hataları) tahliye etmek için ayrılmış özel bir haktır.
 
 | FD | Ad | Varsayılan Hedef |
 |----|----|----|
-| 0 | stdin (Standard Input — Standart Giriş) | Klavye |
-| 1 | stdout (Standard Output — Standart Çıkış) | Terminal |
-| 2 | stderr (Standard Error — Standart Hata) | Terminal |
+| 0 | Standart Girdi (Standard Input - stdin) | Klavye |
+| 1 | Standart Çıktı (Standard Output - stdout) | Terminal Ekranı |
+| 2 | Standart Hata (Standard Error - stderr) | Terminal Ekranı |
 
 ![Dosya Tanımlayıcıları ve Yönlendirme](images/io-redirection.svg)
+
+![Dosya Tanımlayıcıları Su Tesisatı Analojisi](images/fd-plumbing-analogy.svg)
 
 ```bash
 komut > dosya.txt          # stdout'u dosyaya yaz (üzerine)
 komut >> dosya.txt         # stdout'u dosyaya ekle (sonuna)
 komut 2> hatalar.txt       # stderr'i dosyaya yaz
-komut > cikti.txt 2>&1     # stdout ve stderr'i aynı dosyaya
-komut &> cikti.txt         # Kısaltma (Bash'e özgü)
-komut < girdi.txt          # stdin'i dosyadan oku
-komut 2>/dev/null          # Hata mesajlarını yok say
-komut > /dev/null 2>&1     # Her şeyi yok say
+komut > log.txt 2>&1       # stderr akışını, stdout akışının olduğu konuma bağla
+komut < girdi.txt          # stdout akışına girdi.txt içeriğini yönlendir
+komut > /dev/null 2>&1     # Tüm çıktıları işletim sisteminin kara deliğine (/dev/null) gönder
 ```
 
 `2>&1` ifadesi "stderr (FD 2) yönünü, stdout (FD 1) nereye gidiyorsa oraya bağla" demektir. **Sıra önemlidir:** önce stdout dosyaya yönlendirilmeli, sonra stderr stdout'a bağlanmalıdır. Ters yazılırsa stderr terminale gitmeye devam eder.

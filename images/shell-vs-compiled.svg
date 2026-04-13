@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 300" width="740" height="300" font-family="sans-serif">
+  <rect width="740" height="300" fill="#f8f9fa" rx="10"/>
+  
+  <text x="370" y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#2c3e50">Araç Seçimi: Kabuk Programlama vs. Derlenen Diller</text>
+  
+  <!-- Left Column: Shell Scripting -->
+  <rect x="40" y="60" width="310" height="200" fill="#e8f4f8" stroke="#3498db" stroke-width="2" rx="8"/>
+  <text x="195" y="90" text-anchor="middle" font-size="16" font-weight="bold" fill="#2980b9">Kabuk Betikleri (Shell)</text>
+  
+  <text x="195" y="125" text-anchor="middle" font-size="14" font-style="italic" fill="#555">"Fabrikanın Taşıma Bandı"</text>
+  
+  <circle cx="195" cy="170" r="30" fill="#3498db" opacity="0.2"/>
+  <path d="M175,170 h40 M195,150 v40" stroke="#2980b9" stroke-width="4"/> <!-- Sembolik entegrasyon/artı -->
+  
+  <text x="195" y="225" text-anchor="middle" font-size="13" fill="#333">✔ Hızlı Prototipleme</text>
+  <text x="195" y="245" text-anchor="middle" font-size="13" fill="#333">✔ Araçları Birbirine Bağlama</text>
+  
+  <!-- Right Column: Compiled Languages -->
+  <rect x="390" y="60" width="310" height="200" fill="#fdf2e9" stroke="#e67e22" stroke-width="2" rx="8"/>
+  <text x="545" y="90" text-anchor="middle" font-size="16" font-weight="bold" fill="#d35400">Derlenen Diller (C/C++)</text>
+  
+  <text x="545" y="125" text-anchor="middle" font-size="14" font-style="italic" fill="#555">"Ağır Sanayi CNC Tezgahı"</text>
+  
+  <rect x="525" y="150" width="40" height="40" fill="#e67e22" opacity="0.8" rx="4"/>
+  <circle cx="545" cy="170" r="10" fill="#fff"/>
+  
+  <text x="545" y="225" text-anchor="middle" font-size="13" fill="#333">✔ Yüksek Performans</text>
+  <text x="545" y="245" text-anchor="middle" font-size="13" fill="#333">✔ Doğrudan Donanım Erişimi</text>
+</svg>
