@@ -2013,46 +2013,174 @@ Parametre genişletme işlemleri doğrudan kabuğun kendi bellek alanında gerç
 
 ### 8.7 Diziler (Arrays)
 
+Şimdiye kadar incelediğimiz değişkenler tek bir değer tutuyordu. Ama betiklerde çoğunlukla bir koleksiyon üzerinde çalışmak gerekir: öğrenci isimleri, işlenecek dosya adları, sensör ölçümleri... Her biri için ayrı değişken oluşturmak yerine bu verileri bir **dizi** (array) içinde toplamak hem düzenlilik sağlar hem de döngülerde işlemeyi doğrudan kolaylaştırır.
+
+Bash'te iki tür dizi vardır. **İndisli dizi** (indexed array), sıfırdan başlayan tam sayı indislerle erişilen, numaralı raflara benzeyen bir yapıdır. **İlişkisel dizi** (associative array) ise elemanlara metin anahtar (key) ile ulaşılan, sözlük gibi çalışan bir yapıdır.
+
 #### İndisli Dizi (Indexed Array)
+
+İndisli diziyi, üstünde numara bulunan gözlere sahip bir meyve kasası gibi düşünebiliriz. `MEYVELER` etiketi kasanın tamamını temsil eder; her gözün numarası 0'dan başlar ve o gözün içinde de ilgili değer bulunur. "2 numaralı gözden getir" demek `${MEYVELER[2]}` yazmakla eşdeğerdir.
+
+Bilgisayar biliminde dizilerin 0'dan başlaması evrensel bir standarttır. Bunun sezgisel açıklaması şudur: indis, dizinin başından o elemana kadar kaç adım atılacağını gösterir. İlk elemana ulaşmak için sıfır adım yeterlidir, dolayısıyla indisi 0'dır.
+
+![İndisli Dizi Bellek Düzeni](images/indexed-array-layout.svg)
+
+Bir diziyi tanımlamanın en doğrudan yolu, tüm elemanları parantez içinde boşlukla ayırarak yazmaktır:
 
 ```bash
 MEYVELER=("elma" "armut" "kiraz" "uzum")
+```
 
-echo ${MEYVELER[0]}      # elma
-echo ${MEYVELER[2]}      # kiraz
-echo ${MEYVELER[-1]}     # uzum — son eleman (Bash 4.3+)
-echo ${MEYVELER[@]}      # elma armut kiraz uzum — tüm elemanlar
-echo ${#MEYVELER[@]}     # 4 — eleman sayısı
-echo ${!MEYVELER[@]}     # 0 1 2 3 — indisler
+Boşluk içeren değerler tırnak içinde yazılmalıdır; aksi hâlde kabuk sözcük bölme (word splitting) uygular ve her kelimeyi ayrı eleman olarak değerlendirir.
 
-MEYVELER+=("mango")      # Sonuna ekle
-MEYVELER[5]="nar"        # Belirli indise yaz
+Temel erişim ve bilgi alma işlemleri:
+
+```bash
+#!/usr/bin/env bash
+# dizi_temel.sh
+
+MEYVELER=("elma" "armut" "kiraz" "uzum")
+
+# ─── TEK ELEMAN ERİŞİMİ ──────────────────────────────────────────
+
+echo "${MEYVELER[0]}"      # elma   — ilk eleman; indis sıfırdan başlar
+echo "${MEYVELER[2]}"      # kiraz  — üçüncü gözün içeriği
+echo "${MEYVELER[-1]}"     # uzum   — son eleman; negatif indis sağdan sayar (Bash 4.3+)
+
+# ─── DİZİ BİLGİSİ ────────────────────────────────────────────────
+
+echo "${#MEYVELER[@]}"     # 4      — toplam eleman sayısı (#: length/uzunluk)
+echo "${!MEYVELER[@]}"     # 0 1 2 3 — mevcut indislerin listesi (!: indirect/dolaylı)
+echo "${MEYVELER[@]}"      # elma armut kiraz uzum — tüm elemanlar (@: all/hepsi)
+```
+
+`@` simgesi "hepsi" anlamında bir jokerdir; tüm elemanları ayrı kelimeler olarak döndürür. `!` değerlerin kendisi yerine indislerin listesini verir. `#` eleman sayısını döndürür.
+
+Eleman ekleme, güncelleme ve silme:
+
+```bash
+#!/usr/bin/env bash
+# dizi_degistirme.sh
+
+MEYVELER=("elma" "armut" "kiraz" "uzum")
+
+# Sonuna eleman ekleme: += sözdizimi mevcut diziyi genişletir
+MEYVELER+=("mango")
+
+# Belirli bir indise doğrudan yazma
+MEYVELER[5]="nar"
+
+# Mevcut bir elemanı güncelleme
+MEYVELER[0]="erik"
+
+echo "Güncel dizi    : ${MEYVELER[@]}"
+# Çıktı: erik armut kiraz uzum mango nar
+
+# Belirli bir elemanı silme
+# unset bir indisi kaldırır; diziyi yeniden numaralandırmaz.
+# Aradaki boşluğa sahip dizilere seyrek dizi (sparse array) denir.
+unset 'MEYVELER[2]'
+
+echo "Kiraz silindi  : ${MEYVELER[@]}"
+# Çıktı: erik armut uzum mango nar
+
+echo "Kalan indisler : ${!MEYVELER[@]}"
+# Çıktı: 0 1 3 4 5   — 2 numaralı indis artık mevcut değil
+
+# Tüm diziyi bellekten kaldırma
+unset MEYVELER
+```
+
+`unset 'MEYVELER[2]'` ile bir eleman silindiğinde Bash diziyi sıkıştırmaz; 2 numaralı indis boş kalır, sonraki elemanlar yerinde durur. Diziyi boşluksuz yeniden kullanmak istiyorsanız elemanları döngüyle yeni bir diziye kopyalamanız gerekir.
+
+Dilim (slice) alma — belirli bir aralığı kesmek:
+
+```bash
+MEYVELER=("elma" "armut" "kiraz" "uzum" "mango" "nar")
+
+# ${DİZİ[@]:başlangıç:eleman_sayısı}
+echo "${MEYVELER[@]:1:3}"    # armut kiraz uzum — 1. indisten itibaren 3 eleman
+echo "${MEYVELER[@]:(-2)}"   # mango nar — sondan 2 eleman (Bash 4.2+)
+```
+
+Dizi içinde dolaşmak:
+
+```bash
+MEYVELER=("elma" "armut" "kiraz" "uzum" "mango" "nar")
 
 for meyve in "${MEYVELER[@]}"; do
     echo "  - $meyve"
 done
-
-echo ${MEYVELER[@]:1:3}  # armut kiraz uzum — dilim: index 1'den 3 eleman
 ```
+
+`"${MEYVELER[@]}"` ifadesini tırnak içinde yazmak kritik öneme sahiptir. Tırnak olmadan boşluk içeren bir eleman ikiye bölünür ve döngü beklenmedik sonuçlar üretir. Bu tırnak, her elemanın tek ve bütün bir kelime olarak işlenmesini garanti eder.
 
 #### İlişkisel Dizi (Associative Array)
 
-Verilere sıralı indeksler üzerinden erişmek yerine, bir anahtar-değer (key-value) eşleşmesi üzerinden erişmeye imkan tanıyan veri yapılarıdır. İndisli dizileri eczanedeki numaralandırılmış ilaç çekmeceleri, ilişkisel dizileri ise çekmecelerin üzerinde "Ağrı Kesiciler", "Vitaminler" yazan etiketler olarak düşünebiliriz.
+İlişkisel dizi, bir telefon rehberi gibi çalışır. Rehberde "Kaya" adını aratırsınız ve karşısında numarayı bulursunuz; rehberin kaçıncı sayfasında olduğunu bilmenize gerek yoktur. Aynı şekilde ilişkisel dizide elemanlara sıra numarasıyla değil, anlamlı bir metin anahtarıyla ulaşılır.
+
+İndisli dizileri eczanedeki numaralı ilaç çekmeceleri, ilişkisel dizileri ise her çekmecenin üzerinde "Ağrı Kesici", "Vitamin", "Antibiyotik" yazan etiketlerin bulunduğu bir sistem olarak düşünebiliriz.
+
+`declare -A` komutu olmadan Bash bir diziyi ilişkisel olarak tanıyamaz; bu bildirim zorunludur:
 
 ```bash
+#!/usr/bin/env bash
+# iliski_dizisi.sh
+
+# declare -A: ilişkisel dizi bildirir (associative array declaration)
 declare -A SICAKLIKLAR
 
 SICAKLIKLAR["Ankara"]=12
-SICAKLIKLAR["Izmir"]=15
-SICAKLIKLAR["Istanbul"]=18
+SICAKLIKLAR["İzmir"]=25
+SICAKLIKLAR["İstanbul"]=18
+SICAKLIKLAR["Trabzon"]=8
 
-echo ${SICAKLIKLAR["Ankara"]}     # 12
-echo ${!SICAKLIKLAR[@]}           # Sisteme kaydedilmiş olan tüm anahtarları gösterir
+# Tek değer okuma
+echo "Ankara: ${SICAKLIKLAR["Ankara"]}"    # 12
 
+# Tüm anahtarlar — ! simgesi burada da indis/anahtar listesini verir
+echo "${!SICAKLIKLAR[@]}"
+
+# Tüm değerler
+echo "${SICAKLIKLAR[@]}"
+
+# Anahtarlar üzerinde döngü
 for sehir in "${!SICAKLIKLAR[@]}"; do
-    echo "$sehir: ${SICAKLIKLAR[$sehir]}"
+    echo "  $sehir: ${SICAKLIKLAR[$sehir]}°C"
 done
 ```
+
+İlişkisel dizilerde anahtar sırası garanti değildir. Bash bu yapıyı dahili olarak bir hash tablosu (hash table) üzerinde tutar; ekleme sırasına göre değil, hash fonksiyonunun ürettiği konuma göre bellekte yer alır. Sıralı çıktı gerekiyorsa `sort` ile sıralamanız gerekir:
+
+```bash
+for sehir in $(echo "${!SICAKLIKLAR[@]}" | tr ' ' '\n' | sort); do
+    echo "  $sehir: ${SICAKLIKLAR[$sehir]}°C"
+done
+```
+
+Bir anahtarın dizide var olup olmadığını kontrol etmek:
+
+```bash
+ANAHTAR="Ankara"
+if [[ -v SICAKLIKLAR["$ANAHTAR"] ]]; then
+    echo "$ANAHTAR mevcut: ${SICAKLIKLAR[$ANAHTAR]}"
+else
+    echo "$ANAHTAR bulunamadı"
+fi
+```
+
+`-v` testi (Bash 4.2+), değişkenin ya da dizi anahtarının tanımlı olup olmadığını kontrol eder; değerin boş olup olmadığına değil, varlığına bakar. Bu, `${VAR:-}` ile boş kontrolü yapmanın farklı ve daha kesin bir yoludur.
+
+Karşılaştırma özeti:
+
+| Özellik | İndisli Dizi | İlişkisel Dizi |
+| --- | --- | --- |
+| Bildirim | `DIZI=(...)` | `declare -A DIZI` |
+| Anahtar türü | Tam sayı (0, 1, 2...) | Metin ("Ankara", "Ali"...) |
+| Sıra garantisi | Evet | Hayır |
+| Negatif indis | Evet (Bash 4.3+) | Hayır |
+| Dahili yapı | Sıralı (sequential) | Hash tablosu |
+| Yaygın kullanım | Sıralı liste, ekleme sırası önemli | Arama tablosu, frekans sayacı |
 
 ---
 
