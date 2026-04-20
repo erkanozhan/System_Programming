@@ -2026,6 +2026,20 @@ Beklenen çıktı:
 
 > **Not:** `bc` çıktısı metin (`string`) döndürür; `$(( ))` ile doğrudan kullanılamaz. `printf "%.0f"` yuvarlama yaptıktan sonra tam sayıya dönüştürür; bu sayede `$(( ))` ile güvenli karşılaştırma yapılabilir (`awk` gerekmez).
 
+```bash
+SONUC=$(echo "scale=2; 7 / 2" | bc)   # SONUC = "3.50"  (metin)
+
+# Hatalı kullanım — bc çıktısı metin olduğundan $(( )) hata verir:
+# echo $(( SONUC > 3 ))   # bash: 3.50: syntax error
+
+# Doğru kullanım — önce printf ile tam sayıya yuvarlayıp sonra karşılaştır:
+YUVARLANMIS=$(printf "%.0f" "$SONUC")  # YUVARLANMIS = 4  (3.50 → yukarı yuvarlandı)
+
+if (( YUVARLANMIS > 3 )); then
+    echo "$SONUC yuvarlanınca $YUVARLANMIS oldu, 3'ten büyük"
+fi
+```
+
 ---
 
 ### 8.6 Parametre Genişletme (Parameter Expansion)
