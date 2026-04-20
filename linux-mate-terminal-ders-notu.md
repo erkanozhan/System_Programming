@@ -1538,46 +1538,308 @@ Bu betiği çalıştırdığımızda işletim sistemi, bash yorumlayıcısına (
 
 #### 8.3.2 Ortam Değişkenleri (Environment Variables)
 
-Ortam değişkenleri, alt süreçlere (Child Processes) de aktarılan değişkenlerdir.
+Bir süreç (process) başladığında işletim sistemi ona iki farklı türde bilgi verir. Birincisi komut satırı argümanlarıdır; bunları önceki bölümde inceledik. İkincisi ise **ortam** (environment) adı verilen bir anahtar-değer (key-value) çiftleri tablosudur. Bu tablonun içindekilere ortam değişkenleri (environment variables) denir.
+
+Normal bir kabuk değişkeni yalnızca oluşturulduğu süreçte yaşar. Bir alt süreç (child process) başlatıldığında üst sürecin (parent process) sıradan değişkenlerine erişemez. Ancak `export` komutuyla ortama çıkarılan değişkenler bu tabloya eklenir ve alt süreçler bu tabloyu **kalıtım** (inheritance) yoluyla devralır.
+
+Bunu bir fabrikadaki çalışma ortamıyla düşünebiliriz. Fabrika müdürünün (üst kabuk) masasındaki notlar (yerel değişkenler) yalnızca kendisine aittir; alt yükleniciler (child processes) o notlara erişemez. Buna karşın müdürün tüm çalışanlara dağıttığı resmi genelgeler (export edilmiş değişkenler) şirket ortam tablosuna girer ve her çalışan bu bilgilere ulaşabilir.
+
+![Ortam Değişkeni Kalıtımı](images/env-variable-inheritance.svg)
+
+Sistemin hazır olarak sağladığı önemli ortam değişkenleri şunlardır:
 
 ```bash
-echo "$HOME"
-echo "$PATH"
-echo "$USER"
-echo "$SHELL"
-echo "$PWD"
-echo "$OLDPWD"
-echo "$LANG"
+echo "$HOME"    # Kullanıcının ev dizini: /home/ali
+echo "$PATH"    # Çalıştırılabilir dosyaların arandığı dizin listesi
+echo "$USER"    # Oturum açmış kullanıcı adı
+echo "$SHELL"   # Aktif kabuk programının tam yolu: /bin/bash
+echo "$PWD"     # Geçerli çalışma dizini (Present Working Directory)
+echo "$OLDPWD"  # Bir önceki çalışma dizini; cd - komutu bunu kullanır
+echo "$LANG"    # Sistem dili ve karakter kodlaması: tr_TR.UTF-8
 ```
 
-Yeni bir ortam değişkeni dışarı açmak için `export` kullanılır:
+`env` ve `printenv` komutları geçerli ortamı listelemek için kullanılır. `env` tüm ortamı dökerken `printenv` tek bir değişkenin değerini yazdırmak için de kullanılabilir:
+
+```bash
+env | sort       # Tüm ortam değişkenlerini alfabetik sıralar
+printenv HOME    # Yalnızca HOME değişkenini yazdırır
+```
+
+Yeni bir değişkeni ortama eklemek için `export` kullanılır:
 
 ```bash
 export PROJE_KOK="$PWD/proje"
 ```
 
-Bu satırı apartman benzetmesiyle düşünmek yararlı olur. Normal değişken kendi dairenizde kalır. `export` edildiğinde alt katlarda çalışan süreçler de bu bilgiyi görür.
+`export` sözcüğü Latince *exportare*'den gelir: "dışarıya taşımak." Değişkeni kabuğun yerel alanından çıkarıp işletim sisteminin ortam tablosuna taşır; oradan tüm alt süreçler bu değişkeni miras alır.
+
+Bu davranışı somut bir betikle görelim:
+
+```bash
+#!/usr/bin/env bash
+# Dosya adı: ortam_demo.sh
+# Çalıştırma: bash ortam_demo.sh
+
+# ─── 1. DEĞİŞKEN TÜRLERİ ────────────────────────────────────────
+
+# Yerel değişken: yalnızca bu kabuk sürecinde yaşar.
+YEREL_NOT="Sadece bu kabuk beni görür"
+
+# Ortam değişkeni: export ile işletim sisteminin ortam tablosuna taşınır.
+# Bu tabloyu alt süreçler kalıtım yoluyla devralır.
+export SIRKET_ADI="TechLab"
+export PROJE_KOK="$HOME/projeler/demo"
+
+echo "=== Üst Kabuk (Parent Shell) ==="
+echo "  YEREL_NOT    : $YEREL_NOT"
+echo "  SIRKET_ADI   : $SIRKET_ADI"
+echo "  PROJE_KOK    : $PROJE_KOK"
+echo
+
+# ─── 2. ALT KABUK DAVRANIŞI ──────────────────────────────────────
+
+# ( ) parantezleri bir alt kabuk (subshell) başlatır.
+# Üst sürecin ortam tablosu devralınır; yerel değişkenler devralınmaz.
+
+echo "=== Alt Kabuk (Subshell / Child Process) ==="
+(
+    # ${DEG:-'metin'} kalıbı: DEG tanımsız ya da boşsa 'metin'i döndürür.
+    echo "  SIRKET_ADI   [export edildi]  : ${SIRKET_ADI:-'(tanımsız)'}"
+    echo "  PROJE_KOK    [export edildi]  : ${PROJE_KOK:-'(tanımsız)'}"
+    echo "  YEREL_NOT    [export edilmedi]: ${YEREL_NOT:-'(tanımsız)'}"
+)
+echo
+
+# ─── 3. SİSTEM DEĞİŞKENLERİ ─────────────────────────────────────
+
+echo "=== Sistemin Hazır Sağladığı Ortam Değişkenleri ==="
+echo "  HOME  : $HOME"
+echo "  USER  : $USER"
+echo "  SHELL : $SHELL"
+echo "  LANG  : $LANG"
+echo "  PWD   : $PWD"
+echo
+
+# ─── 4. ORTAMDAN ÇIKARMA ─────────────────────────────────────────
+
+# export -n: ortam özelliğini kaldırır; değişken bu kabukta hâlâ var.
+export -n SIRKET_ADI
+
+echo "=== export -n Sonrası ==="
+echo "  Üst kabukta hâlâ erişilir : $SIRKET_ADI"
+(
+    echo "  Alt kabukta artık görünmez : ${SIRKET_ADI:-'(tanımsız)'}"
+)
+echo
+
+# ─── 5. TÜM ORTAMI LİSTELEMEK ───────────────────────────────────
+
+echo "=== env Komutu (ilk 10 satır) ==="
+env | sort | head -10
+```
+
+Betiği çalıştırdığınızda terminalde şuna benzer bir çıktı görürsünüz:
+
+```text
+=== Üst Kabuk (Parent Shell) ===
+  YEREL_NOT    : Sadece bu kabuk beni görür
+  SIRKET_ADI   : TechLab
+  PROJE_KOK    : /home/ali/projeler/demo
+
+=== Alt Kabuk (Subshell / Child Process) ===
+  SIRKET_ADI   [export edildi]  : TechLab
+  PROJE_KOK    [export edildi]  : /home/ali/projeler/demo
+  YEREL_NOT    [export edilmedi]: (tanımsız)
+
+=== Sistemin Hazır Sağladığı Ortam Değişkenleri ===
+  HOME  : /home/ali
+  USER  : ali
+  SHELL : /bin/bash
+  LANG  : tr_TR.UTF-8
+  PWD   : /home/ali
+
+=== export -n Sonrası ===
+  Üst kabukta hâlâ erişilir : TechLab
+  Alt kabukta artık görünmez : (tanımsız)
+```
+
+`${DEG:-'varsayılan'}` sözdizimi burada ilk kez karşımıza çıktı. Değişken tanımsız ya da boşsa belirtilen varsayılan değeri döndürür; aksi hâlde asıl değeri gösterir. Bu kalıba **parametre genişlemesi** (parameter expansion) denir ve ilerleyen bölümde ayrıntılı ele alınır.
+
+Bir satırda geçici olarak belirli bir değişken tanımlamak da mümkündür. Bu yöntemle değişken yalnızca o komutun ortamına eklenir, kalıcı olarak export edilmez:
+
+```bash
+LANG=C sort dosya.txt     # sıralama için dili geçici İngilizce yapar
+```
+
+Pratikte ortam değişkenlerini en çok şu amaçlar için kullanırsınız:
+
+- Derleme veya çalışma ortamını yapılandırmak: `CC=gcc make`
+- Gizli bilgileri (API anahtarları, parolalar) betiklere sabit yazmak yerine ortamdan okumak
+- Geliştirme, test ve üretim ortamları arasındaki davranış farklılıklarını yönetmek
 
 #### 8.3.3 Alan Ayırıcı ve Güvenli Okuma (IFS and Safe Reading)
 
-Alan ayırıcı (Internal Field Separator, IFS), kabuğun sözcük bölmede kullandığı özel değişkendir. Varsayılan olarak boşluk, sekme ve satır sonu üzerinden çalışır. Dosya satırlarını güvenli okumak istediğinizde `IFS=` ile geçici olarak boş bırakmak ve `read -r` kullanmak doğru alışkanlıktır.
+Alan ayırıcı (Internal Field Separator, IFS) kabuğun bir metni sözcüklere bölerken kullandığı ayraç karakterlerini tanımlar. Varsayılan değeri boşluk (`' '`), sekme (`\t`) ve satır sonu (`\n`) karakterlerinden oluşur. Kabuk bir metin dizisini genişletirken ya da `read` komutuyla girdi okurken bu karakterlere rastladığında metni böler.
+
+Bu davranışı mutfaktaki bir kesme tahtasına benzetebiliriz. IFS, hangi noktadan kesileceğini belirleyen çizgidir. Varsayılan durumda her boşluk bir kesim noktasıdır. `IFS=` yaparak çizgileri kaldırdığınızda kabuk artık hiçbir yerden kesmez; metin bütün olarak kalır.
+
+Sorun: Varsayılan IFS ile dosya satırlarını okumak
 
 ```bash
+# YANLIŞ kullanım — baştaki ve sondaki boşluklar silinir
+while read -r SATIR; do
+    echo "$SATIR"
+done < rapor.txt
+# "   önemli girinti" → "önemli girinti" olarak okunur (başındaki boşluklar kaybolur)
+```
+
+`read` komutu her satırı okuduktan sonra IFS'teki karakterlerle baş ve sonu kırpar. Girinti bilgisi taşıyan yapılandırma dosyaları veya Python kodu gibi metinleri işlerken bu kayıp hatalara yol açar.
+
+**Çözüm: `IFS=` ile güvenli okuma**
+
+```bash
+# DOĞRU kullanım — satır olduğu gibi okunur, hiçbir karakter kaybolmaz
 while IFS= read -r SATIR; do
     echo "$SATIR"
 done < rapor.txt
 ```
 
-Buradaki `-r`, ters eğik çizgiyi olduğu gibi korur. Özellikle yol adlarında ve kaçış karakteri içeren verilerde fark yaratır.
+`IFS=` ifadesi yalnızca bu `read` komutunun süresince geçerlidir; döngü bittiğinde IFS eski değerine döner. Kabuğun geri kalanını etkilemez.
 
-#### 8.3.4 Salt Okunur ve Silinen Değişkenler
+`-r` bayrağı ise ters eğik çizginin (`\`) kaçış karakteri (escape character) olarak yorumlanmasını engeller. `-r` olmadan `\n` kabuk tarafından "yeni satır" anlamına çevrilir; `-r` ile olduğu gibi iki karakter (`\` ve `n`) kalır. Özellikle dosya yollarını ve düzenli ifadeleri (regular expressions) işlerken bu fark kritiktir.
 
-```bash
-readonly PI=3.14159
-unset GECICI
+Pratik kullanım: CSV ayrıştırma
+
+IFS'i geçici olarak değiştirerek virgülle ayrılmış değerleri (Comma-Separated Values, CSV) kolayca ayrıştırabilirsiniz. Alıştırma için aşağıdaki örnek dosyayı kullanacağız: [notlar.csv](Uygulamalar/Bash_App/notlar.csv)
+
+Dosya içeriği şu biçimdedir:
+
+```text
+Ad,Soyad,Vize,Final
+Ali,Yılmaz,72,85
+Ayşe,Kaya,88,91
+Mehmet,Demir,55,60
+Fatma,Çelik,95,98
+Emre,Arslan,40,52
+Zeynep,Şahin,78,74
+Burak,Doğan,63,70
+Selin,Öztürk,82,88
+Hasan,Koç,50,45
+Merve,Aydın,91,95
 ```
 
-`readonly`, değişkenin değiştirilmesini engeller. `unset` ise değişkeni bellekten kaldırır.
+Birinci satır başlık (header) satırıdır. `read` ile önce onu okuyup atlıyoruz, ardından veri satırlarını işliyoruz:
+
+```bash
+#!/usr/bin/env bash
+# csv_oku.sh — notlar.csv dosyasını satır satır ayrıştırır
+
+DOSYA="notlar.csv"
+
+# Başlık satırını oku ve görmezden gel
+IFS=',' read -r _ _ _ _ < "$DOSYA"
+
+# tail -n +2: dosyanın 2. satırından itibaren okur (başlığı atlar)
+tail -n +2 "$DOSYA" | while IFS=',' read -r AD SOYAD VIZE FINAL; do
+    # Aritmetik ortalama: bash yalnızca tam sayı aritmetiği yapar
+    ORTALAMA=$(( (VIZE + FINAL) / 2 ))
+
+    echo "Öğrenci : $AD $SOYAD"
+    echo "  Vize  : $VIZE"
+    echo "  Final : $FINAL"
+    echo "  Ort.  : $ORTALAMA"
+    echo "  ------"
+done
+```
+
+`IFS=','` yalnızca ilgili `read` komutu için geçerlidir; döngü boyunca kabuğun genel IFS'ini değiştirmez. Her satır virgülden bölünerek dört değişkene sırasıyla atanır.
+
+Betiği çalıştırdığınızda çıktı şöyle görünür:
+
+```text
+Öğrenci : Ali Yılmaz
+  Vize  : 72
+  Final : 85
+  Ort.  : 78
+  ------
+Öğrenci : Ayşe Kaya
+  Vize  : 88
+  Final : 91
+  Ort.  : 89
+  ------
+...
+```
+
+Bash yalnızca tam sayı aritmetiği (integer arithmetic) yaptığından ortalama sonucu küsuratsız çıkar. Ondalıklı hesaplama gerektiğinde `bc` veya `awk` araçlarına başvurmak gerekir; bunları ilgili bölümde ele alacağız.
+
+#### 8.3.4 Salt Okunur ve Silinen Değişkenler (Readonly and Unset)
+
+Bazı değerlerin program boyunca değişmemesi gerekir: matematiksel sabitler, yapılandırma parametreleri, kritik dizin yolları. `readonly` komutu bir değişkeni taşa kazınmış gibi sabit kılar; sonraki herhangi bir atama girişimi hata üretir.
+
+```bash
+#!/usr/bin/env bash
+
+# Matematiksel sabit: bir kez tanımlanır, değiştirilemez.
+readonly PI=3.14159265358979
+
+echo "PI = $PI"
+
+# Değiştirmeye çalışırsak kabuk hata verir:
+PI=3.0
+# bash: PI: readonly variable
+# Betik bu noktada hata kodu 1 ile durur.
+```
+
+`readonly` ile tanımlanmış bir değişkeni `unset` ile de silemezsiniz; o da aynı hatayı üretir. Değişkeni tamamen kaldırmanın tek yolu kabuğu kapatmaktır.
+
+`unset` komutu ise sıradan bir değişkeni bellekten tamamen kaldırır. Boş bir string atamaktan farklıdır: boş string atandığında değişken var olmaya devam eder, yalnızca değeri yoktur. `unset` sonrasında değişken hiç tanımlanmamış gibi davranır.
+
+```bash
+#!/usr/bin/env bash
+
+GECICI="geçici veri"
+BASKA=""               # tanımlı ama boş
+
+echo "Başlangıç:"
+echo "  GECICI : '${GECICI}'"
+echo "  BASKA  : '${BASKA}'"
+
+unset GECICI           # değişkeni bellekten siler
+
+echo ""
+echo "unset Sonrası:"
+
+# ${DEG:+'var'} kalıbı: DEG tanımlı ve doluysa 'var' döndürür
+echo "  GECICI tanımlı mı? : '${GECICI:+var}'"  # boş → tanımsız
+echo "  BASKA  tanımlı mı? : '${BASKA:+var}'"   # boş → boş string
+
+# Tanımsız değişkene güvenli erişim için :-  kalıbı
+echo "  GECICI değeri : ${GECICI:-'(tanımsız)'}"
+echo "  BASKA  değeri : ${BASKA:-'(boş ya da tanımsız)'}"
+```
+
+Çalıştırıldığında:
+
+```text
+Başlangıç:
+  GECICI : 'geçici veri'
+  BASKA  : ''
+
+unset Sonrası:
+  GECICI tanımlı mı? :           ← boş; değişken artık yok
+  BASKA  tanımlı mı? :           ← boş; değişken var ama değeri yok
+  GECICI değeri : (tanımsız)
+  BASKA  değeri : (boş ya da tanımsız)
+```
+
+`unset` bir işlevi (function) de kaldırabilir; bunun için `unset -f FONKSIYON_ADI` sözdizimi kullanılır.
+
+| Komut | Ne yapar | Geri alınabilir mi? |
+| --- | --- | --- |
+| `readonly DEG=deger` | Değişkeni değişmez kılar | Hayır (kabuk kapanana kadar) |
+| `unset DEG` | Değişkeni bellekten siler | Hayır (değer kaybolur) |
+| `DEG=""` | Değişkeni boş bırakır | Evet (yeniden atanabilir) |
+| `export -n DEG` | Ortam özelliğini kaldırır, değer kalır | Evet (tekrar export edilebilir) |
 
 ---
 

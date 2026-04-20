@@ -1,0 +1,83 @@
+<svg width="700" height="488" viewBox="0 0 700 488" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto">
+      <path d="M0,0 L0,5 L7,2.5 z" fill="#27ae60"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto">
+      <path d="M0,0 L0,5 L7,2.5 z" fill="#e74c3c"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="488" fill="#fafafa" rx="8"/>
+
+  <!-- Title -->
+  <text x="350" y="26" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#2c3e50">Ortam Değişkeni Kalıtımı (Environment Variable Inheritance)</text>
+
+  <!-- Parent Shell Container -->
+  <rect x="28" y="38" width="644" height="200" rx="10" fill="#f2f3f4" stroke="#7f8c8d" stroke-width="2"/>
+  <text x="350" y="60" text-anchor="middle" font-family="monospace" font-size="13" font-weight="bold" fill="#2c3e50">Üst Kabuk — Parent Shell</text>
+
+  <!-- Local Variables Box (Yellow) -->
+  <rect x="46" y="70" width="272" height="152" rx="6" fill="#fef9e7" stroke="#e67e22" stroke-width="1.5"/>
+  <text x="182" y="90" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#d35400">Yerel Değişkenler (Local)</text>
+  <line x1="46" y1="96" x2="318" y2="96" stroke="#e67e22" stroke-width="0.8"/>
+  <text x="58" y="114" font-family="monospace" font-size="10" fill="#555">YEREL_NOT="bu kabuk"</text>
+  <text x="58" y="132" font-family="monospace" font-size="10" fill="#555">SAYAC=42</text>
+  <text x="182" y="158" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">yalnizca bu surecte gorunur</text>
+  <text x="182" y="175" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#c0392b">alt surece aktarilmaz</text>
+  <text x="182" y="210" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#aaa">(masa notu — disari cikmaz)</text>
+
+  <!-- Environment Variables Box (Green) -->
+  <rect x="346" y="70" width="308" height="152" rx="6" fill="#eafaf1" stroke="#27ae60" stroke-width="1.5"/>
+  <text x="500" y="90" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="#1e8449">Ortam Degiskenleri (export)</text>
+  <line x1="346" y1="96" x2="654" y2="96" stroke="#27ae60" stroke-width="0.8"/>
+  <text x="358" y="114" font-family="monospace" font-size="10" fill="#555">HOME="/home/ali"</text>
+  <text x="358" y="132" font-family="monospace" font-size="10" fill="#555">PATH="/usr/bin:..."</text>
+  <text x="358" y="150" font-family="monospace" font-size="10" fill="#555">SIRKET_ADI="TechLab"</text>
+  <text x="500" y="175" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#27ae60">alt surece kalitim yoluyla gecer</text>
+  <text x="500" y="210" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#aaa">(resmi genelge — herkes gorebilir)</text>
+
+  <!-- Green arrows: env vars to children -->
+  <line x1="432" y1="238" x2="214" y2="316" stroke="#27ae60" stroke-width="2.2" marker-end="url(#arr-g)"/>
+  <line x1="530" y1="238" x2="530" y2="316" stroke="#27ae60" stroke-width="2.2" marker-end="url(#arr-g)"/>
+
+  <!-- Red dashed: local blocked from child1 -->
+  <line x1="182" y1="222" x2="160" y2="274" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr-r)"/>
+  <text x="104" y="262" font-family="sans-serif" font-size="14" font-weight="bold" fill="#e74c3c">&#x2717;</text>
+
+  <!-- Red dashed: local blocked from child2 -->
+  <line x1="220" y1="222" x2="460" y2="274" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr-r)"/>
+  <text x="326" y="258" font-family="sans-serif" font-size="14" font-weight="bold" fill="#e74c3c">&#x2717;</text>
+
+  <!-- Child Process 1 (Bash) -->
+  <rect x="36" y="320" width="308" height="148" rx="8" fill="#ebf5fb" stroke="#2980b9" stroke-width="1.5"/>
+  <text x="190" y="342" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#1a5276">Alt Surec — bash betiği</text>
+  <line x1="36" y1="349" x2="344" y2="349" stroke="#2980b9" stroke-width="0.8"/>
+  <text x="50" y="368" font-family="monospace" font-size="10" fill="#1e8449">echo $HOME       → /home/ali &#x2713;</text>
+  <text x="50" y="386" font-family="monospace" font-size="10" fill="#1e8449">echo $SIRKET_ADI → TechLab  &#x2713;</text>
+  <text x="50" y="404" font-family="monospace" font-size="10" fill="#c0392b">echo $YEREL_NOT  → (bos)    &#x2717;</text>
+  <text x="50" y="422" font-family="monospace" font-size="10" fill="#c0392b">echo $SAYAC      → (bos)    &#x2717;</text>
+  <text x="190" y="455" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Yalnizca export edilenleri devralir</text>
+
+  <!-- Child Process 2 (Python) -->
+  <rect x="362" y="320" width="308" height="148" rx="8" fill="#ebf5fb" stroke="#2980b9" stroke-width="1.5"/>
+  <text x="516" y="342" text-anchor="middle" font-family="monospace" font-size="12" font-weight="bold" fill="#1a5276">Alt Surec — python3 betiği</text>
+  <line x1="362" y1="349" x2="670" y2="349" stroke="#2980b9" stroke-width="0.8"/>
+  <text x="374" y="368" font-family="monospace" font-size="10" fill="#1e8449">os.environ['HOME']    → /home/ali &#x2713;</text>
+  <text x="374" y="386" font-family="monospace" font-size="10" fill="#1e8449">os.environ['SIRKET_ADI'] → TechLab &#x2713;</text>
+  <text x="374" y="404" font-family="monospace" font-size="10" fill="#c0392b">environ.get('YEREL_NOT') → None &#x2717;</text>
+  <text x="516" y="438" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Programlama dili fark etmez</text>
+  <text x="516" y="455" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#888">Ayni ortam tablosunu okur</text>
+
+  <!-- Legend -->
+  <rect x="28" y="476" width="644" height="11" rx="3" fill="#ecf0f1"/>
+  <line x1="44" y1="482" x2="66" y2="482" stroke="#27ae60" stroke-width="2" marker-end="url(#arr-g)"/>
+  <text x="70" y="486" font-family="sans-serif" font-size="8" fill="#333">export → alt surece gecer</text>
+  <line x1="210" y1="482" x2="232" y2="482" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-r)"/>
+  <text x="236" y="486" font-family="sans-serif" font-size="8" fill="#333">yerel → gecmez</text>
+  <rect x="360" y="476" width="9" height="9" fill="#fef9e7" stroke="#e67e22"/>
+  <text x="372" y="485" font-family="sans-serif" font-size="8" fill="#333">yerel kapsam</text>
+  <rect x="460" y="476" width="9" height="9" fill="#eafaf1" stroke="#27ae60"/>
+  <text x="472" y="485" font-family="sans-serif" font-size="8" fill="#333">ortam (environment)</text>
+</svg>
