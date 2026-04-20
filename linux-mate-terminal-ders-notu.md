@@ -2206,42 +2206,45 @@ done
 # iliski_dizisi.sh
 
 # declare -A: ilişkisel dizi bildirir (associative array declaration)
-declare -A SICAKLIKLAR
+declare -A NOTLAR
 
-SICAKLIKLAR["Ankara"]=12
-SICAKLIKLAR["İzmir"]=25
-SICAKLIKLAR["İstanbul"]=18
-SICAKLIKLAR["Trabzon"]=8
+# Anahtar: "Ad Soyad" (tam isim metin), Değer: ağırlıklı not (vize %30 + final %70)
+# tail -n +2 başlık satırını atlar; IFS=',' virgülden böler
+tail -n +2 notlar.csv | while IFS=',' read -r AD SOYAD VIZE FINAL; do
+    AGIRLIKLI=$(echo "scale=2; ($VIZE * 30 + $FINAL * 70) / 100" | bc)
+    NOTLAR["$AD $SOYAD"]=$AGIRLIKLI
+done
 
-# Tek değer okuma
-echo "Ankara: ${SICAKLIKLAR["Ankara"]}"    # 12
+# Tek değer okuma — anahtar tam isimdir
+echo "Ali Yılmaz: ${NOTLAR["Ali Yılmaz"]}"    # 81.10
 
-# Tüm anahtarlar — ! simgesi burada da indis/anahtar listesini verir
-echo "${!SICAKLIKLAR[@]}"
+# Tüm anahtarlar — ! simgesi anahtar listesini verir
+echo "${!NOTLAR[@]}"
 
 # Tüm değerler
-echo "${SICAKLIKLAR[@]}"
+echo "${NOTLAR[@]}"
 
 # Anahtarlar üzerinde döngü
-for sehir in "${!SICAKLIKLAR[@]}"; do
-    echo "  $sehir: ${SICAKLIKLAR[$sehir]}°C"
+for ogrenci in "${!NOTLAR[@]}"; do
+    echo "  $ogrenci: ${NOTLAR[$ogrenci]}"
 done
 ```
 
 İlişkisel dizilerde anahtar sırası garanti değildir. Bash bu yapıyı dahili olarak bir hash tablosu (hash table) üzerinde tutar; ekleme sırasına göre değil, hash fonksiyonunun ürettiği konuma göre bellekte yer alır. Sıralı çıktı gerekiyorsa `sort` ile sıralamanız gerekir:
 
 ```bash
-for sehir in $(echo "${!SICAKLIKLAR[@]}" | tr ' ' '\n' | sort); do
-    echo "  $sehir: ${SICAKLIKLAR[$sehir]}°C"
+# Öğrenci adlarını alfabetik sıraya diz, sonra notları yazdır
+for ogrenci in $(echo "${!NOTLAR[@]}" | tr ' ' '\n' | sort); do
+    echo "  $ogrenci: ${NOTLAR[$ogrenci]}"
 done
 ```
 
 Bir anahtarın dizide var olup olmadığını kontrol etmek:
 
 ```bash
-ANAHTAR="Ankara"
-if [[ -v SICAKLIKLAR["$ANAHTAR"] ]]; then
-    echo "$ANAHTAR mevcut: ${SICAKLIKLAR[$ANAHTAR]}"
+ANAHTAR="Mehmet Demir"
+if [[ -v NOTLAR["$ANAHTAR"] ]]; then
+    echo "$ANAHTAR mevcut: ${NOTLAR[$ANAHTAR]}"
 else
     echo "$ANAHTAR bulunamadı"
 fi
