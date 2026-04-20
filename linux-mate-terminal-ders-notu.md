@@ -1962,6 +1962,70 @@ echo $PI
 
 `scale=N` ondalık basamak sayısını belirler. `bc` içinde `-l` parametresi sin, cos, sqrt gibi matematik fonksiyonlarını etkinleştirir.
 
+#### `bc` ile Ağırlıklı Not Hesaplama (Practical Example)
+
+Yukarıdaki `csv_oku.sh` örneğinde aritmetik ortalama `$(( (VIZE + FINAL) / 2 ))` ile tam sayı olarak hesaplandı. Ancak gerçek not sistemlerinde vize %30, final %70 gibi **ağırlıklı** katkılar söz konusudur ve sonuç ondalıklı çıkar. Bu durumda `bc` devreye girer:
+
+```bash
+#!/usr/bin/env bash
+# agirlikli_not.sh — notlar.csv dosyasından vize/final okur,
+#                    ağırlıklı ortalama hesaplar (vize %30, final %70)
+
+DOSYA="notlar.csv"
+
+# Ağırlık sabitleri: değişken ismi büyük harf → global sabit anlamı taşır
+VIZE_AGIRLIK=30   # Vize notunun yüzde katkısı
+FINAL_AGIRLIK=70  # Final notunun yüzde katkısı
+
+# Başlık satırını atla (tail -n +2: 2. satırdan itibaren oku)
+tail -n +2 "$DOSYA" | while IFS=',' read -r AD SOYAD VIZE FINAL; do
+
+    # bc'ye gönderilen ifade: (vize * 30 + final * 70) / 100
+    # scale=2 → virgülden sonra 2 basamak göster
+    AGIRLIKLI=$(echo "scale=2; ($VIZE * $VIZE_AGIRLIK + $FINAL * $FINAL_AGIRLIK) / 100" | bc)
+
+    # printf "%.0f" standart yuvarlama uygular (0.5 ve üzeri → yukarı)
+    # Örnek: 81.10 → 81,  48.40 → 48,  74.50 → 75
+    YUVARLANMIS=$(printf "%.0f" "$AGIRLIKLI")
+
+    # Geçti/Kaldı kararı: tam sayıya yuvarlanmış değer üzerinden yapılır;
+    # $(( )) ile tam sayı karşılaştırması artık güvenle kullanılabilir
+    if (( YUVARLANMIS >= 50 )); then
+        DURUM="GEÇTİ"
+    else
+        DURUM="KALDI"
+    fi
+
+    echo "Öğrenci      : $AD $SOYAD"
+    echo "  Vize  (%30): $VIZE"
+    echo "  Final (%70): $FINAL"
+    echo "  Ağırlıklı  : $AGIRLIKLI  →  Yuvarlanmış: $YUVARLANMIS  →  $DURUM"
+    echo "  -----------"
+done
+```
+
+Beklenen çıktı:
+
+```text
+Öğrenci      : Ali Yılmaz
+  Vize  (%30): 72
+  Final (%70): 85
+  Ağırlıklı  : 81.10  →  Yuvarlanmış: 81  →  GEÇTİ
+  -----------
+Öğrenci      : Ayşe Kaya
+  Vize  (%30): 88
+  Final (%70): 91
+  Ağırlıklı  : 90.10  →  Yuvarlanmış: 90  →  GEÇTİ
+  -----------
+Öğrenci      : Emre Arslan
+  Vize  (%30): 40
+  Final (%70): 52
+  Ağırlıklı  : 48.40  →  Yuvarlanmış: 48  →  KALDI
+  -----------
+```
+
+> **Not:** `bc` çıktısı metin (`string`) döndürür; `$(( ))` ile doğrudan kullanılamaz. `printf "%.0f"` yuvarlama yaptıktan sonra tam sayıya dönüştürür; bu sayede `$(( ))` ile güvenli karşılaştırma yapılabilir (`awk` gerekmez).
+
 ---
 
 ### 8.6 Parametre Genişletme (Parameter Expansion)
