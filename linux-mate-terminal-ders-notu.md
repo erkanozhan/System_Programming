@@ -2297,7 +2297,7 @@ komut > /dev/null 2>&1     # Tüm çıktıları işletim sisteminin kara deliği
 
 `/dev/null`, işletim sisteminin boşaltım kutusu gibidir. Oraya giden veri yazılır ama saklanmaz.
 
-#### Here Document (Satır İçi Belge)
+
 
 ```bash
 # Değişken genişlemesi olan (EOF tırnaksız)
@@ -2321,7 +2321,7 @@ EOF
 
 Etiket herhangi bir kelime olabilir — `EOF` (End of File — Dosya Sonu) bir konvansiyondur.
 
-#### Here String (Satır İçi Metin)
+
 
 ```bash
 grep "linux" <<< "Linux bir isletim sistemidir"
@@ -2353,39 +2353,46 @@ Bash'te üç farklı test mekanizması vardır:
 | `(( ))` | Aritmetik test |
 
 **Metin (string) testleri:**
-
-```bash
-[ "$A" = "$B" ]     # Eşit mi?
-[ "$A" != "$B" ]    # Eşit değil mi?
-[ -z "$A" ]         # Boş mu? (zero length)
-[ -n "$A" ]         # Boş değil mi? (non-zero length)
-```
+<!-- Eski metin testleri kodu yerine tablo -->
+| Operatör | Kategori | İngilizce Açılımı | Açıklama | Örnek Kullanım |
+|----------|----------|-------------------|----------|----------------|
+| `=` | Metin | Equal | İki metnin (karakter dizisinin) birbirine birebir eşit olup olmadığını kontrol eder. | `[ "$kullanici" = "admin" ]` |
+| `!=` | Metin | Not Equal | İki metnin birbirinden farklı olup olmadığını kontrol eder. | `[ "$cevap" != "evet" ]` |
+| `-z` | Metin | Zero length | Metnin uzunluğunun sıfır (0) olup olmadığını (yani boş olup olmadığını) kontrol eder. | `[ -z "$degisken" ]` |
+| `-n` | Metin | Non-zero length | Metnin uzunluğunun sıfırdan büyük (dolu) olup olmadığını kontrol eder. | `[ -n "$mesaj" ]` |
 
 **Sayısal testler:**
+<!-- Eski sayısal testler tablosu yerine yeni tablo -->
+| Operatör | Kategori | İngilizce Açılımı | Açıklama | Örnek Kullanım |
+|----------|----------|-------------------|----------|----------------|
+| `-eq` | Tam Sayı | Equal | İki sayının birbirine eşit olup olmadığını kontrol eder. | `[ $sayi1 -eq $sayi2 ]` |
+| `-ne` | Tam Sayı | Not Equal | İki sayının birbirine eşit olmadığını kontrol eder. | `[ $sayi -ne 0 ]` |
+| `-gt` | Tam Sayı | Greater Than | Birinci sayının ikinci sayıdan büyük olup olmadığını kontrol eder. | `[ $yas -gt 18 ]` |
+| `-ge` | Tam Sayı | Greater or Equal | Birinci sayının ikinci sayıdan büyük veya eşit olup olmadığını kontrol eder. | `[ $puan -ge 50 ]` |
+| `-lt` | Tam Sayı | Less Than | Birinci sayının ikinci sayıdan küçük olup olmadığını kontrol eder. | `[ $sicaklik -lt 0 ]` |
+| `-le` | Tam Sayı | Less or Equal | Birinci sayının ikinci sayıdan küçük veya eşit olup olmadığını kontrol eder. | `[ $hiz -le 120 ]` |
 
-| Operatör | Anlam | İngilizce |
-|----------|-------|-----------|
-| `-eq` | Eşit | Equal |
-| `-ne` | Eşit değil | Not Equal |
-| `-lt` | Küçük | Less Than |
-| `-le` | Küçük veya eşit | Less or Equal |
-| `-gt` | Büyük | Greater Than |
-| `-ge` | Büyük veya eşit | Greater or Equal |
+**Dosya ve Dizin Testleri:**
+<!-- Eski dosya testleri tablosu yerine yeni tablo -->
+| Operatör | Kategori | İngilizce Açılımı | Açıklama | Örnek Kullanım |
+|----------|----------|-------------------|----------|----------------|
+| `-e dosya` | Dosya / Dizin | Exists | Belirtilen yolda bir dosyanın veya dizinin var olup olmadığını kontrol eder. | `[ -e "/etc/passwd" ]` |
+| `-f dosya` | Dosya | File | Belirtilen nesnenin var olup olmadığını ve normal bir dosya olup olmadığını kontrol eder. | `[ -f "rapor.txt" ]` |
+| `-d dosya` | Dizin | Directory | Belirtilen nesnenin var olup olmadığını ve bir klasör (dizin) olup olmadığını kontrol eder. | `[ -d "/home/user/Belgeler" ]` |
+| `-l dosya` | Dosya | Link | Belirtilen nesnenin var olup olmadığını ve sembolik bir bağlantı olup olmadığını kontrol eder. | `[ -l "sembolik_link" ]` |
+| `-r dosya` | Dosya İzni | Readable | Dosyanın var olduğunu ve mevcut kullanıcı için okuma izni (read permission) olduğunu kontrol eder. | `[ -r "gizli_veri.txt" ]` |
+| `-w dosya` | Dosya İzni | Writable | Dosyanın var olduğunu ve mevcut kullanıcı için yazma izni (write permission) olduğunu kontrol eder. | `[ -w "ayar.conf" ]` |
+| `-x dosya` | Dosya İzni | Executable | Dosyanın var olduğunu ve çalıştırılabilir (executable) olduğunu kontrol eder. | `[ -x "script.sh" ]` |
+| `-s dosya` | Dosya | Size | Dosyanın var olduğunu ve boyutunun sıfırdan büyük olduğunu (içinin boş olmadığını) kontrol eder. | `[ -s "log.txt" ]` |
+| `f1 -nt f2` | Dosya | Newer Than | `f1` dosyasının `f2` dosyasından daha yeni olup olmadığını kontrol eder. | `[ "yeni.txt" -nt "eski.txt" ]` |
+| `f1 -ot f2` | Dosya | Older Than | `f1` dosyasının `f2` dosyasından daha eski olup olmadığını kontrol eder. | `[ "eski.txt" -ot "yeni.txt" ]` |
 
-**Dosya testleri:**
-
-| Test | Anlam |
-|------|-------|
-| `-e dosya` | Var mı? (exists) |
-| `-f dosya` | Düz dosya mı? (regular file) |
-| `-d dosya` | Dizin mi? (directory) |
-| `-l dosya` | Sembolik bağlantı mı? (link) |
-| `-r dosya` | Okunabilir mi? (readable) |
-| `-w dosya` | Yazılabilir mi? (writable) |
-| `-x dosya` | Çalıştırılabilir mi? (executable) |
-| `-s dosya` | Boyutu > 0 mü? (size) |
-| `f1 -nt f2` | f1 daha yeni mi? (newer than) |
-| `f1 -ot f2` | f1 daha eski mi? (older than) |
+**Mantıksal Testler:**
+| Operatör | Kategori | İngilizce Açılımı | Açıklama | Örnek Kullanım |
+|----------|----------|-------------------|----------|----------------|
+| `!` | Mantıksal | NOT (Değil) | Kendisinden sonra gelen koşulun tersini alır. Doğruyu yanlış, yanlışı doğru yapar. | `[ ! -f "dosya.txt" ]` (Dosya yoksa) |
+| `-a` (veya `&&`) | Mantıksal | AND (Ve) | İki koşulun her ikisinin de doğru olup olmadığını kontrol eder. | `[ $sayi -gt 0 -a $sayi -lt 10 ]` |
+| `-o` (veya `||`) | Mantıksal | OR (Veya) | İki koşuldan en az birinin doğru olup olmadığını kontrol eder. | `[ $kullanici = "admin" -o $kullanici = "root" ]` |
 
 #### `[[ ]]` ile Genişletilmiş Test
 
@@ -2399,6 +2406,87 @@ Bash'te üç farklı test mekanizması vardır:
 `[[ ]]` boşluklu metinleri daha güvenli işler ve regex operatörü `=~` içerir. Bash yazarken çoğu durumda `[[ ]]` tercih edilir.
 
 #### if / elif / else
+
+Gençler, yazdığımız programların veya betiklerin (script) sadece yukarıdan aşağıya körü körüne çalışan metin yığınları olmaktan çıkıp, duruma göre karar verebilen yapılara dönüşmesi gerekir. Bir programın belirli durumlarda farklı tepkiler vermesini sağlayan bu yapıya literatürde Control Flow (Kontrol Akışı) diyoruz.
+
+Bir fabrikadaki kalite kontrol bandını düşünün. Üretim bandından geçen bir parça sensörler tarafından ölçülür. Sensörden gelen veri referans değerlerine uyuyorsa parça paketlemeye gider; uymuyorsa ıskartaya ayrılır veya yeniden işlenmek üzere başka bir hatta yönlendirilir. İşte programlamada bu sensör ve yönlendirme işlevini gören mekanizma if-else (eğer-değilse) kalıbıdır.
+
+**if-else Temel Sözdizimi (Syntax)**
+Kabuk programlamada (Shell Scripting) bir `if` kalıbı kurgularken kullandığımız yapı şu şekildedir:
+
+```bash
+if [ koşul ]; then
+    # Koşul doğru (true) ise çalıştırılacak komutlar
+else
+    # Koşul yanlış (false) ise çalıştırılacak komutlar
+fi
+```
+Burada dikkatinizi çekecek ilk detay bloğun `fi` ile kapatılmasıdır. Unix kültüründe bir bloğu başlatmak için kullanılan anahtar kelimenin harflerinin tersten yazılmasıyla bloğun sonlandırılması yaygın bir gelenektir (ileride göreceğiniz `case` bloğunun `esac` ile kapatılması gibi).
+
+**Test Mekanizması ve Köşeli Parantezler**
+Yukarıdaki yapıda gördüğünüz `[ ]` işaretleri aslında sıradan parantezler değildir. Kabuk ortamında `[` karakteri, `test` adı verilen bir komutun kısa yazım biçimidir. Yani `if [ $sayi -eq 10 ]` yazdığınızda, arka planda işletim sistemine "sayi değişkeninin 10'a eşit olup olmadığını test et" emrini vermiş olursunuz.
+
+Metin (string) ve tam sayı (integer) karşılaştırmalarında kullanılan operatörler birbirinden farklıdır. Bu durum başlangıçta kafa karıştırıcı gelse de kelimelerin kökenlerine baktığınızda hafızada tutması oldukça kolaydır:
+
+-   `-eq` : Equal (Eşit)
+-   `-ne` : Not Equal (Eşit değil)
+-   `-gt` : Greater Than (Daha büyük)
+-   `-lt` : Less Than (Daha küçük)
+-   `-ge` : Greater or Equal (Büyük veya eşit)
+-   `-le` : Less or Equal (Küçük veya eşit)
+
+Örnek bir senaryo üzerinden gidelim. Bir dosyanın sistemde var olup olmadığını kontrol edip ona göre bir işlem yapmak isteyelim:
+
+```bash
+#!/bin/bash
+
+dosya_adi="rapor.txt"
+
+if [ -f "$dosya_adi" ]; then
+    echo "$dosya_adi bulundu, okuma işlemine geçiliyor."
+    cat "$dosya_adi"
+else
+    echo "Hata: $dosya_adi bulunamadı. Lütfen dosyanın yolunu kontrol edin."
+fi
+```
+Buradaki `-f` (file) parametresi, belirtilen yolun gerçekten bir dosya olup olmadığını kontrol eder.
+
+**Çıkış Durumu (Exit Status) ve Arka Plan İşleyişi**
+Daha derine indiğimizde, Unix tabanlı sistemlerde `if` kalıbının sadece doğru/yanlış (boolean) değerlere bakmadığını, aslında komutların Çıkış Durumu (Exit Status) değerlerini değerlendirdiğini görürüz.
+
+İşletim sisteminde çalışan her süreç (process) işini bitirdiğinde kendisini çağıran üst sürece (parent process) bir tam sayı döndürür. Unix felsefesinde `0` değeri başarının (success), `0` haricindeki her değer (genellikle 1 ile 255 arası) ise bir hatanın veya başarısızlığın (failure) temsilidir. (C programlama dilindeki 0'ın 'yanlış' kabul edilmesi durumunun tam tersi bir mantık işler).
+
+```bash
+if grep -q "Hata" log_dosyasi.txt; then
+    echo "Log dosyasında hata tespit edildi!"
+fi
+```
+Bu örnekte `grep` komutu, dosya içinde aranan kelimeyi bulursa çıkış durumu olarak `0` döndürür. `if` mekanizması bu `0` değerini gördüğünde komutun başarıyla çalıştığını anlar ve `then` bloğunun içindeki koda geçer.
+
+**Mantıksal Operatörler: `&&` (AND) ve `||` (OR)**
+Bazen birden fazla koşulu aynı anda değerlendirmemiz gerekir. Bir otomobilin motorunun çalışması için hem yakıtın olması (koşul 1) hem de akünün dolu olması (koşul 2) gereklidir.
+
+`&&` (AND - VE): İki koşulun da doğru olması zorunluluğunu ifade eder.
+
+`||` (OR - VEYA): Koşullardan sadece birinin doğru olmasının yeterli olduğu durumlar içindir.
+
+```bash
+kullanici="admin"
+sifre_girisi=1234
+
+if [ "$kullanici" = "admin" ] && [ "$sifre_girisi" -eq 1234 ]; then
+    echo "Sisteme giriş başarılı."
+elif [ "$kullanici" = "admin" ] || [ "$sifre_girisi" -eq 1234 ]; then
+    echo "Kullanıcı adı veya şifreden biri doğru, ancak giriş için ikisi de gerekli."
+else
+    echo "Giriş başarısız."
+fi
+```
+Burada `elif` (else if - değilse eğer) yapısını da gördünüz. Zincirleme kontroller yapmamız gerektiğinde, yani birinci koşul tutmazsa ikincisine, o da tutmazsa üçüncüsüne bakılacağı durumlarda `elif` kullanılır.
+
+Hata mesajları her zaman `>&2` ile stderr'e gönderilmelidir. Bu sayede programın normal çıktısını hata mesajlarından ayırt etmek, log kayıtlarında ve pipe zincirlerinde büyük önem taşır.
+
+Aşağıda, not örneği üzerinden `if/elif/else` yapısının bir başka kullanımını görebilirsiniz:
 
 ```bash
 #!/bin/bash
@@ -2421,11 +2509,90 @@ else
 fi
 ```
 
-Hata mesajları her zaman `>&2` ile stderr'e gönderilmelidir. Bu sayede programın normal çıktısını hata mesajlarından ayırt etmek, log kayıtlarında ve pipe zincirlerinde büyük önem taşır.
-
 #### case
 
-`case`, birden fazla olası değeri `if`'ten çok daha temiz biçimde ele alır:
+Gençler, bir önceki konumuzda program akışını `if-else` bloklarıyla nasıl yönlendireceğimizi gördük. Ancak bazen elimizdeki tek bir değişkenin alabileceği onlarca farklı değer olabilir. Bir terminal menüsü tasarladığınızı veya sistemden gelen birçok farklı hata kodunu yakalamaya çalıştığınızı düşünün. Her bir ihtimal için peş peşe `elif` yazmak, kodu okumayı zorlaştırır ve çalışma zamanında (run-time) performans kaybına neden olabilir.
+
+İşte böyle durumlarda, literatürde Desen Eşleştirme (Pattern Matching) olarak bilinen ve birçok derlemeli programlama dilinde Switch-Case olarak karşımıza çıkan `case` yapısını kullanırız. "Case" kelimesi, Latince bir olay, düşüş veya durum anlamına gelen *casus* kökünden gelir; sistem programlamada ise bir değişkenin "içine düştüğü durum" olarak değerlendirilir.
+
+Bu yapıyı devasa bir kargo ayırma tesisine (sorting center) benzetebiliriz. Banttan gelen bir paketin (değişkenin) üzerinde bir posta kodu yazar. Mekanik sistem bu paketi alıp sırayla "Bu Ankara mı? Hayır. Bu İzmir mi? Hayır." diye her şehre tek tek sormak yerine, posta kodunu okur ve paketi doğrudan o koda ait kuyuya (oluğa) bırakır. Paketin gideceği yer tanımsızsa, en sondaki "Diğerleri" kuyusuna düşer.
+
+**case Yapısının Sözdizimi (Syntax)**
+Kabuk (Shell) ortamında bir `case` bloğu tasarlarken izlediğimiz iskelet şu şekildedir:
+
+```bash
+case "$degisken" in
+    desen1)
+        # desen1 eşleşirse çalışacak komutlar
+        ;;
+    desen2 | desen3)
+        # desen2 veya desen3 eşleşirse çalışacak komutlar
+        ;;
+    *)
+        # Hiçbir desen eşleşmezse çalışacak varsayılan (default) komutlar
+        ;;
+esac
+```
+<img src="images/case.svg" alt="case yapısı şeması" width="400">
+
+Bu yapıda dikkatinizi çekmesi gereken özel semboller ve mekanizmalar vardır:
+
+-   `)` (Kapanış Parantezi): Kontrol edilecek deseni sonlandırır ve işletim sistemine "buradan sonra komutlar başlıyor" bilgisini verir.
+-   `;;` (Çift Noktalı Virgül): Bu işaret, kargo tesisindeki kuyunun dibini temsil eder. Bir desen eşleşip ilgili komutlar çalıştırıldıktan sonra, sürecin (process) diğer durumlara akmasını engeller (fall-through) ve `case` bloğundan çıkılmasını sağlar. C programlama dilindeki `break` komutunun görevini üstlenir.
+-   `*` (Yıldız / Asterisk): Kabuk terminolojisinde "her şey" anlamına gelen bir joker (wildcard) karakterdir. Hiçbir durumla eşleşmeyen bir değer geldiğinde, programın çökmemesi veya sahipsiz kalmaması için bir nevi güvenlik ağı (Varsayılan Durum - Default Case) görevi görür.
+-   `esac`: Tıpkı `if` bloğunun `fi` ile kapatılması geleneği gibi, `case` kelimesinin tersten yazılmasıyla blok sonlandırılır.
+
+**Örnek: Sistem Servis Yönetim Betiği**
+Bir sunucu üzerindeki web servisini başlatıp durduracak basit bir kontrol betiği (script) yazalım. Kullanıcının terminalden gireceği parametreye göre (start, stop, vb.) işlem yapacak bir yapı kurgulayalım:
+
+```bash
+#!/bin/bash
+
+echo "Web servisi kontrol paneline hoş geldiniz."
+echo "Lütfen bir işlem seçin: [baslat | durdur | yeniden_baslat]"
+read islem
+
+case "$islem" in
+    baslat)
+        echo "Servis başlatılıyor..."
+        # systemctl start apache2 gibi bir komut buraya yazılır
+        ;;
+    durdur)
+        echo "Servis durduruluyor..."
+        # systemctl stop apache2
+        ;;
+    yeniden_baslat)
+        echo "Servis kapatılıp tekrar açılıyor..."
+        # systemctl restart apache2
+        ;;
+    *)
+        echo "Hata: Geçersiz bir parametre girdiniz. Sistemde değişiklik yapılmadı."
+        ;;
+esac
+```
+Bu kod çalıştığında, bellekten okunan `$islem` değişkeni yukarıdan aşağıya doğru desenlerle karşılaştırılır. Eşleşme sağlandığı anda sadece o bloğun içindeki komutlar işlenir ve `;;` görüldüğünde komut satırı doğrudan `esac` satırının sonrasına atlar.
+
+**Çoklu Eşleştirme (Logical OR) ve Karakter Sınıfları**
+Sistem programlarken bazen kullanıcıların aynı anlama gelen farklı girdiler yapmasını tolere etmemiz gerekir. Kullanıcı bir onaya büyük harfle "E", küçük harfle "e" veya kelime olarak "Evet" yanıtını verebilir. Bu durumda `|` (Pipe - Boru) karakterini bir Mantıksal VEYA (Logical OR) operatörü olarak kullanabiliriz.
+
+```bash
+read -p "Devam etmek istiyor musunuz? (E/H): " cevap
+
+case "$cevap" in
+    [eE] | [eE][vV][eE][tT])
+        echo "İşleme devam ediliyor. Dosyalar kopyalanıyor..."
+        ;;
+    [hH] | [hH][aA][yY][ıI][rR])
+        echo "İşlem kullanıcı tarafından iptal edildi."
+        ;;
+    *)
+        echo "Tanımsız giriş. İşlem sonlandırılıyor."
+        ;;
+esac
+```
+Burada köşeli parantez `[ ]` kullanımı da bir başka güçlü desen eşleştirme tekniğidir. Köşeli parantez içindeki karakterler, o haneye yazılabilecek alternatif harfleri belirtir. Bu, Düzenli İfadeler (Regex - Regular Expressions) mantığının kabuk üzerindeki temel uygulamalarından biridir.
+
+Aşağıda, not örneği üzerinden `case` yapısının bir başka kullanımını görebilirsiniz:
 
 ```bash
 #!/bin/bash
@@ -2459,31 +2626,42 @@ esac
 
 ### 8.10 Döngüler ve Alt Kabuklar (Loops and Subshells)
 
-#### for Döngüsü — Liste Üzerinde
+Gençler, şu ana kadar yazdığımız betikler (scripts) yukarıdan aşağıya doğru bir kez çalışıp sonlanıyordu. `if-else` ve `case` ile programın yönünü değiştirmeyi öğrendik ancak aynı işlemi tekrar tekrar yapmamız gerektiğinde bu yapılar yetersiz kalır. Bir dizindeki binlerce dosyanın uzantısını değiştirmek veya bir log dosyasındaki her satırı tek tek okumak için aynı kodu bin defa alt alta yazamayız.
+
+Tıpkı bir fabrikadaki üretim bandının (assembly line) dönmesi gibi, bilgisayar bilimlerinde de tekrar eden işlemleri otomatize etmek için döngü (loop) mekanizmalarını kullanırız. İşletim sistemleri, bu tekrarları donanım seviyesindeki atlama (jump) komutlarıyla oldukça verimli bir şekilde gerçekleştirir.
+
+Kabuk ortamında (Shell Environment) en çok kullanacağımız üç temel döngü yapısı vardır: `for`, `while` ve `until`.
+
+**1. `for` Döngüsü: Liste Üzerinde Gezinme**
+`for` döngüsü, belirli bir liste veya dizi (array) içindeki elemanları tek tek alıp, her biri için belirli komutları çalıştırmak üzere tasarlanmıştır. Kaç kere döneceği baştan bellidir. Bir bahçedeki ağaçları sırayla suladığınızı düşünün; bahçedeki ağaç listesi bitene kadar hortumu bir sonrakine taşırsınız.
+
+Temel Sözdizimi (Syntax):
 
 ```bash
-# Metin listesi
-for isim in Ali Zeynep Mehmet; do
-    echo "Merhaba, $isim!"
-done
-
-# Glob ile dosya listesi
-for dosya in *.log; do
-    echo "Log dosyasi: $dosya ($(wc -l < "$dosya") satir)"
-done
-
-# Aralık
-for i in {1..10}; do
-    echo "Adim $i"
-done
-
-# Adım miktarıyla (Bash 4+)
-for i in {0..20..5}; do    # 0, 5, 10, 15, 20
-    echo $i
+for degisken_adi in liste
+do
+    # Her eleman için çalışacak komutlar
 done
 ```
+Dikkatinizi çekerim, `if` bloğu `fi` ile kapatılıyordu. Döngüler ise "yap" anlamına gelen `do` ile başlar, "yapıldı/bitti" anlamına gelen `done` ile sonlandırılır.
 
-> `for i in $(komut)` yazmak yerine `while IFS= read -r` tercih edilir; komut çıktısında boşluk veya özel karakter varsa `for ... $(...)` beklenmedik davranışlar gösterir.
+Örnek: Dosya İsimlerini Değiştirme
+
+Diyelim ki klasörümüzde bir sürü `.txt` uzantılı dosya var ve biz bunların sonuna "_yedek" eklemek istiyoruz:
+
+```bash
+#!/bin/bash
+
+# Bulunan tüm .txt dosyalarını sırayla 'dosya' değişkenine ata
+for dosya in *.txt
+do
+    echo "$dosya işleniyor..."
+    # mv komutu ile dosyanın adını değiştir
+    mv "$dosya" "${dosya%.txt}_yedek.txt"
+done
+echo "Tüm yedekleme işlemleri tamamlandı."
+```
+Buradaki `${dosya%.txt}` ifadesi, değişkenin sonundaki ".txt" kısmını kırpar. Bu da kabuk programlamanın pratik özelliklerinden biridir.
 
 #### for Döngüsü — C Tarzı
 
