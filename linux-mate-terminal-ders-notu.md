@@ -2699,6 +2699,12 @@ for ((i=10; i>=1; i--)); do
 done
 ```
 
+**Açıklama:** C tarzı `for` döngüsünde üç kısım bulunur:
+1. `i=0` : Başlangıç değeri atanır.
+2. `i<10`: Döngünün çalışma koşulu belirlenir (koşul doğru oldukça çalışır).
+3. `i++` : Her adımda değişkenin ne kadar artacağı (veya azalacağı) belirtilir.
+Bu yapı, sayısal aralıklarda işlem yaparken `while` kullanmaya göre daha derli toplu bir sözdizimi sunar.
+
 #### 2. while Döngüsü: Koşul Doğru (True) Oldukça Dön
 
 `while` (sürece, -iken) döngüsü, belirli bir koşul doğru (0 çıkış kodu) olduğu sürece çalışmaya devam eder. Koşul yanlış olduğunda (sıfırdan farklı bir çıkış kodu döndüğünde) döngü kırılır. Mutfakta bir tencere çorbayı, sıcaklık 100 dereceye ulaşana kadar (sıcaklık < 100 koşulu doğru olduğu sürece) karıştırmaya benzer.
