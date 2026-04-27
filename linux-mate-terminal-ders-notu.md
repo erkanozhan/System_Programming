@@ -2905,139 +2905,168 @@ rm -rf "$HEDEF_DIZIN"/   # HEDEF_DIZIN tanimli degilse bos gibi davranabilir
 rm -rf "$HEDEF_DIZIN"/   # Hata: unbound variable — betik durur
 ```
 
-#### trap — Sinyal Yakalama
+#### Sinyal Yakalama (Signal Handling) ve trap Komutu
 
-`trap`, betik sonlandığında veya belirli bir sinyal (signal) geldiğinde çalışacak kodu tanımlar:
+Gençler, bir sistem programcısı olarak yazdığımız kodun her zaman ideal koşullarda, başından sonuna kadar kesintisiz çalışacağını varsayamayız. Çalışan bir betik (script) aniden dışarıdan bir kesme (interrupt) alabilir. Örneğin, kullanıcı işlemin uzun sürmesinden sıkılıp **Ctrl+C** tuşlarına basabilir veya sistem yöneticisi süreci `kill` komutuyla zorla sonlandırmak isteyebilir.
+
+Bu tür dış müdahalelere ve sistem bildirimlerine **Sinyal (Signal)** diyoruz. Sinyalleri, yoğun bir mutfakta çalışan aşçıbaşına gelen acil durum anonslarına benzetebiliriz. Eğer mutfakta yangın alarmı çalarsa (bir sinyal gelirse), aşçıbaşı elindeki bıçağı olduğu gibi tezgaha bırakıp mutfaktan kaçmamalıdır. Çıkmadan önce ocağın altını kapatmalı (açık dosyaları kapatmalı) ve tezgahı güvenli bir şekilde bırakmalıdır (geçici dosyaları temizlemelidir).
+
+İşte `trap` komutu, betiğimize belirli bir sinyal geldiğinde tam olarak ne yapması gerektiğini tembihler:
 
 ```bash
 #!/bin/bash
 set -euo pipefail
 
+# Temizlik rutinimizi tanımlıyoruz
 temizle() {
-    echo "Temizleniyor..." >&2
+    echo "Sistem: Temizlik yapiliyor, açık kaynaklar kapatılıyor..." >&2
     rm -f /tmp/gecici_$$
 }
 
-trap temizle EXIT    # Betik her nasıl çıkarsa çıksın
-trap 'echo "Iptal edildi." >&2; exit 1' INT   # Ctrl+C
+# EXIT sinyali: Betik her nasıl sonlanırsa sonlansın temizle fonksiyonunu çağır
+trap temizle EXIT    
+
+# INT sinyali: Ctrl+C'ye basıldığında özel bir mesaj ver ve hata ile çık
+trap 'echo "Kullanici tarafindan iptal edildi!" >&2; exit 1' INT   
 
 touch /tmp/gecici_$$
-echo "Islemler yurutüluyor..."
+echo "Uzun süren islemler yapılıyor... (İptal etmek için Ctrl+C'ye basın)"
 sleep 5
-echo "Tamamlandi."
+echo "Islem basariyla tamamlandı."
 ```
 
-`$$` betiğin PID'idir. Geçici dosyaları `_$$` ile adlandırmak, birden fazla betik aynı anda çalışırken çakışmayı önler — her betiğin kendi PID'i farklıdır.
+Yukarıdaki kodda yer alan `$$` ifadesi betiğin **Süreç Kimliği (PID - Process ID)** değerini temsil eder. Aynı betik iki farklı terminalde aynı anda çalıştırılırsa, her birinin `$$` değeri farklı olacağından oluşturdukları geçici dosyalar (örneğin `/tmp/gecici_1234` ve `/tmp/gecici_5678`) birbirinin üzerine yazılmaz ve karışmaz.
+
+<img src="images/signal-trap-flow.svg" alt="Sinyal Yakalama Akışı">
+
+**Sık Karşılaşılan Sinyaller:**
 
 | Sinyal | Kodu | Anlamı |
 |--------|------|--------|
-| `EXIT` | — | Betik her türlü çıkışta |
-| `INT` | 2 | Ctrl+C (interrupt — kesme) |
-| `TERM` | 15 | `kill` ile yumuşak sonlandırma (terminate) |
-| `ERR` | — | `set -e` ile hata oluştuğunda |
-| `HUP` | 1 | Terminal kapandığında (hangup) |
+| `EXIT` | — | İşletim sistemine geri dönüş (Betik bittiğinde veya `exit` çağrıldığında tetiklenir) |
+| `INT` | 2 | **Int**errupt (Kesme) — Genellikle **Ctrl+C** ile tetiklenir. |
+| `TERM` | 15 | **Term**inate (Sonlandır) — `kill` komutunun varsayılan, işlemi sonlandırma isteğidir. |
+| `ERR` | — | `set -e` açıkken bir komutun başarısız olması durumunda fırlatılır. |
+| `HUP` | 1 | **H**ang**up** — Terminal penceresi kapatıldığında veya SSH bağlantısı koptuğunda gelir. |
 
 ---
 
 ### 8.13 Betik Hata Ayıklama (Debugging)
 
-#### set -x ile İzleme
+Yazılım geliştirme sürecinin önemli bir kısmı, kodun neden beklenen şekilde davranmadığını bulmakla geçer. Bash, diğer dillerdeki gibi adım adım ilerleyen görsel bir hata ayıklayıcıya sahip olmasa da, kendi içinde son derece güçlü izleme (tracing) mekanizmaları barındırır.
+
+#### `set -x` ile Şeffaf İzleme
+
+Hata ayıklamanın en etkili yollarından biri, komutların çalıştırılmadan hemen önce arka planda hangi son hali aldıklarını görmektir. `set -x` komutunu betiğinize eklediğinizde, boru hattınızı (pipeline) adeta şeffaf bir cama çevirirsiniz; böylece verinin hangi aşamadan, hangi değişkene dönüşerek aktığını net bir şekilde izleyebilirsiniz.
 
 ```bash
 #!/bin/bash
-set -x    # Her komut çalıştırılmadan önce ekrana yazdır
+set -x    # İzleme modunu aç (xtrace)
 ```
 
-Ya da yalnızca belirli bir bölümü izlemek için:
+Eğer uzun bir betiğin sadece şüphelendiğiniz dar bir bölgesini izlemek isterseniz, bu modu yalnızca o kısım için açıp sonra kapatabilirsiniz:
 
 ```bash
+# Sadece bu bölümü izle
 set -x
-# Hata aranan kod
-set +x
+HESAP=$(( 5 * (10 + 2) ))
+echo "Sonuc: $HESAP"
+set +x    # İzleme modunu kapat
 ```
 
-Dışarıdan da başlatılabilir:
+Koda hiç dokunmadan, betiği dışarıdan izleme moduyla başlatmak için şu yöntem tercih edilir:
 
 ```bash
 bash -x betik.sh
 ```
 
-`set -x` çıktısı `+` ile işaretlenir:
+İzleme modu açıkken bash, çalıştıracağı her komutu (değişkenleri gerçek değerleriyle değiştirdikten sonra) başına bir `+` işareti koyarak ekrana yansıtır:
 
+```text
++ HESAP=60
++ echo 'Sonuc: 60'
+Sonuc: 60
 ```
-+ echo "Merhaba"
-Merhaba
-+ ls /etc/passwd
-/etc/passwd
-```
+
+![Bash Debugging Şeffaflığı](images/bash-debugging-transparent.svg)
 
 #### Sözdizimi Kontrolü (Syntax Check)
 
+Betiği çalıştırmadan önce sadece yazım kurallarına (syntax) uyup uymadığını denetlemek için `-n` (noexec) parametresini kullanırız. 
+
 ```bash
-bash -n betik.sh    # Çalıştırmadan sözdizimi denetle
+bash -n betik.sh    # Çalıştırmadan sadece sözdizimi denetle
 ```
 
-#### Sık Yapılan Hatalar
+#### Bash'te Sık Yapılan Tipik Hatalar
 
-| Hata | Açıklama | Doğrusu |
+| Hatalı Kullanım | Neden Hatalı? | Doğru Kullanım |
 |------|----------|---------|
-| `ISIM = "Ali"` | `=` etrafında boşluk | `ISIM="Ali"` |
-| `if[$A -gt 0]` | `[` sonrası boşluk zorunlu | `if [ "$A" -gt 0 ]` |
-| `rm $DOSYA` | Boşluklu isimlerde bozulur | `rm "$DOSYA"` |
-| `[ $A == $B ]` | Boş değişken sözdizimi hatasına yol açar | `[ "$A" == "$B" ]` |
-| `for i in $(ls)` | ls çıktısı güvenilmez | `for f in *.ext` |
-| `exit` unutmak | Hatalı yol `exit 1` ile bitmeli | `exit 0` / `exit 1` ekleyin |
+| `ISIM = "Ali"` | Değişken atamalarında `=` işaretinin sağında ve solunda boşluk **kesinlikle olmamalıdır**. | `ISIM="Ali"` |
+| `if[$A -gt 0]` | Köşeli parantezlerin `[ ]` iç ve dış kısımlarında boşluk bırakmak **zorunludur**. | `if [ "$A" -gt 0 ]` |
+| `rm $DOSYA` | Değişken tırnak içine alınmazsa, boşluk içeren dosya isimlerinde komut parametreleri yanlış algılar. | `rm "$DOSYA"` |
+| `[ $A == $B ]` | `$A` değişkeni boş kalırsa, ifade `[ == "deger" ]` şekline dönüşür ve ayrıştırma (parsing) hatası oluşur. | `[ "$A" == "$B" ]` |
 
 ---
 
 ### 8.14 İş Denetimi (Job Control)
 
-Bash betiği içinde süreçleri arka planda çalıştırmak ve yönetmek mümkündür. Bu özellik özellikle paralel işlem gerektiren durumlarda — örneğin çok sayıda sunucuya aynı anda bağlanmak veya birden fazla dosyayı eş zamanlı işlemek — vazgeçilmez olur.
+Sistem programlamada donanım kaynaklarını ve zamanı verimli kullanmak önceliktir. Betiğinizin içindeki belirli adımlar birbirinden tamamen bağımsızsa, bu işleri sırayla (sequential) yapmak yerine aynı anda (parallel) çalıştırmak, işlem süresini büyük ölçüde kısaltır.
+
+Bu durumu bir otomobil fabrikasındaki montaj hattı yerine, birbirinden bağımsız çalışan robot kollara benzetebiliriz. Kapıları takan robot ile camları takan robotun birbirini beklemesine gerek yoktur; her ikisi de aynı anda çalışabilir. Ancak kalite kontrol noktasına gelindiğinde, iki işlemin de bitmiş olması gerekir.
+
+Bash'te çalıştırılan bir komutun veya sürecin sonuna `&` işareti koymak, o işi arka planda (background) başlatır. `wait` komutu ise bu işlemlerin tümünün bitmesini beklemek için bir senkronizasyon (synchronization) noktası oluşturur.
 
 ```bash
-uzun_islem &
-ISLEM_PID=$!       # Arka plan sürecinin PID'i
+# Uzun süren bir veritabanı yedeğini arka planda başlatıyoruz
+yedek_al &
+YEDEK_PID=$!       # $! değişkeni, arka planda başlatılan son sürecin PID değerini yakalar
 
-echo "Arka plan islemi calisiyor, PID: $ISLEM_PID"
-# Bu arada başka işler yapılabilir
+echo "Yedekleme arka planda devam ediyor (PID: $YEDEK_PID)..."
 
-wait $ISLEM_PID    # Tamamlanmasını bekle
-echo "Islem tamamlandi."
+# Yedekleme sürerken diğer bağımsız işlerimize devam edebiliriz
+loglari_sikistir
+
+# Tüm hayati işlemler bitmeden ana betiğin kapanmasını engelliyoruz
+wait $YEDEK_PID    
+echo "Tüm isler tamamlandi, sistem güvenli durumda."
 ```
 
-#### Paralel Çalıştırma Deseni
+#### Paralel Çalıştırma Deseni (Parallel Execution Pattern)
+
+Birçok işi aynı anda arka planda başlatıp, en sonunda hepsinin tamamlanmasını beklemek (genellikle Fork-Join modeli olarak adlandırılır) sistem yöneticilerinin sıklıkla kullandığı bir yapıdır. Özellikle birden fazla sunucuya aynı anda yapılandırma gönderirken veya çok sayıda büyük dosyayı işlerken kullanılır.
 
 ```bash
 #!/bin/bash
 set -euo pipefail
 
-islem() {
+veri_isle() {
     local id=$1
-    echo "Islem $id basladi"
-    sleep $(( RANDOM % 5 + 1 ))
-    echo "Islem $id bitti"
+    echo "Makine $id isleniyor..."
+    # İşi simüle etmek için rastgele bir süre bekletiyoruz
+    sleep $(( RANDOM % 5 + 1 )) 
+    echo "Makine $id islemi tamamlandi."
 }
 
-# 5 işlemi paralel başlat
 PIDLER=()
+
+# 5 farklı makine için işlemleri paralel olarak başlat
 for i in {1..5}; do
-    islem "$i" &
-    PIDLER+=($!)
+    veri_isle "$i" &
+    PIDLER+=($!)   # Başlayan her arka plan işinin PID'ini diziye ekle
 done
 
-# Hepsinin bitmesini bekle
+echo "Tüm isler baslatildi, ana hat bekliyor..."
+
+# Diziye kaydettiğimiz süreçlerin tamamının bitmesini garanti altına al
 for pid in "${PIDLER[@]}"; do
     wait "$pid"
 done
 
-echo "Tüm islemler tamamlandi."
+echo "Ana Betik: Tüm paralel islemler sorunsuz tamamlandi."
 ```
 
-![Paralel İş Akışı](images/job-control.svg)
-
-Bunu bir fabrika montaj hattına benzetebilirsiniz: her işçi (süreç) kendi istasyonunda bağımsız çalışır; `wait` ise kalite kontrol noktasıdır — tüm istasyonlar tamamlamadan hat ilerlemez. Seri çalışmada toplam süre tüm işlerin sürelerinin toplamıdır; paralel çalışmada ise en uzun işin süresidir.
-
-`RANDOM` Bash'in yerleşik sözde rastgele sayı üreticisidir — 0 ile 32767 arasında değer verir.
+*Not:* Yukarıdaki kodda kullanılan `RANDOM`, Bash'in içerisinde yerleşik olarak bulunan ve her çağrıldığında 0 ile 32767 arasında sözde rastgele (pseudo-random) bir sayı üreten bir ortam değişkenidir.
 
 ---
 
