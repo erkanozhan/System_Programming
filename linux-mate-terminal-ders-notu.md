@@ -2865,23 +2865,7 @@ echo "Son komutun çıkış kodu: $?"    # Çıktı: 2 (Hata: Dizin veya dosya b
 
 Yukarıdaki örneklerde komutun ekrana gereksiz metin veya hata mesajı yazdırmasını engellemek, sadece gizli olan **çıkış kodunu (0 veya 2)** almak için bu yapı kullanılmıştır.
 
-```mermaid
-flowchart LR
-    CMD["Komut (ls)"] 
-    STDOUT["1 (Standart Çıktı)"]
-    STDERR["2 (Standart Hata)"]
-    DEVNULL[("/dev/null (Kara Delik)")]
-
-    CMD -- Normal sonuçlar --> STDOUT
-    CMD -- Hata mesajları --> STDERR
-
-    STDOUT -- ">" --> DEVNULL
-    STDERR -- "2>&1" --> STDOUT
-    
-    style DEVNULL fill:#333,color:#fff,stroke:#000
-    style STDOUT fill:#4CAF50,color:#fff,stroke:#388E3C
-    style STDERR fill:#F44336,color:#fff,stroke:#D32F2F
-```
+<img src="images/dev-null-redirection.svg" alt="/dev/null yapısı" width="600">
 
 * **`> /dev/null`**: Standart çıktıyı (komutun normal sonucunu) Linux'un "kara deliği" olan `/dev/null` dosyasına yönlendirir. Buraya giden veri sonsuza dek kaybolur (ekranda görünmez).
 * **`2>&1`**: Standart hatayı (`2`), standart çıktının (`1`) gittiği yere (yani `/dev/null` kara deliğine) yönlendirir. Böylece hatalar da ekranda görünmez.
