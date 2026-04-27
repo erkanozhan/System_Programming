@@ -2645,7 +2645,7 @@ done
 ```
 Dikkatinizi çekerim, `if` bloğu `fi` ile kapatılıyordu. Döngüler ise "yap" anlamına gelen `do` ile başlar, "yapıldı/bitti" anlamına gelen `done` ile sonlandırılır.
 
-Örnek: Dosya İsimlerini Değiştirme
+##### Örnek: Dosya İsimlerini Değiştirme
 
 Diyelim ki klasörümüzde bir sürü `.txt` uzantılı dosya var ve biz bunların sonuna "_yedek" eklemek istiyoruz:
 
@@ -2662,6 +2662,29 @@ done
 echo "Tüm yedekleme işlemleri tamamlandı."
 ```
 Buradaki `${dosya%.txt}` ifadesi, değişkenin sonundaki ".txt" kısmını kırpar. Bu da kabuk programlamanın pratik özelliklerinden biridir.
+
+##### Örnek: Dosya İsimlerine Tarih Eklemek
+
+Bu örnekte ise klasördeki tüm `.txt` uzantılı dosyaların başına o günün tarihini (Yıl-Ay-Gün formatında) ekleyerek isimlerini değiştirelim:
+
+```bash
+#!/bin/bash
+
+# O günün tarihini 'YIL-AY-GUN' formatında al
+tarih=$(date +%F) # veya $(date +%Y-%m-%d)
+
+# Bulunan tüm .txt dosyalarını döngüye al
+for dosya in *.txt
+do
+    # Eğer klasörde .txt dosyası yoksa döngünün hata vermemesi için kontrol et
+    if [[ -f "$dosya" ]]; then
+        yeni_ad="${tarih}_${dosya}"
+        echo "$dosya -> $yeni_ad olarak değiştiriliyor..."
+        mv "$dosya" "$yeni_ad"
+    fi
+done
+echo "Dosya isimlerine tarih ekleme işlemi tamamlandı."
+```
 
 #### for Döngüsü — C Tarzı
 
