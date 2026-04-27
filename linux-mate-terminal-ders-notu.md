@@ -2676,33 +2676,42 @@ for ((i=10; i>=1; i--)); do
 done
 ```
 
-#### while Döngüsü
+#### 2. while Döngüsü: Koşul Doğru (True) Oldukça Dön
+
+`while` (sürece, -iken) döngüsü, belirli bir koşul doğru (0 çıkış kodu) olduğu sürece çalışmaya devam eder. Koşul yanlış olduğunda (sıfırdan farklı bir çıkış kodu döndüğünde) döngü kırılır. Mutfakta bir tencere çorbayı, sıcaklık 100 dereceye ulaşana kadar (sıcaklık < 100 koşulu doğru olduğu sürece) karıştırmaya benzer.
+
+Örnek: Sayaç Mantığı
 
 ```bash
-SAYAC=1
-while (( SAYAC <= 5 )); do
-    echo "Adim $SAYAC"
-    (( SAYAC++ ))
-done
+#!/bin/bash
 
-# Dosyadan satır satır okuma
-while IFS= read -r satir; do
-    echo ">> $satir"
-done < dosya.txt
+sayac=1
+
+while [ $sayac -le 5 ]
+do
+    echo "Döngü çalışıyor. Şu anki değer: $sayac"
+    # Sayacı 1 artır (Aritmetik işlem için $(( )) kullanılır)
+    sayac=$((sayac + 1))
+done
 ```
 
-`IFS=` (Internal Field Separator — İç Alan Ayırıcı), satır başı/sonu boşluklarını korumak için boş bırakılır. `-r` ters eğik çizgileri özel karakter olarak yorumlamaz.
+Eğer sayacı artırmayı unutursanız, koşul her zaman doğru kalacağı için programınız Sonsuz Döngüye (Infinite Loop) girer ve siz Ctrl+C ile kesene kadar çalışmaya devam eder.
 
-#### until Döngüsü
+#### 3. until Döngüsü: Koşul Doğru Olana Kadar Dön
 
-`until`, koşul yanlış olduğu sürece çalışır — `while`'ın tersine çevrilmiş halidir:
+`until` döngüsü, `while` döngüsünün tam tersidir. Koşul yanlış (false) olduğu sürece çalışır, koşul doğru (true) olduğu anda durur. Genellikle bir sistemin veya servisin ayağa kalkmasını beklerken kullanılır. "Sunucuya bağlanılana kadar (until connected) tekrar dene" mantığı.
 
 ```bash
-SAYAC=1
-until (( SAYAC > 5 )); do
-    echo "Adim $SAYAC"
-    (( SAYAC++ ))
+#!/bin/bash
+
+# Ping atılamadığı sürece (komut hata döndürdükçe) dön
+until ping -c 1 8.8.8.8 > /dev/null 2>&1
+do
+    echo "Ağ bağlantısı yok, 5 saniye sonra tekrar deneniyor..."
+    sleep 5
 done
+
+echo "Bağlantı sağlandı!"
 ```
 
 #### break ve continue
@@ -2830,19 +2839,59 @@ Bash özyinelemeyi destekler ama her çağrı yeni bir alt süreç oluşturduğu
 
 ### 8.12 Hata Yönetimi (Error Handling)
 
-#### Çıkış Kodları (Exit Codes)
+#### Çıkış Kodları (Exit Kodları)
 
-Her komut çalıştıktan sonra bir çıkış kodu üretir. `0` başarıyı, `1-255` arası hataları ifade eder. Bu Unix'te evrensel bir sözleşmedir.
+Linux ve Unix sistemlerinde, çalışan her komut veya program işini bitirdiğinde işletim sistemine gizli bir "durum raporu" bırakır. Bu rapora **Çıkış Kodu (Exit Code)** denir.
+
+Bu sistemin evrensel kuralı şudur:
+* **`0` (Sıfır):** "Her şey yolunda, görev başarıyla tamamlandı."
+* **`1` ile `255` arası sayılar:** "Bir şeyler ters gitti!" (Farklı sayılar farklı hata türlerini belirtir).
+
+Bir komutun çıkış kodunu öğrenmek için, komutu çalıştırdıktan hemen sonra **`$?`** özel değişkenine bakmamız gerekir.
+
+**Örnekler:**
 
 ```bash
+# Başarılı bir komut örneği: Var olan bir dizini listele
 ls /var/log > /dev/null 2>&1
-echo $?    # 0 — başarılı
+echo "Son komutun çıkış kodu: $?"    # Çıktı: 0 (Başarılı)
 
+# Hatalı bir komut örneği: Olmayan bir dizini listelemeye çalış
 ls /olmayan/dizin > /dev/null 2>&1
-echo $?    # 2 — dizin bulunamadı
+echo "Son komutun çıkış kodu: $?"    # Çıktı: 2 (Hata: Dizin veya dosya bulunamadı)
 ```
 
-`exit N` betiği N koduyla sonlandırır. Standart kullanım: `exit 0` başarı, `exit 1` genel hata.
+**Bilgi: `> /dev/null 2>&1` Ne Anlama Geliyor?**
+
+Yukarıdaki örneklerde komutun ekrana gereksiz metin veya hata mesajı yazdırmasını engellemek, sadece gizli olan **çıkış kodunu (0 veya 2)** almak için bu yapı kullanılmıştır.
+
+```mermaid
+flowchart LR
+    CMD["Komut (ls)"] 
+    STDOUT["1 (Standart Çıktı)"]
+    STDERR["2 (Standart Hata)"]
+    DEVNULL[("/dev/null (Kara Delik)")]
+
+    CMD -- Normal sonuçlar --> STDOUT
+    CMD -- Hata mesajları --> STDERR
+
+    STDOUT -- ">" --> DEVNULL
+    STDERR -- "2>&1" --> STDOUT
+    
+    style DEVNULL fill:#333,color:#fff,stroke:#000
+    style STDOUT fill:#4CAF50,color:#fff,stroke:#388E3C
+    style STDERR fill:#F44336,color:#fff,stroke:#D32F2F
+```
+
+* **`> /dev/null`**: Standart çıktıyı (komutun normal sonucunu) Linux'un "kara deliği" olan `/dev/null` dosyasına yönlendirir. Buraya giden veri sonsuza dek kaybolur (ekranda görünmez).
+* **`2>&1`**: Standart hatayı (`2`), standart çıktının (`1`) gittiği yere (yani `/dev/null` kara deliğine) yönlendirir. Böylece hatalar da ekranda görünmez.
+
+**Kendi Betiklerimizde (Script) Kullanımı:**
+
+Yazdığınız Bash betiklerinde `exit` komutunu kullanarak programın nasıl sonlandığını işletim sistemine (veya o betiği çalıştıran başka bir programa) bildirebilirsiniz:
+
+* `exit 0`: "Betik görevini başarıyla tamamladı." (Betiğin sonuna konur).
+* `exit 1` (veya diğer sayılar): "Betikte bir hata oluştu ve çalışma durduruldu." (Örneğin gerekli bir dosya bulunamadığında betiği kesmek için kullanılır).
 
 #### Savunmacı Betik — `set` Seçenekleri
 
