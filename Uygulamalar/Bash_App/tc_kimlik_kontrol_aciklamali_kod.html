@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T.C. Kimlik Kontrol Script Kodu (Açıklamalı)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            color: #0056b3;
+        }
+        pre {
+            background-color: #282c34; /* Koyu zemin */
+            color: #ffff00; /* Parlak sarı metin, daha yüksek kontrast */
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            line-height: 1.4;
+            tab-size: 4;
+        }
+        pre span {
+            display: block; /* Each span on its own line */
+            white-space: pre-wrap; /* Preserve whitespace and wrap lines */
+            cursor: help; /* Indicate hoverable element */
+        }
+        /* Basic tooltip styling for title attribute - browser default */
+        /* For custom tooltips, JavaScript would be needed */
+    </style>
+</head>
+<body>
+    <h1>T.C. Kimlik Kontrol Script Kodu</h1>
+    <p>Kod satırlarının üzerine geldiğinizde ilgili açıklamaları görebilirsiniz.</p>
+    <pre><code><span title="Shebang: Bu satır, betiğin hangi yorumlayıcı (interpreter) ile çalıştırılacağını belirtir.
+/bin/bash, betiğin Bash kabuğu tarafından yorumlanacağını ifade eder.
+Bu, betiği doğrudan çalıştırılabilir hale getirir (örneğin, ./betik.sh).
+">#!/bin/bash</span>
+<span></span>
+<span title="`while true` döngüsü: Betiğin sürekli olarak çalışmasını sağlar.
+Kullanıcı &quot;Hayır&quot; diyerek çıkış yapana kadar bu döngü devam eder.
+">while true</span>
+<span>do</span>
+<span title="`clear` komutu: Terminal ekranını temizler. Her yeni T.C. Kimlik No girişi öncesi ekranı düzenli tutar.
+">    clear</span>
+<span title="`read` komutu: Kullanıcıdan girdi almak için kullanılır.
+`-p` (prompt) seçeneği, kullanıcıya gösterilecek mesajı belirtir.
+Girilen değer `tcno` değişkenine atanır.
+">    read -p "Lütfen Kaydetmek istediğiniz T.C Kimlik Noyu Giriniz" tcno</span>
+<span title="`kontrol` değişkeni: T.C. Kimlik Numarası için bir düzenli ifade (Regular Expression - Regex) tanımlar.
+Regex, metin desenlerini eşleştirmek için güçlü bir araçtır.
+
+Açıklama:
+`^`: Satırın başlangıcı.
+`[1-9]`: İlk karakter 0 olamaz, 1 ile 9 arasında bir rakam olmalıdır.
+`[0-9]{10}`: Sonraki 10 karakter 0 ile 9 arasında rakam olmalıdır.
+`$`: Satırın sonu.
+Bu regex, toplam 11 haneli, ilk hanesi 0 olmayan ve tamamı rakamlardan oluşan bir T.C. Kimlik Numarası formatını kontrol eder.">    kontrol='^[1-9][0-9]{10}$'</span>
+<span></span>
+<span title="`if` koşullu ifadesi: Belirli bir koşulun doğru olup olmadığını kontrol eder.
+`[[ ]]`: Bash'te genişletilmiş testler için kullanılır. `[ ]`'e göre daha gelişmiş özellikler sunar (örn. regex).
+`!`: Mantıksal DEĞİL operatörü. Koşulun tersini kontrol eder.
+`&quot;$tcno&quot;`: `tcno` değişkeninin değeri. Değişkenleri çift tırnak içine almak, boşluk veya özel karakter içeren durumlarda hataları önler.
+`=~`: Regex eşleştirme operatörü. `&quot;$tcno&quot;` değişkeninin `kontrol` regex'i ile eşleşıp eşleşmediğini kontrol eder.
+Eğer `tcno` regex desenine uymuyorsa (yani geçersizse) bu blok çalışır.
+">if ! [[ "$tcno" =~ $kontrol ]]; then</span>
+<span title="`echo` komutu: Terminale mesaj yazdırır. Bu durumda bir hata mesajı gösterir.">    echo "Lütfen sadece 11 hane, başında 0 olmadan olacak şekilde rakam giriniz"</span>
+<span>else</span>
+<span title="Başarılı giriş mesajı.">    echo "Doğru Giriş"</span>
+<span></span>
+<span title="Çıktı yönlendirme operatörü `>>`: `tcno` değişkeninin değerini `deneme.txt` adlı dosyanın sonuna ekler.
+Eğer dosya yoksa oluşturur. `>` tek başına kullanılsaydı dosyanın içeriğini silip yeniden yazardı.
+Sistem programlamada, dosya G/Ç (Girdi/Çıktı) işlemleri, işletim sisteminin temel işlevlerinden biridir.
+Her şeyin bir dosya olduğu UNIX felsefesi gereği, bu işlem bir dosya tanımlayıcısı (File Descriptor) üzerinden gerçekleşir.
+">    echo "$tcno" >> deneme.txt</span>
+<span title="Kayıt işleminin başarılı olduğunu bildiren mesaj.">    echo "Başarıyla kaydedildi"</span>
+<span>fi</span>
+<span></span>
+<span title="İç `while true` döngüsü: Kullanıcıya devam edip etmek istemediğini sorar.
+Bu döngü, kullanıcı geçerli bir &quot;Evet&quot; veya &quot;Hayır&quot; cevabı verene kadar devam eder.
+">    while true</span>
+<span>    do</span>
+<span title="Kullanıcının tercihini `secim` değişkenine atar.">        read -p "Devam etmek istiyor musunuz (Evet/Hayır)?" secim</span>
+<span></span>
+<span title="`case` ifadesi: Bir değişkenin değerini birden fazla desenle karşılaştırmak için kullanılır.
+`if/elif/else` yapısına göre daha okunabilir ve etkilidir, özellikle çok sayıda seçenek olduğunda.
+">        case $secim in</span>
+<span></span>
+<span title="`[Ee]*)`: Kullanıcının girdisi 'E' veya 'e' ile başlıyorsa bu deseni eşleştirir.
+`*` joker karakteri, 'E' veya 'e'den sonra gelen herhangi bir karakter dizisini temsil eder.
+">            [Ee]*)</span>
+<span title="`break` komutu: İçinde bulunduğu döngüyü (bu durumda iç `while true` döngüsünü) sonlandırır.
+Program ana `while true` döngüsünün başına döner ve yeni bir T.C. Kimlik No girişi ister.">                break;;</span>
+<span></span>
+<span title="`[Hh]*)`: Kullanıcının girdisi 'H' veya 'h' ile başlıyorsa bu deseni eşleştirir.">            [Hh]*)</span>
+<span title="Çıkış mesajı.">                echo "Programdan çıkılıyor. Hoşçakalın"</span>
+<span title="`exit` komutu: Betiğin çalışmasını tamamen sonlandırır.
+`exit 0` genellikle başarılı çıkışı, `exit 1` veya daha yüksek değerler ise hata durumunu belirtir.
+">                exit;;</span>
+<span></span>
+<span title="`*)`: Yukarıdaki desenlerden hiçbiri eşleşmezse bu varsayılan deseni eşleştirir.
+Kullanıcıya geçerli bir seçenek girmesi için uyarı verir.
+Döngü devam eder ve tekrar seçim yapması istenir.">            *) echo "Lütfen Evet için E, Hayır için H kullanınız"</span>
+<span title="`esac`: `case` ifadesinin sonunu belirtir (case kelimesinin tersten yazılışı).">        esac</span>
+<span title="İç `while true` döngüsünün sonu.">    done</span>
+<span title="Ana `while true` döngüsünün sonu.">done</span></code></pre>
+</body>
+</html>
