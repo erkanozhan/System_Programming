@@ -2833,6 +2833,28 @@ faktoriyel() {
 echo "5! = $(faktoriyel 5)"    # 120
 ```
 
+Aynı kodun klavyeden değer alan (etkileşimli) versiyonu:
+
+```bash
+faktoriyel() {
+    local n=$1
+    if (( n <= 1 )); then
+        echo 1
+    else
+        local alt=$(faktoriyel $(( n - 1 )))
+        echo $(( n * alt ))
+    fi
+}
+
+# Klavyeden girilen sayının faktöriyelini bulma
+read -p "Faktöriyeli hesaplanacak sayıyı girin: " sayi
+if [[ $sayi =~ ^[0-9]+$ ]]; then
+    echo "$sayi! = $(faktoriyel $sayi)"
+else
+    echo "Lütfen geçerli bir pozitif tam sayı girin."
+fi
+```
+
 Bash özyinelemeyi destekler ama her çağrı yeni bir alt süreç oluşturduğundan büyük değerlerde performans düşer. Gerçek sayısal hesaplamalar için Python veya C daha uygun seçimlerdir.
 
 ---
