@@ -2937,7 +2937,7 @@ echo "Islem basariyla tamamlandı."
 
 Yukarıdaki kodda yer alan `$$` ifadesi betiğin **Süreç Kimliği (PID - Process ID)** değerini temsil eder. Aynı betik iki farklı terminalde aynı anda çalıştırılırsa, her birinin `$$` değeri farklı olacağından oluşturdukları geçici dosyalar (örneğin `/tmp/gecici_1234` ve `/tmp/gecici_5678`) birbirinin üzerine yazılmaz ve karışmaz.
 
-<img src="images/signal-trap-flow.svg" alt="Sinyal Yakalama Akışı">
+<img src="images/signal-trap-analogy.svg" alt="Sinyal Yakalama Akışı">
 
 **Sık Karşılaşılan Sinyaller:**
 
@@ -2988,7 +2988,7 @@ bash -x betik.sh
 Sonuc: 60
 ```
 
-<img src="images/bash-debugging-transparent.svg" alt="Bash Debugging Şeffaflığı">
+![Bash Debugging Şeffaflığı](images/bash-debugging-transparent.svg)
 
 #### Sözdizimi Kontrolü (Syntax Check)
 
