@@ -2988,7 +2988,7 @@ bash -x betik.sh
 Sonuc: 60
 ```
 
-![Bash Debugging Şeffaflığı](images/bash-debugging-transparent.svg)
+<img src="images/bash-debugging-transparent.svg" alt="Bash Debugging Şeffaflığı">
 
 #### Sözdizimi Kontrolü (Syntax Check)
 
