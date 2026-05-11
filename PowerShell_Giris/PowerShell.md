@@ -32,6 +32,34 @@ Bu adlandırma standardı öğrenildiğinde, daha önce hiç karşılaşılmamı
 
 ---
 
+## Parametre Sözdizimi (Parameter Syntax)
+
+Cmdlet'ler tek başlarına çalışabilse de asıl gücünü **parametre**lerle (parameter) ortaya koyar. Parametre, bir işlemin *nasıl* yapılacağını belirtir. Bir tarif düşünün: tarif "kek pişir" iken parametre "fırın sıcaklığı 180°C, süre 40 dakika" anlamına gelir. Aynı tarif, farklı parametrelerle farklı sonuçlar üretir.
+
+PowerShell'de üç tür parametre vardır:
+
+**1. Adlandırılmış Parametre (Named Parameter)** — `-ParamAdı Değer` biçiminde yazılır; ad ve değer açıkça belirtilir:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**2. Konumsal Parametre (Positional Parameter)** — Parametre adı yazılmadan yalnızca değer verilir; cmdlet, değerin sırasına bakarak hangi parametreye ait olduğunu anlar:
+
+```powershell
+Get-ChildItem C:\Users   # C:\Users, -Path parametresinin konumsal değeridir
+```
+
+**3. Anahtarlı Parametre (Switch Parameter)** — Değer almaz; yalnızca varlığıyla etkisini gösterir. Elektrik düğmesi gibidir — yazılmışsa açık, yazılmamışsa kapalı:
+
+```powershell
+Sort-Object CPU -Descending   # -Descending bir anahtardır; ters sıralamayı etkinleştirir
+```
+
+![Parametre Sözdizimi Anatomisi](images/ps-parametre-yapisi.svg)
+
+---
+
 ## Temel Komutlar
 
 ### Değişken Tanımlama (Variable)
@@ -43,27 +71,150 @@ $isim = "Ali"
 Write-Output "Merhaba $isim"
 ```
 
-### Süreçleri Listeleme
+**`Write-Output "Merhaba $isim"` — Parametreler:**
+
+| Parametre | Değer | Açıklama |
+| --- | --- | --- |
+| `-InputObject` *(konumsal, 1. sıra)* | `"Merhaba $isim"` | Ekrana gönderilecek nesne veya metin. Parametre adı yazılmadan doğrudan değer verilir. |
+
+Çift tırnak içindeki `$isim` **değişken iç içe geçirme** (string interpolation) ile çalışır: PowerShell, `$isim`'i çalışma anında değişkenin gerçek değeriyle değiştirir. Tek tırnak kullanıldığında bu yorumlama yapılmaz:
+
+```powershell
+Write-Output 'Merhaba $isim'   # Çıktı: Merhaba $isim  (değişken yorumlanmaz)
+Write-Output "Merhaba $isim"   # Çıktı: Merhaba Ali     (değişken yerleştirilir)
+```
+
+---
+
+### Süreçleri Listeleme (Get-Process)
 
 ```powershell
 Get-Process
 ```
 
-### Filtreleme: CPU Kullanımı 50'yi Aşan Süreçler
+Parametresiz çalıştırıldığında sistemdeki tüm çalışan süreçleri listeler. Aynı cmdlet, parametrelerle çok daha odaklı sorgulamalar yapabilir:
+
+```powershell
+Get-Process -Name "chrome"
+Get-Process -Id 1234
+Get-Process -Name "chrome","code"
+```
+
+**Parametreler:**
+
+| Parametre | Tür | Açıklama |
+| --- | --- | --- |
+| `-Name` *(konumsal, 1. sıra)* | Metin dizisi | Süreç adı. Joker karakter kabul eder: `"ch*"` ifadesi "chrome", "chkdsk" gibi `ch` ile başlayan tüm süreçleri getirir. |
+| `-Id` | Tam sayı | PID (Process ID — Süreç Kimlik Numarası). İşletim sisteminin her çalışan sürece atadığı benzersiz numaradır. |
+| `-ComputerName` | Metin dizisi | Uzak bir bilgisayardaki süreçleri sorgular. |
+
+---
+
+### Filtreleme (Where-Object)
 
 ```powershell
 Get-Process | Where-Object { $_.CPU -gt 50 }
 ```
 
-`$_` sözdizimi, pipeline'dan gelen **geçerli nesneyi** temsil eder. Her nesne geçerken "bu nesnenin CPU özelliği 50'den büyük mü?" sorusu sorulur; evet ise ileri iletilir, hayır ise elenir.
+**`Where-Object { $_.CPU -gt 50 }` — Parametreler:**
 
-### Klasör İçeriğini Listeleme
+| Parametre | Değer | Açıklama |
+| --- | --- | --- |
+| `-FilterScript` *(konumsal, 1. sıra)* | `{ $_.CPU -gt 50 }` | Süzgeç koşulunu tanımlayan **script bloğu** (ScriptBlock). Süslü parantezler `{ }` bir kod parçasını "şimdi çalıştırma, hazır tut" diye paketler. Pipeline'dan gelen her nesne bu bloktan geçirilir; blok `$true` üretirse nesne ileri iletilir, `$false` üretirse elenir. |
+
+**`$_` nedir?**
+
+`$_`, PowerShell'in **otomatik değişkeni**dir (automatic variable); pipeline üzerinden gelen geçerli nesneyi temsil eder. Bir eleme bandını düşünün: bant üzerindeki her ürün sırayla tek tek gelir, o an elde tutulana `$_` deniyor. Her nesne geldiğinde "bu nesnenin CPU özelliği 50'den büyük mü?" sorusu yeniden sorulur.
+
+**Karşılaştırma Operatörleri (Comparison Operators):**
+
+| Operatör | Anlamı | Kısaltmanın Açılımı |
+| --- | --- | --- |
+| `-gt` | büyüktür | **g**reater **t**han |
+| `-lt` | küçüktür | **l**ess **t**han |
+| `-ge` | büyük eşit | **g**reater than or **e**qual |
+| `-le` | küçük eşit | **l**ess than or **e**qual |
+| `-eq` | eşittir | **eq**ual |
+| `-ne` | eşit değildir | **n**ot **e**qual |
+| `-like` | joker karakter eşleşmesi | `*` ve `?` ile çalışır |
+| `-match` | düzenli ifade eşleşmesi (regex) | |
+
+PowerShell neden `>`, `<` yerine `-gt`, `-lt` kullanır? Çünkü `>` ve `<` kabuklarda çıktı yönlendirme için ayrılmıştır — `>` çıktıyı dosyaya yazar. Bu çakışmayı önlemek için metin tabanlı operatörler seçilmiştir.
+
+---
+
+### Sıralama (Sort-Object)
+
+```powershell
+Get-Process | Sort-Object CPU -Descending
+```
+
+**`Sort-Object CPU -Descending` — Parametreler:**
+
+| Parametre | Değer | Açıklama |
+| --- | --- | --- |
+| `-Property` *(konumsal, 1. sıra)* | `CPU` | Sıralama kriteri olarak kullanılacak nesne özelliğinin (property) adı. Birden fazla kriter virgülle belirtilir: `Sort-Object LastName, FirstName` |
+| `-Descending` | *(anahtarlı)* | Büyükten küçüğe sırala. Yazılmazsa varsayılan sıralama küçükten büyüğedir. |
+
+---
+
+### Seçim (Select-Object)
+
+```powershell
+Get-Process | Select-Object Name, CPU
+```
+
+**`Select-Object Name, CPU` — Parametreler:**
+
+| Parametre | Değer | Açıklama |
+| --- | --- | --- |
+| `-Property` *(konumsal, 1. sıra)* | `Name, CPU` | Gösterilecek nesne özelliklerinin listesi. Nesnenin tüm alanları yerine yalnızca ilgili olanlar seçilir — veri kümesini daraltır ve okunabilirliği artırır. |
+
+Ek kullanışlı parametreler:
+
+| Parametre | Açıklama |
+| --- | --- |
+| `-First 5` | İlk 5 nesneyi al |
+| `-Last 5` | Son 5 nesneyi al |
+| `-Unique` | Yalnızca benzersiz değerleri döndür |
+| `-ExpandProperty` | Bir özelliğin değerini nesne değil düz değer olarak çıkart |
+
+---
+
+### Klasör İçeriğini Listeleme (Get-ChildItem)
 
 ```powershell
 Get-ChildItem C:\Users
 ```
 
+**`Get-ChildItem C:\Users` — Parametreler:**
+
+| Parametre | Değer | Açıklama |
+| --- | --- | --- |
+| `-Path` *(konumsal, 1. sıra)* | `C:\Users` | Listelemenin yapılacağı dizin yolu. Joker karakter kabul eder: `C:\Users\*\Desktop` tüm kullanıcıların masaüstünü getirir. |
+
 `gci` kısaltmasıyla da yazılabilir. Linux'taki `ls` komutunun işlevsel karşılığıdır.
+
+Sık kullanılan ek parametreler:
+
+```powershell
+Get-ChildItem C:\Proje -Recurse
+Get-ChildItem C:\Proje -Filter "*.txt"
+Get-ChildItem C:\Proje -File
+Get-ChildItem C:\Proje -Directory
+Get-ChildItem C:\Proje -Recurse -Filter "*.log" -Depth 3
+```
+
+| Parametre | Tür | Açıklama |
+| --- | --- | --- |
+| `-Recurse` | Anahtar | Alt dizinlere de iner; dizin ağacının tamamını tarar |
+| `-Filter` | Metin | Dosya adı filtresi. `*` sıfır veya daha fazla karakter, `?` tek karakter yerine geçer |
+| `-File` | Anahtar | Yalnızca dosyaları listeler; klasörleri atlar |
+| `-Directory` | Anahtar | Yalnızca klasörleri listeler; dosyaları atlar |
+| `-Hidden` | Anahtar | Gizli öğeleri de dahil eder |
+| `-Depth` | Tam sayı | `-Recurse` ile birlikte kaç seviye derine inileceğini sınırlar |
+
+---
 
 ### Fonksiyon Tanımı (Function)
 
@@ -74,6 +225,19 @@ function Selamla($isim) {
 
 Selamla "Ali"
 ```
+
+Fonksiyon parametreleri iki biçimde tanımlanabilir. Yukarıdaki kısa biçim çalışır, ancak üretim kodunda tercih edilen biçim `param` bloğuyla yapılandır:
+
+```powershell
+function Selamla {
+    param(
+        [string]$isim
+    )
+    "Merhaba, $isim."
+}
+```
+
+`[string]` burada **tür kısıtlaması** (type constraint) görevi görür: parametre yalnızca metin kabul eder. Bu biçim, ileride zorunlu parametre işaretleme (`[Parameter(Mandatory)]`) ve yardım metni ekleme gibi özelliklere de kapı açar.
 
 ---
 
@@ -130,11 +294,34 @@ Mevcut politika düzeyini görmek için:
 Get-ExecutionPolicy -List
 ```
 
+**`Get-ExecutionPolicy -List` — Parametreler:**
+
+| Parametre | Tür | Açıklama |
+| --- | --- | --- |
+| `-List` | Anahtar | Tüm kapsam (scope) katmanları için politikaları ayrı ayrı listeler. Yazılmazsa yalnızca o an geçerli olan politika gösterilir. |
+
 Geliştirme ortamı için önerilen ayar:
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
+
+**`Set-ExecutionPolicy RemoteSigned -Scope CurrentUser` — Parametreler:**
+
+| Parametre | Değer | Açıklama |
+| --- | --- | --- |
+| `-ExecutionPolicy` *(konumsal, 1. sıra)* | `RemoteSigned` | Uygulanacak politika düzeyi. Yukarıdaki tablodaki dört değerden biri yazılır. |
+| `-Scope` | `CurrentUser` | Değişikliğin hangi kapsamda geçerli olacağı. Aşağıdaki tabloya bakınız. |
+
+**`-Scope` değerleri:**
+
+| Değer | Kapsam | Yönetici Gerekli? |
+| --- | --- | --- |
+| `Process` | Yalnızca bu terminal oturumu; kapanınca sıfırlanır | Hayır |
+| `CurrentUser` | Bu kullanıcı hesabı; kalıcıdır | Hayır |
+| `LocalMachine` | Tüm sistem, tüm kullanıcılar; kalıcıdır | **Evet** |
+| `UserPolicy` | Grup politikası (GPO) ile kullanıcıya uygulanan | GPO ile yönetilir |
+| `MachinePolicy` | Grup politikası (GPO) ile makineye uygulanan | GPO ile yönetilir |
 
 Bu komut yönetici yetkisi **gerektirmez**; yalnızca kendi kullanıcı hesabınıza uygulanır. Tüm sistemi kapsayan bir değişiklik için `-Scope LocalMachine` kullanılır ve bu durumda PowerShell'i **Yönetici (Administrator) olarak** açmak gerekir.
 
@@ -170,7 +357,14 @@ Get-Help Get-Process -Examples
 Get-Help Get-Process -Full
 ```
 
-`-Examples` parametresi, cmdlet'in gerçek kullanım örneklerini getirir. Yeni bir cmdlet öğrenirken belgeleri okumaya buradan başlamak en verimli yoldur.
+**`Get-Help Get-Process -Examples` — Parametreler:**
+
+| Parametre | Değer | Açıklama |
+| --- | --- | --- |
+| `-Name` *(konumsal, 1. sıra)* | `Get-Process` | Yardım istenecek cmdlet ya da kavramın adı. Joker karakter kabul eder: `Get-Help *Process*` adında "Process" geçen tüm yardım konularını listeler. |
+| `-Examples` | *(anahtarlı)* | Yalnızca kullanım örneklerini gösterir. Teorik açıklamayı atlayıp doğrudan örnek görmek isteyenler için en kısa yoldur. |
+| `-Full` | *(anahtarlı)* | Parametrelerin ayrıntılı açıklamaları, girdi/çıktı türleri ve notlar dahil tüm yardım içeriğini gösterir. |
+| `-Online` | *(anahtarlı)* | Varsayılan tarayıcıda Microsoft'un güncel çevrimiçi belgelerini açar. Yerel yardım dosyaları eski kalmışsa bu parametre güncel içeriğe ulaştırır. |
 
 ---
 
@@ -180,4 +374,21 @@ Get-Help Get-Process -Full
 (Get-Item "C:\dosya\yolu\ornek.txt").Length
 ```
 
-`Get-Item` bir `FileInfo` nesnesi döndürür. Noktadan sonra gelen `Length`, bu nesnenin bayt cinsinden boyutunu tutan özelliğidir (property). Parantez, önce cmdlet'in çalıştırılmasını, ardından dönen nesne üzerindeki özelliğe erişilmesini sağlar.
+**`Get-Item "C:\dosya\yolu\ornek.txt"` — Parametreler:**
+
+| Parametre | Değer | Açıklama |
+| --- | --- | --- |
+| `-Path` *(konumsal, 1. sıra)* | `"C:\dosya\yolu\ornek.txt"` | Bilgi alınacak öğenin tam yolu. Dosya, klasör veya sürücü olabilir. |
+
+`Get-Item` bir `FileInfo` nesnesi döndürür. Noktadan sonra gelen `Length`, bu nesnenin bayt cinsinden boyutunu tutan özelliğidir (property). Dıştaki parantez, önce cmdlet'in çalıştırılmasını, ardından dönen nesne üzerindeki özelliğe erişilmesini sağlar.
+
+Dönen `FileInfo` nesnesi üzerinde erişilebilecek diğer özellikler:
+
+```powershell
+$dosya = Get-Item "C:\dosya\yolu\ornek.txt"
+$dosya.Length           # Bayt cinsinden boyut
+$dosya.Name             # Yalnızca dosya adı
+$dosya.FullName         # Tam yol
+$dosya.LastWriteTime    # Son değiştirilme tarihi
+$dosya.Extension        # Uzantı (.txt)
+```
