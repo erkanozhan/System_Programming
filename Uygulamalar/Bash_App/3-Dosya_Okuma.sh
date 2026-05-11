@@ -4,6 +4,8 @@ if [[ -f "deneme.txt" ]]; then
 	echo "Dosya var"
 	
 	while IFS= read -r okudugu_sey; 
+	# Buradaki -r parametresi, `read` komutunun okunan satırdaki backslash karakterlerini 
+	# özel karakter olarak değil, normal karakterler olarak işlemesini sağlar.
 	do
 	echo "Okunan Satır:$okudugu_sey"
 	done < "deneme.txt" # < işareti ile dosya adı arasında boşluk olmalıdır.

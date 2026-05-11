@@ -10,5 +10,8 @@ echo "TC Kimlik no 11 haneli olmalıdır"
 else 
 echo "Doğru giriş"
 echo "$tcno" >> tcno.txt
-
+# Burada çift büyüktür işareti (>>) kullanarak tcno.txt 
+# dosyasına tcno değişkeninin içeriğini dosyanın sonunaekliyoruz. 
+# Eğer tek büyüktür işareti (>) kullanırsak, tcno.txt dosyasının 
+# içeriği silinir ve sadece son girilen tcno değeri kalır.
 fi

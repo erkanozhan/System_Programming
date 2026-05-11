@@ -1,1 +1,0 @@
-Buradaki ${dosya%.txt} ifadesi, değişkenin sonundaki ".txt" kısmını kırpar. Bu da kabuk programlamanın pratik özelliklerinden biridir.
