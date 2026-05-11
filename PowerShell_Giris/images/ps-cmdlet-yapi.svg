@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 160" font-family="Consolas, 'Courier New', monospace">
+  <rect width="500" height="160" fill="#1e1e2e" rx="8"/>
+
+  <text x="250" y="28" text-anchor="middle" fill="#cdd6f4" font-size="13" font-weight="bold" font-family="sans-serif">Cmdlet Anatomisi: Fiil-İsim (Verb-Noun)</text>
+
+  <!-- Verb box -->
+  <rect x="60" y="48" width="128" height="52" fill="#181825" rx="6" stroke="#89b4fa" stroke-width="2"/>
+  <text x="124" y="68" text-anchor="middle" fill="#89b4fa" font-size="11" font-family="sans-serif">Fiil (Verb)</text>
+  <text x="124" y="90" text-anchor="middle" fill="#cdd6f4" font-size="22" font-weight="bold">Get</text>
+
+  <!-- Hyphen -->
+  <text x="208" y="88" text-anchor="middle" fill="#a6e3a1" font-size="30" font-weight="bold">-</text>
+
+  <!-- Noun box -->
+  <rect x="222" y="48" width="148" height="52" fill="#181825" rx="6" stroke="#a6e3a1" stroke-width="2"/>
+  <text x="296" y="68" text-anchor="middle" fill="#a6e3a1" font-size="11" font-family="sans-serif">İsim (Noun)</text>
+  <text x="296" y="90" text-anchor="middle" fill="#cdd6f4" font-size="22" font-weight="bold">Process</text>
+
+  <!-- Annotations -->
+  <text x="124" y="120" text-anchor="middle" fill="#585b70" font-size="10" font-family="sans-serif">ne yapıldığını belirtir</text>
+  <text x="296" y="120" text-anchor="middle" fill="#585b70" font-size="10" font-family="sans-serif">neyin üzerinde işlem yapıldığı</text>
+
+  <!-- More examples -->
+  <text x="250" y="145" text-anchor="middle" fill="#fab387" font-size="10" font-family="sans-serif">Set-Location · New-Item · Remove-Item · Stop-Service · Start-Process</text>
+</svg>

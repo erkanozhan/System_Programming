@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 195" font-family="sans-serif">
+  <rect width="620" height="195" fill="#1e1e2e" rx="8"/>
+
+  <!-- Title -->
+  <text x="310" y="26" text-anchor="middle" fill="#cdd6f4" font-size="13" font-weight="bold">Pipeline: Nesne Akışı (Object Flow)</text>
+
+  <!-- Block 1: Get-Process -->
+  <rect x="18" y="44" width="148" height="46" fill="#181825" rx="6" stroke="#89b4fa" stroke-width="1.5"/>
+  <text x="92" y="62" text-anchor="middle" fill="#89b4fa" font-size="10">1. Komut</text>
+  <text x="92" y="82" text-anchor="middle" fill="#cdd6f4" font-size="13" font-weight="bold" font-family="monospace">Get-Process</text>
+
+  <!-- Objects flowing -->
+  <circle cx="182" cy="60" r="5" fill="#a6e3a1" opacity="0.9"/>
+  <circle cx="196" cy="60" r="5" fill="#a6e3a1" opacity="0.65"/>
+  <circle cx="210" cy="60" r="5" fill="#a6e3a1" opacity="0.4"/>
+  <text x="196" y="48" text-anchor="middle" fill="#f9e2af" font-size="9">nesneler →</text>
+
+  <!-- Pipe 1 -->
+  <text x="228" y="75" fill="#fab387" font-size="24" font-weight="bold" text-anchor="middle">|</text>
+
+  <!-- Block 2: Where-Object -->
+  <rect x="240" y="44" width="158" height="46" fill="#181825" rx="6" stroke="#89b4fa" stroke-width="1.5"/>
+  <text x="319" y="62" text-anchor="middle" fill="#89b4fa" font-size="10">2. Komut</text>
+  <text x="319" y="82" text-anchor="middle" fill="#cdd6f4" font-size="13" font-weight="bold" font-family="monospace">Where-Object</text>
+
+  <!-- Pipe 2 -->
+  <text x="412" y="75" fill="#fab387" font-size="24" font-weight="bold" text-anchor="middle">|</text>
+
+  <!-- Block 3: Sort-Object -->
+  <rect x="424" y="44" width="178" height="46" fill="#181825" rx="6" stroke="#89b4fa" stroke-width="1.5"/>
+  <text x="513" y="62" text-anchor="middle" fill="#89b4fa" font-size="10">3. Komut</text>
+  <text x="513" y="82" text-anchor="middle" fill="#cdd6f4" font-size="13" font-weight="bold" font-family="monospace">Sort-Object CPU</text>
+
+  <!-- Divider -->
+  <line x1="18" y1="108" x2="602" y2="108" stroke="#313244" stroke-width="1"/>
+
+  <!-- Comparison labels -->
+  <text x="18" y="126" fill="#6c7086" font-size="10">Bash (metin tabanlı):</text>
+  <text x="18" y="142" fill="#f38ba8" font-size="10.5" font-family="monospace">ps aux | awk '{print $11, $3}' | sort -k2 -rn</text>
+
+  <text x="18" y="162" fill="#6c7086" font-size="10">PowerShell (nesne tabanlı):</text>
+  <text x="18" y="178" fill="#a6e3a1" font-size="10.5" font-family="monospace">Get-Process | Select-Object Name,CPU | Sort-Object CPU -Descending</text>
+</svg>
