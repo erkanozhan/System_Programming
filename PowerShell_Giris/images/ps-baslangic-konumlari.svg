@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 290" font-family="sans-serif">
+  <rect width="660" height="290" fill="#1e1e2e" rx="8"/>
+
+  <!-- Title -->
+  <text x="330" y="26" text-anchor="middle" fill="#cdd6f4" font-size="13" font-weight="bold">Başlangıç Program Konumları (Startup Locations)</text>
+
+  <!-- Arrow defs -->
+  <defs>
+    <marker id="da" markerWidth="8" markerHeight="7" refX="7" refY="3.5" orient="auto">
+      <polygon points="0 0, 8 3.5, 0 7" fill="#585b70"/>
+    </marker>
+  </defs>
+
+  <!-- Boot box (top center) -->
+  <rect x="220" y="40" width="220" height="44" fill="#313244" rx="6" stroke="#cdd6f4" stroke-width="1.5"/>
+  <text x="330" y="59" text-anchor="middle" fill="#cdd6f4" font-size="11" font-weight="bold">Windows Başlatılıyor</text>
+  <text x="330" y="75" text-anchor="middle" fill="#585b70" font-size="9">(Boot / Logon)</text>
+
+  <!-- Arrows from boot to 3 columns -->
+  <line x1="255" y1="84" x2="120" y2="118" stroke="#585b70" stroke-width="1.2" marker-end="url(#da)"/>
+  <line x1="330" y1="84" x2="330" y2="118" stroke="#585b70" stroke-width="1.2" marker-end="url(#da)"/>
+  <line x1="405" y1="84" x2="540" y2="118" stroke="#585b70" stroke-width="1.2" marker-end="url(#da)"/>
+
+  <!-- Column 1: Kayıt Defteri -->
+  <rect x="22" y="118" width="195" height="148" fill="#181825" rx="6" stroke="#f38ba8" stroke-width="1.5"/>
+  <text x="119" y="138" text-anchor="middle" fill="#f38ba8" font-size="11" font-weight="bold">Kayıt Defteri</text>
+  <text x="119" y="152" text-anchor="middle" fill="#585b70" font-size="9">(Windows Registry)</text>
+  <line x1="40" y1="158" x2="200" y2="158" stroke="#313244" stroke-width="1"/>
+  <text x="119" y="173" text-anchor="middle" fill="#cdd6f4" font-size="9" font-family="monospace">HKCU:\...\Run</text>
+  <text x="119" y="188" text-anchor="middle" fill="#585b70" font-size="8.5">Geçerli kullanıcı · yönetici gerekmez</text>
+  <line x1="40" y1="198" x2="200" y2="198" stroke="#313244" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <text x="119" y="213" text-anchor="middle" fill="#cdd6f4" font-size="9" font-family="monospace">HKLM:\...\Run</text>
+  <text x="119" y="228" text-anchor="middle" fill="#585b70" font-size="8.5">Tüm kullanıcılar · yönetici gerekir</text>
+  <text x="119" y="256" text-anchor="middle" fill="#f38ba8" font-size="9">En yaygın yöntem</text>
+
+  <!-- Column 2: Başlangıç Klasörü -->
+  <rect x="232" y="118" width="196" height="148" fill="#181825" rx="6" stroke="#a6e3a1" stroke-width="1.5"/>
+  <text x="330" y="138" text-anchor="middle" fill="#a6e3a1" font-size="11" font-weight="bold">Başlangıç Klasörü</text>
+  <text x="330" y="152" text-anchor="middle" fill="#585b70" font-size="9">(Startup Folder)</text>
+  <line x1="250" y1="158" x2="410" y2="158" stroke="#313244" stroke-width="1"/>
+  <text x="330" y="173" text-anchor="middle" fill="#cdd6f4" font-size="8.5" font-family="monospace">%APPDATA%\...\Startup</text>
+  <text x="330" y="188" text-anchor="middle" fill="#585b70" font-size="8.5">Geçerli kullanıcı · .lnk kısayolları</text>
+  <line x1="250" y1="198" x2="410" y2="198" stroke="#313244" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <text x="330" y="213" text-anchor="middle" fill="#cdd6f4" font-size="8.5" font-family="monospace">%ProgramData%\...\Startup</text>
+  <text x="330" y="228" text-anchor="middle" fill="#585b70" font-size="8.5">Tüm kullanıcılar · yönetici gerekir</text>
+  <text x="330" y="256" text-anchor="middle" fill="#a6e3a1" font-size="9">Kısayol (.lnk) yöntemi</text>
+
+  <!-- Column 3: Görev Zamanlayıcı -->
+  <rect x="443" y="118" width="196" height="148" fill="#181825" rx="6" stroke="#89b4fa" stroke-width="1.5"/>
+  <text x="541" y="138" text-anchor="middle" fill="#89b4fa" font-size="11" font-weight="bold">Görev Zamanlayıcı</text>
+  <text x="541" y="152" text-anchor="middle" fill="#585b70" font-size="9">(Task Scheduler)</text>
+  <line x1="461" y1="158" x2="621" y2="158" stroke="#313244" stroke-width="1"/>
+  <text x="541" y="173" text-anchor="middle" fill="#cdd6f4" font-size="9">Logon tetikleyicisi</text>
+  <text x="541" y="188" text-anchor="middle" fill="#585b70" font-size="8.5">Oturum açıldığında çalıştır</text>
+  <line x1="461" y1="198" x2="621" y2="198" stroke="#313244" stroke-width="0.5" stroke-dasharray="3,3"/>
+  <text x="541" y="213" text-anchor="middle" fill="#cdd6f4" font-size="9">Boot tetikleyicisi</text>
+  <text x="541" y="228" text-anchor="middle" fill="#585b70" font-size="8.5">Sistem başladığında çalıştır</text>
+  <text x="541" y="256" text-anchor="middle" fill="#89b4fa" font-size="9">Görünmez kalabilir</text>
+
+  <!-- Bottom note -->
+  <text x="330" y="278" text-anchor="middle" fill="#45475a" font-size="9">Servisler (Services) de otomatik başlayabilir — Servis Yönetimi bölümüne bakınız</text>
+</svg>
