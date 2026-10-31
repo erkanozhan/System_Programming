@@ -14,7 +14,7 @@ do
     # `clear` komutu: Terminal ekranını temizler. Her yeni T.C. Kimlik No girişi öncesi ekranı düzenli tutar.
     #
 
-    read -p "Lütfen Kaydetmek istediğiniz T.C Kimlik Noyu Giriniz" tcno
+    read -p "Lütfen kaydetmek istediğiniz T.C. Kimlik Numarasını giriniz: " tcno
     # `read` komutu: Kullanıcıdan girdi almak için kullanılır.
     # `-p` (prompt) seçeneği, kullanıcıya gösterilecek mesajı belirtir.
     # Girilen değer `tcno` değişkenine atanır.
@@ -39,15 +39,15 @@ if ! [[ "$tcno" =~ $kontrol ]]; then
     # `=~`: Regex eşleştirme operatörü. `"$tcno"` değişkeninin `kontrol` regex'i ile eşleşip eşleşmediğini kontrol eder.
     # Eğer `tcno` regex desenine uymuyorsa (yani geçersizse) bu blok çalışır.
     #
-    echo "Lütfen sadece 11 hane, başında 0 olmadan olacak şekilde rakam giriniz"
+    echo "Lütfen başında 0 olmayan, 11 haneli ve yalnızca rakamlardan oluşan bir numara giriniz."
     # `echo` komutu: Terminale mesaj yazdırır. Bu durumda bir hata mesajı gösterir.
 else
     # Eğer `if` koşulu yanlışsa (yani T.C. Kimlik No formatı geçerliyse) bu blok çalışır.
     echo "Doğru Giriş"
     # Başarılı giriş mesajı.
 
-    echo "$tcno" >> deneme.txt
-    # Çıktı yönlendirme operatörü `>>`: `tcno` değişkeninin değerini `deneme.txt` adlı dosyanın sonuna ekler.
+    echo "$tcno" >> tcno.txt
+    # Çıktı yönlendirme operatörü `>>`: `tcno` değişkeninin değerini `tcno.txt` adlı dosyanın sonuna ekler.
     # Eğer dosya yoksa oluşturur. `>` tek başına kullanılsaydı dosyanın içeriğini silip yeniden yazardı.
     # Sistem programlamada, dosya G/Ç (Girdi/Çıktı) işlemleri, işletim sisteminin temel işlevlerinden biridir.
     # Her şeyin bir dosya olduğu UNIX felsefesi gereği, bu işlem bir dosya tanımlayıcısı (File Descriptor) üzerinden gerçekleşir.
@@ -65,7 +65,7 @@ fi
 
         case $secim in
             # `case` ifadesi: Bir değişkenin değerini birden fazla desenle karşılaştırmak için kullanılır.
-            # `if/elif/else` yapısına göre daha okunabilir ve etkilidir, özellikle çok sayıda seçenek olduğunda.
+            # Çok sayıda seçenek olduğunda `if/elif/else` yapısına göre daha okunabilirdir.
             #
 
             [Ee]*)
@@ -77,7 +77,7 @@ fi
 
             [Hh]*)
                 # `[Hh]*)`: Kullanıcının girdisi 'H' veya 'h' ile başlıyorsa bu deseni eşleştirir.
-                echo "Programdan çıkılıyor. Hoşçakalın"
+                echo "Programdan çıkılıyor. Hoşça kalın."
                 # Çıkış mesajı.
                 exit;;
                 # `exit` komutu: Betiğin çalışmasını tamamen sonlandırır.

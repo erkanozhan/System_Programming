@@ -1,13 +1,22 @@
-#!/usr/bin/bash
+#!/bin/bash
+# Bulunulan dizindeki her dosyanın boyutunu ve toplam boyutu bayt cinsinden yazar.
+
+toplam=0
+
 for file in *; do
-    size+=$(stat -c %s "$file")
-    # stat komutu ile dosyanın boyutunu byte cinsinden alıyoruz.
-    # -c %s ifadesi, stat komutunun sadece dosya boyutunu döndürmesini sağlar.
-    # "$file" ifadesi, stat komutuna dosya adını argüman olarak verir.
-    # Döngü her dosya için çalışır ve dosya adını ve boyutunu ekrana yazdırır.
-    # %s ifadesi, string formatında dosya boyutunu byte cinsinden döndürür.
+    # Yalnızca normal dosyaları say; dizinleri ve dizin boşsa kalan "*" desenini atla
+    [[ -f "$file" ]] || continue
 
+    # stat -c %s: dosyanın boyutunu bayt cinsinden tam sayı olarak verir
+    # (%s burada "size" anlamındadır; metin biçimi değildir).
+    boyut=$(stat -c %s "$file")
 
-    echo "$file Dosyasının Boyutu: $size bytes"
-    done
-   echo "Toplam Boyut: $size bytes"
+    # (( )) aritmetik bağlamdır; += burada sayısal toplama yapar.
+    # Aritmetik bağlam dışında yazılan size+=... ise metinleri yan yana ekler
+    # (örneğin 10 ve 20 için sonuç 30 değil, "1020" olur).
+    (( toplam += boyut ))
+
+    echo "$file dosyasının boyutu: $boyut bayt"
+done
+
+echo "Toplam boyut: $toplam bayt"

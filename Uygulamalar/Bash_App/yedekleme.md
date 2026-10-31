@@ -1,19 +1,27 @@
 # Bash Betiği: Dizin Yedekleme
 
-Bu betik, belirli bir kaynak dizinini `tar` ve `gzip` kullanarak arşivleyip sıkıştırır ve hedef dizine güncel tarihle birlikte kaydeder.
+Bu betik, belirli bir kaynak dizinini `tar` ve `gzip` kullanarak arşivleyip sıkıştırır ve hedef dizine güncel tarihle birlikte kaydeder. `tar` komutunun ayrıntıları için [Linux terminal ders notunun tar bölümüne](../../linux-mate-terminal-ders-notu.md#tar--arşivleme) bakılabilir.
 
 ## Betik Kodu
 
+Aşağıdaki kodu bir metin düzenleyiciyle `/home/kullanici/backup.sh` adıyla kaydedin (`kullanici` yerine kendi kullanıcı adınızı yazın) ve çalıştırma izni verin: `chmod +x /home/kullanici/backup.sh`. Elle denemek için `/home/kullanici/backup.sh` yazmanız yeterlidir.
 
 ```bash
 #!/bin/bash
 # Bu betiğin bash kabuğu ile çalıştırılacağını belirtir.
 
+# Herhangi bir komut hata verirse betiği durdur; tanımsız değişkeni hata say.
+set -euo pipefail
+
 # Yedeklenecek (kaynak) dizinin yolunu bir değişkene atar.
-kaynak_dir="/home/fx/Desktop/kaynak"
+# $HOME, cron altında da kullanıcının ev dizinini gösterir.
+kaynak_dir="$HOME/kaynak"
 
 # Yedek dosyasının kaydedileceği (hedef) dizinin yolunu bir değişkene atar.
-hedef_dir="/home/fx/Desktop/hedef"
+hedef_dir="$HOME/yedekler"
+
+# Hedef dizin yoksa oluştur (-p: varsa hata verme).
+mkdir -p "$hedef_dir"
 
 # Güncel tarihi YYYY-MM-DD formatında alır ve bir değişkene atar.
 # Örneğin, 27 Ekim 2023 için "2023-10-27" değerini alır.
@@ -21,7 +29,7 @@ DATE=$(date +%Y-%m-%d)
 
 # Yedek dosyasının adını ve tam yolunu oluşturur.
 # Hedef dizin, sabit bir önek ("yedek_"), güncel tarih ve ".tar.gz" uzantısını birleştirir.
-# Örneğin, "/home/fx/Desktop/hedef/yedek_2023-10-27.tar.gz" gibi bir dosya adı oluşur.
+# Örneğin, "/home/kullanici/yedekler/yedek_2023-10-27.tar.gz" gibi bir dosya adı oluşur.
 yedek_file="${hedef_dir}/yedek_$DATE.tar.gz"
 
 # tar komutu ile yedekleme işlemini yapar:
@@ -30,8 +38,14 @@ yedek_file="${hedef_dir}/yedek_$DATE.tar.gz"
 # -f: Arşiv dosyasının adını ve yolunu belirt (file). Bu durumda "$yedek_file" değişkenindeki değeri kullanır.
 # -C "$kaynak_dir": Bu çok önemlidir! tar komutunu çalıştırmadan önce belirtilen "$kaynak_dir" dizinine geçiş yapar.
 #                  Bu, arşivi oluştururken dosya yollarının "$kaynak_dir" önekiyle başlamasını engeller.
-#                  Yani, arşivin içinde 'kaynak/dosya1' yerine 'dosya1' bulunur.
-tar -czf "$yedek_file" -C "$kaynak_dir"
+#                  Yani, arşivin içinde 'kaynak/dosya1' yerine './dosya1' bulunur.
+# Sondaki "." : arşive eklenecek içeriktir ("bulunulan dizinin tamamı").
+#                  Bu nokta yazılmazsa tar "Cowardly refusing to create an empty archive"
+#                  (boş arşiv oluşturmayı reddediyorum) hatasıyla durur.
+tar -czf "$yedek_file" -C "$kaynak_dir" .
+
+# Cron çıktıyı günlük dosyasına yazdığında hangi yedeğin alındığı görülsün diye bilgi ver.
+echo "$(date '+%F %T') Yedek oluşturuldu: $yedek_file"
 
 ```
 
@@ -53,10 +67,10 @@ crontab -e
 
 ## 2. Cron Görevini Ekleme
 
-Açılan düzenleyiciye aşağıdaki satırı ekliyorsunuz:
+Açılan düzenleyicinin sonuna aşağıdaki satır eklenir:
 
 ```bash
-0 22 * * * /home/fx/Desktop/backup.sh > /dev/null 2>&1
+0 22 * * * /home/kullanici/backup.sh >> /home/kullanici/yedek.log 2>&1
 ```
 
 Bu satır, betiğinizin her gece saat 22:00'da (akşam 10) çalışmasını sağlayacak bir cron görevidir. Şimdi bu satırın her bölümünü açıklayalım:
@@ -69,14 +83,13 @@ Bu satır, betiğinizin her gece saat 22:00'da (akşam 10) çalışmasını sağ
     *   `*`: Haftanın günü (0-7, 0 veya 7 Pazar'ı temsil eder, 1 Pazartesi). Yıldız (`*`) haftanın her günü anlamına gelir.
     *   **Sonuç:** Bu zamanlama `Her gün, her ay, haftanın her günü saat 22:00'ın 0. dakikasında` çalışacak demektir. Yani, her gece tam 22:00'da.
 
-*   **`/home/fx/Desktop/backup.sh`**: Bu kısım, çalıştırılacak komutun veya betiğin tam yolunu belirtir. Cron, görevi çalıştırmak için bu yolu kullanacaktır.
-    *   **Önemli Not:** Bu betiğin çalıştırılabilir iznine sahip olması gerekir. Genellikle betik dosyasının bulunduğu dizinde şu komutla bu izin verilir: `chmod +x /home/fx/Desktop/backup.sh`
+*   **`/home/kullanici/backup.sh`**: Bu kısım, çalıştırılacak betiğin tam yolunu belirtir. Cron, kabuğun aksine `~` kısaltmasını ve kullanıcının `PATH` ayarlarını her zaman tanımadığından tam yol yazılır.
+    *   **Önemli Not:** Bu betiğin çalıştırılabilir iznine sahip olması gerekir: `chmod +x /home/kullanici/backup.sh`
 
-*   **`> /dev/null 2>&1`**: Bu kısım, betiğin çıktısını yönlendirmek için kullanılır.
-    *   Normalde, bir cron işinin çıktısı (hem standart çıktı `stdout` hem de standart hata `stderr`), crontab sahibine e-posta olarak gönderilir.
-    *   `>`: Standart çıktıyı yönlendirir.
-    *   `/dev/null`: Linux'ta "kara delik" olarak bilinen özel bir dosyadır. Buraya yazılan her şey yok sayılır. `> /dev/null` betiğin normal çıktısını /dev/null'a gönderir.
-    *   `2>&1`: Bu kısım, standart hata çıktısını (file descriptor 2) standart çıktının (file descriptor 1) yönlendirildiği yere (yani zaten `/dev/null`'a) yönlendirir. `&` işareti, `1`'in dosya tanımlayıcısı olduğunu belirtmek için kullanılır.
-    *   **Amacı:** Bu yönlendirme, betik her çalıştığında (başarılı veya başarısız olsun) crontab sahibine e-posta gönderilmesini engeller. Betik sessizce çalışır ve çıktılar veya hatalar atılır. Genellikle düzenli çalışan ve beklenmedik bir çıktı üretmeyen betikler için tercih edilir.
+*   **`>> /home/kullanici/yedek.log 2>&1`**: Bu kısım, betiğin çıktısını bir günlük (log) dosyasına yönlendirir.
+    *   Normalde bir cron işinin çıktısı (hem standart çıktı `stdout` hem de standart hata `stderr`), crontab sahibine e-posta olarak gönderilmeye çalışılır; çoğu masaüstü sisteminde e-posta kurulu olmadığından bu çıktı kaybolur.
+    *   `>>`: Standart çıktıyı dosyanın sonuna ekler; önceki günlerin kayıtları silinmez.
+    *   `2>&1`: Standart hata çıktısını (file descriptor 2), standart çıktının (file descriptor 1) yönlendirildiği yere, yani aynı günlük dosyasına yönlendirir. `&` işareti, `1`'in bir dosya adı değil dosya tanımlayıcısı olduğunu belirtir.
+    *   **Amacı:** Yedekleme gibi kritik bir işte hatanın fark edilmesi gerekir. Çıktı `> /dev/null 2>&1` ile atılsaydı, disk dolduğunda veya kaynak dizin silindiğinde yedek alınamadığı hiç fark edilmezdi. Günlük dosyası `tail /home/kullanici/yedek.log` ile kontrol edilir.
 
-Kaydedip çıkınız.
+Kaydedip çıkınız. Görevin eklendiğini `crontab -l` ile doğrulayabilirsiniz.

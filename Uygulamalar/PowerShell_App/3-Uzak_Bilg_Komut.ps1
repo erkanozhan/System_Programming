@@ -1,5 +1,6 @@
-$remotePC = "Fx-Gigabyte"
-# Uzak bilgisayarın IP adresi bir değişkende saklanır.
+$remotePC = "PC01"
+# Uzak bilgisayarın adı (veya IP adresi) bir değişkende saklanır.
+# Hedef bilgisayarda WinRM etkin olmalıdır: Enable-PSRemoting -Force (yönetici olarak)
 
 $cred = Get-Credential
 # Kullanıcıdan kimlik doğrulama amacıyla kullanıcı adı ve parola bilgileri alınır.

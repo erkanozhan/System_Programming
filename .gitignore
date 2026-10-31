@@ -1,4 +1,25 @@
-.Rproj.user
+# İşletim sistemi ve düzenleyici dosyaları
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# Uygulama betiklerinin çalışırken ürettiği dosyalar
+Uygulamalar/**/tcno.txt
+Uygulamalar/**/*.log
+*.tar.gz
+
+# C derleme çıktıları (sistem programlama örnekleri)
+*.o
+*.out
+a.out
+
+# Eski RStudio proje dosyaları
+.Rproj.user/
 .Rhistory
 .RData
 .Ruserdata
+*.Rproj

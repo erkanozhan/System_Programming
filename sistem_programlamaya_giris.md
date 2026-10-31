@@ -1,6 +1,6 @@
 # Sistem Programlamaya Giriş ve Temel Linux
 
-Gençler, sistem programlama (System Programming) kavramı, yazdığımız kodların donanımla nasıl etkileşime girdiğini, işletim sisteminin (Operating System - OS) kaynakları nasıl tahsis ettiğini ve işletim sistemi çekirdeğinin (Kernel) bize sunduğu arayüzleri kapsar. Bu arayüzlere sistem çağrıları (System Calls) adını veriyoruz. 
+Sistem programlama (System Programming) kavramı, yazdığımız kodların donanımla nasıl etkileşime girdiğini, işletim sisteminin (Operating System - OS) kaynakları nasıl tahsis ettiğini ve işletim sistemi çekirdeğinin (Kernel) bize sunduğu arayüzleri kapsar. Bu arayüzlere sistem çağrıları (System Calls) adını veriyoruz. 
 
 Çalışmalarımızı UNIX ve POSIX (Portable Operating System Interface) standartlarına dayanan Linux tabanlı sistemler üzerinde yürüteceğiz. Çünkü Linux mimarisi, geliştiriciye sistemin temel bileşenlerine müdahale etme ve çalışma zamanındaki yapıları şeffaf bir biçimde inceleme olanağı tanır.
 
@@ -34,11 +34,11 @@ clean:
 
 Terminalde yalnızca `make` yazıldığında sistem dosyadaki kuralları okuyup bağımlılıkları sırasıyla derler.
 
-### Çevre Değişkenleri
+### Ortam Değişkenleri
 
-İşletim sistemi, o an çalışan programlara bilgisayarın o anki durumunu ve yapılandırmasını aktarmak için Çevre Değişkenleri (Environment Variables) kullanır. Bu değişkenler bir uygulamanın hangi dilde çalışması gerektiğini, dosyaları nerede araması gerektiğini belirten evrensel bir bilgi deposudur. Tıpkı bir bitkinin büyümek için etrafındaki toprağın pH değerine ve sıcaklığa göre şekil alması gibi, yazılımlar da bu çevresel etkenlere göre davranışlarını belirler.
+İşletim sistemi, o an çalışan programlara bilgisayarın o anki durumunu ve yapılandırmasını aktarmak için ortam değişkenleri (Environment Variables) kullanır. Bu değişkenler bir uygulamanın hangi dilde çalışması gerektiğini, dosyaları nerede araması gerektiğini belirten evrensel bir bilgi deposudur. Tıpkı bir bitkinin büyümek için etrafındaki toprağın pH değerine ve sıcaklığa göre şekil alması gibi, yazılımlar da bu çevresel etkenlere göre davranışlarını belirler.
 
-Terminal üzerinde `env` komutu ile mevcut değişkenleri inceleyebilir, `export` komutu ile yeni bir değişken ihraç edebiliriz.
+Terminal üzerinde `env` komutu ile mevcut değişkenleri inceleyebilir, `export` komutu ile bir değişkeni ortama aktararak alt süreçlerin de görmesini sağlayabiliriz. Ayrıntılar için [Linux terminal ders notunun 8.3.2 bölümüne](linux-mate-terminal-ders-notu.md#832-ortam-değişkenleri-environment-variables) bakılabilir.
 
 ```bash
 export KULLANICI_DILI="TR"
@@ -47,14 +47,14 @@ echo $PATH
 
 `PATH` değişkeni, terminale bir komut yazdığımızda kabuğun bu programı diskteki hangi dizinlerde arayacağını işaret eden bir rota listesidir. 
 
-Bu bilgilere doğrudan işletim sistemi çekirdeğinden talepte bulunarak C dili içerisinden de ulaşabiliriz. Bunun için POSIX kütüphanelerinde yer alan `getenv()` fonksiyonu kullanılır:
+Bu bilgilere C dili içerisinden de ulaşabiliriz. Bunun için C standart kütüphanesinde (`stdlib.h`) yer alan `getenv()` fonksiyonu kullanılır. `getenv()` bir sistem çağrısı değildir: çekirdek, programı başlatırken ortam değişkenlerini sürecin kendi belleğine (`environ` dizisine) yerleştirir; `getenv()` bu diziyi çekirdeğe başvurmadan okur.
 
 ```c
 #include <stdio.h>
 #include <stdlib.h> 
 
 int main() {
-    // Çekirdek üzerinden PATH çevresel değişkenine erişim
+    // Sürecin kendi belleğindeki ortamdan PATH değişkenini oku
     char *path_degiskeni = getenv("PATH");
     
     if (path_degiskeni != NULL) {
@@ -102,7 +102,7 @@ int main() {
 
 UNIX sistemlerinin çekirdek tasarımında soyutlama (Abstraction - Latince *abstrahere*, bir özelliğini ayırıp öne çıkarma) yatar. İşletim sistemi karmaşık donanım birimlerini yazılımcıya basit bir arayüzle sunar. Buna *"Everything is a file"* (Her şey bir dosyadır) kuralı denir.
 
-Disk üzerindeki bir metin belgesine veri yazmak ile, ağ kartı üzerinden karşı bilgisayara veri göndermek veya klavyeden tuş okumak sistem çağrıları seviyesinde tıpatıp aynıdır. Siz C dilinde `write()` fonksiyonunu çağırdığınızda işletim sistemi bu verinin diske mi yoksa ekran kartına mı gideceğini arkada sizin yerinize yönetir.
+Disk üzerindeki bir metin belgesine veri yazmak ile bir ağ bağlantısı (soket) üzerinden karşı bilgisayara veri göndermek veya terminale yazı basmak, sistem çağrıları düzeyinde aynı biçimde yapılır. C dilinde `write()` fonksiyonu çağrıldığında, verinin bir dosyaya mı, terminale mi, yoksa ağ bağlantısına mı gideceğini işletim sistemi programın yerine yönetir.
 
 ### Dosya Tanımlayıcıları
 
@@ -154,7 +154,7 @@ ps aux
 
 ### Süreç Hiyerarşisi
 
-İşletim sistemi çekirdeği, yönettiği her bir sürece benzersiz bir numara olan PID (Process ID) tahsis eder. Linux mimarisinde her süreç, mutlak suretle mevcut başka bir süreç tarafından yaratılmak zorundadır. Bu ebeveyn sürece ait numaraya da PPID (Parent Process ID) denir.
+İşletim sistemi çekirdeği, yönettiği her bir sürece benzersiz bir numara olan PID (Process ID) tahsis eder. Linux mimarisinde, açılışta çekirdeğin doğrudan başlattığı ilk süreç dışındaki her süreç, mevcut başka bir süreç tarafından yaratılır. Bu ebeveyn sürece ait numaraya da PPID (Parent Process ID) denir.
 
 ```mermaid
 graph TD
@@ -182,4 +182,4 @@ kill 1055
 kill -9 1056
 ```
 
-Gençler, süreçlerin işletim sistemi içerisindeki yerini ve davranışlarını terminal komutları ile inceledik. İlerleyen konularda bu terminal araçlarının perde arkasına inerek, C dilindeki `fork()` sistem çağrısı ile süreçleri bellekte bizzat kopyalayacak ve `exec()` fonksiyon ailesini kullanarak kendi mimarimizi oluşturacağız.
+Bu bölümde süreçlerin işletim sistemi içerisindeki yeri ve davranışları terminal komutları ile incelendi. Komutların ayrıntılı kullanımı için [Linux terminal ders notuna](linux-mate-terminal-ders-notu.md) bakılabilir. İlerleyen konularda bu terminal araçlarının perde arkasına inerek, C dilindeki `fork()` sistem çağrısı ile süreçleri bellekte bizzat kopyalayacak ve `exec()` fonksiyon ailesini kullanarak kendi mimarimizi oluşturacağız.

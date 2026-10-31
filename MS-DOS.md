@@ -12,9 +12,9 @@ Bugün bir sunucu (server) yönetiyorsanız, büyük olasılıkla karşınızda 
 
 MS-DOS (Microsoft Disk Operating System — Microsoft Disk İşletim Sistemi), 1981'de IBM PC ile birlikte piyasaya çıkan, metin tabanlı bir işletim sistemiydi. "DOS" kelimesinin kökü "Disk Operating System" kısaltmasıdır; yani disk üzerinde çalışan işletim sistemi. Windows'un ilk sürümleri aslında DOS üzerinde bir kabuk (shell) olarak çalışıyordu.
 
-Bugün Windows üzerinde kullandığımız **Komut İstemi** (Command Prompt, kısaca **cmd**), MS-DOS'un doğrudan devamı sayılır. Komutların büyük çoğunluğu aynıdır. Bu yüzden "MS-DOS komutları" ile "cmd komutları" ifadeleri pratikte birbirinin yerine kullanılır.
+Bugün Windows üzerinde kullandığımız **Komut İstemi** (Command Prompt, kısaca **cmd**), MS-DOS'taki `COMMAND.COM` kabuğunun Windows NT tabanlı karşılığıdır. Altında artık DOS çalışmaz; ancak komutların büyük çoğunluğu ve sözdizimi DOS ile uyumlu tutulmuştur. Bu yüzden "MS-DOS komutları" ile "cmd komutları" ifadeleri pratikte birbirinin yerine kullanılır.
 
-> **Not:** Windows 10/11'de **PowerShell** adında daha gelişmiş bir komut satırı da bulunur. Bu derste odak noktamız klasik cmd komutlarıdır; çünkü bunlar temeldir ve PowerShell'i anlamak için de bu temelin sağlam olması gerekir.
+> **Not:** Windows 10/11'de **PowerShell** adında daha gelişmiş bir komut satırı da bulunur. Bu derste odak noktamız klasik cmd komutlarıdır; çünkü bunlar temeldir ve PowerShell'i anlamak için de bu temelin sağlam olması gerekir. PowerShell için [PowerShell ders notuna](PowerShell_Giris/PowerShell.md), Linux karşılıkları için [Linux terminal ders notuna](linux-mate-terminal-ders-notu.md) bakılabilir.
 
 ---
 
@@ -32,7 +32,7 @@ Açıldığında şöyle bir satır görürsünüz:
 C:\Users\KullaniciAdi>
 ```
 
-Bu satıra **prompt** (komut istemi) denir. Buradaki `C:\Users\Kullanici` sizin o an bulunduğunuz dizini (directory, klasör) gösterir. `>` işareti ise "komutunu bekliyorum" demektir. Bilgisayar tam anlamıyla sizinle konuşmaya hazır.
+Bu satıra **prompt** (komut istemi) denir. Buradaki `C:\Users\KullaniciAdi` sizin o an bulunduğunuz dizini (directory, klasör) gösterir. `>` işareti ise "komutunu bekliyorum" demektir. Bilgisayar tam anlamıyla sizinle konuşmaya hazır.
 
 ---
 
@@ -70,7 +70,7 @@ C:\>ver
 Microsoft Windows [Sürüm 10.0.19045.3803]
 ```
 
-Kısa, öz, işe yarar. Özellikle uzaktan bağlandığınız bir makinede "Bu hangi Windows?" sorusuna anında cevap verir.
+Kısa ve işlevsel bir komuttur. Özellikle uzaktan bağlandığınız bir makinede "Bu hangi Windows?" sorusuna anında cevap verir.
 
 ---
 
@@ -217,7 +217,7 @@ C:\>rd /s /q Projeler
 - `/s` — alt dizinler dahil her şeyi sil (subdirectories)
 - `/q` — onay sorma, sessizce sil (quiet)
 
-> ⚠️ **Dikkat:** `rd /s /q` geri dönüşü olmayan bir işlemdir. Çöp kutusuna gitmez. Bu komutu yazmadan önce iki kere düşünün. Bir cerrahın neşteri nasıl dikkatli kullanılması gerekiyorsa, bu komut da öyle.
+> **Uyarı:** `rd /s /q` geri dönüşü olmayan bir işlemdir. Çöp kutusuna gitmez. Bu komutu yazmadan önce iki kere düşünün. Bir cerrahın neşteri nasıl dikkatli kullanılması gerekiyorsa, bu komut da öyle.
 
 ---
 
@@ -239,7 +239,7 @@ C:\PROJELER
 
 ---
 
-### 🔨 Uygulama 1 — Dizin Yapısı Oluşturma
+### Uygulama 1 — Dizin Yapısı Oluşturma
 
 Aşağıdaki klasör yapısını komut satırından oluşturun:
 
@@ -402,7 +402,7 @@ C:\>del /p *.txt
 
 `/f` parametresi salt okunur (read-only) dosyaları da silmeye zorlar (force), `/s` ise alt dizinlerdeki dosyaları da siler.
 
-> ⚠️ Tıpkı `rd /s /q` gibi, `del` de çöp kutusuna göndermez; doğrudan siler.
+> **Uyarı:** Tıpkı `rd /s /q` gibi, `del` de çöp kutusuna göndermez; doğrudan siler.
 
 ---
 
@@ -453,7 +453,7 @@ C:\>attrib -r -h test.txt
 
 ---
 
-### 🔨 Uygulama 2 — Dosya İşlemleri Pratiği
+### Uygulama 2 — Dosya İşlemleri Pratiği
 
 Aşağıdaki adımları sırayla uygulayın:
 
@@ -526,6 +526,18 @@ Her komutun üç standart kanalı (stream) vardır:
 
 Yönlendirme operatörleri bu kanalları farklı yerlere bağlar. Bir su tesisatı düşünün: stdin musluk, stdout lavabo, stderr taşma deliği. Yönlendirme ile boruları istediğiniz yere bağlarsınız.
 
+**Üç kabukta aynı kavramlar:** Yönlendirme ve boru hattı fikri cmd, PowerShell ve Bash'te ortaktır; yalnızca bazı yazımlar farklıdır.
+
+| İşlem | cmd | PowerShell | Bash |
+|-------|-----|------------|------|
+| Çıktıyı dosyaya yaz / ekle | `>` / `>>` | `>` / `>>` (veya `Out-File`) | `>` / `>>` |
+| Hataları dosyaya yaz | `2> hata.txt` | `2> hata.txt` | `2> hata.txt` |
+| Hataları yok et | `2>nul` | `2>$null` | `2>/dev/null` |
+| Hata ve çıktıyı birleştir | `> log.txt 2>&1` | `> log.txt 2>&1` (veya `*>`) | `> log.txt 2>&1` (veya `&>`) |
+| Boru hattı | `\|` (metin) | `\|` (nesne) | `\|` (metin) |
+| Başarılıysa sonrakini çalıştır | `&&` | `komut1; if ($?) { komut2 }` (PowerShell 7'de `&&`) | `&&` |
+| Yorum satırı | `REM` veya `::` | `#` | `#` |
+
 ---
 
 ### `find` — Metin Ara
@@ -579,7 +591,7 @@ C:\>sort /r isimler.txt
 
 ---
 
-### 🔨 Uygulama 3 — Yönlendirme ve Boru Hattı Pratiği
+### Uygulama 3 — Yönlendirme ve Boru Hattı Pratiği
 
 ```bat
 REM 1. Dizin listesini dosyaya kaydet
@@ -696,7 +708,7 @@ C:\>hostname
 MASAUSTU-01
 ```
 
-Kısa ve öz. Ağ üzerinde hangi makinede olduğunuzu anında söyler.
+Ağ üzerinde hangi makinede çalışıldığını doğrudan gösterir.
 
 ---
 
@@ -770,10 +782,17 @@ Ortalama gidiş-dönüş (ms): Minimum = 11ms, Maksimum = 12ms, Ortalama = 11ms
 - **Kayıp (loss):** %0 olmalı. Kayıp varsa ağda sorun var demektir.
 
 ```cmd
-C:\>ping -t google.com       REM Sürekli ping at (Ctrl+C ile durdur)
-C:\>ping -n 10 google.com    REM 10 paket gönder
-C:\>ping 192.168.1.1          REM Yerel ağ geçidine ping
+REM Sürekli ping at (Ctrl+C ile durdur)
+C:\>ping -t google.com
+
+REM 10 paket gönder
+C:\>ping -n 10 google.com
+
+REM Yerel ağ geçidine ping
+C:\>ping 192.168.1.1
 ```
+
+> **Uyarı:** cmd'de `REM` yalnızca satırın başında yazıldığında açıklama olarak işlenir. `ping -t google.com REM açıklama` biçiminde komutla aynı satıra yazılan `REM`, komuta argüman olarak gider ve "Bad parameter REM." hatası alınır. Açıklamayı aynı satırda tutmak gerekiyorsa komut ayırıcı kullanılmalıdır: `ping -n 10 google.com & REM 10 paket gönder`.
 
 **Sorun giderme stratejisi:**
 
@@ -821,8 +840,11 @@ Adres:  142.250.187.206
 "Yetkili olmayan yanıt" (non-authoritative answer), cevabın doğrudan o alan adının yetkili DNS sunucusundan değil, yerel DNS sunucunuzun önbelleğinden geldiğini ifade eder.
 
 ```cmd
-C:\>nslookup -type=mx google.com    REM E-posta sunucularını sorgula
-C:\>nslookup -type=ns google.com    REM Ad sunucularını sorgula
+REM E-posta sunucularını sorgula
+C:\>nslookup -type=mx google.com
+
+REM Ad sunucularını sorgula
+C:\>nslookup -type=ns google.com
 ```
 
 ---
@@ -841,14 +863,14 @@ C:\>netstat -ano
 |-----------|-------|
 | `-a` | Tüm bağlantıları göster (all) |
 | `-n` | Adresleri sayısal göster, DNS çözümleme yapma (numeric) |
-| `-b` | Her bağlantıyı hangi programın kullandığını göster (binary) |
+| `-b` | Her bağlantıyı hangi programın kullandığını göster (binary); yönetici yetkisi ister |
 | `-o` | İlgili süreç kimliğini (PID — Process ID) göster |
 
 `netstat -ano` özellikle güvenlik analizi için değerlidir. Hangi port açık, hangi programın hangi bağlantıyı kullandığını gösterir.
 
 ---
 
-### 🔨 Uygulama 4 — Ağ Teşhisi
+### Uygulama 4 — Ağ Teşhisi
 
 Aşağıdaki adımları uygulayıp çıktıları bir dosyaya kaydedin:
 
@@ -921,7 +943,7 @@ C:\>taskkill /im chrome.exe /f
 | `/im` | Görüntü adıyla (image name) sonlandır |
 | `/f` | Zorla (force) sonlandır |
 
-`/f` parametresini kullanmak son çaredir. Önce `/f` olmadan deneyin; bu, programa "lütfen kapat" mesajı gönderir. `/f` ile "hemen kapat, sormuyorum" dersiniz.
+`/f` parametresini kullanmak son çaredir. Önce `/f` olmadan denenmelidir; bu durumda programa kapanma isteği gönderilir ve program açık dosyalarını kaydedip düzenli biçimde kapanabilir. `/f` ise programa bu fırsatı tanımadan süreci zorla sonlandırır.
 
 ---
 
@@ -997,6 +1019,8 @@ C:\>yedekle.bat C:\Projeler
 ```
 
 `%DATE:~0,2%` ifadesi, DATE değişkeninin 0. karakterinden başlayarak 2 karakter al demektir. Böylece tarih parçalarını ayırıp klasör adı olarak kullanabilirsiniz.
+
+> **Not:** `%DATE%` değişkeninin biçimi bölge ayarlarına bağlıdır. Türkçe sistemde `30.10.2026` biçiminde gelir ve yukarıdaki parçalama doğru çalışır; İngilizce (ABD) ayarlı bir sistemde ise `Fri 10/30/2026` biçiminde gelir ve aynı ifade anlamsız bir klasör adı üretir. Bölgeden bağımsız bir tarih gerektiğinde PowerShell'deki `Get-Date -Format yyyy-MM-dd` komutu tercih edilmelidir.
 
 `2>nul` ifadesi hata mesajlarını `nul` (boşluğa, hiçbir yere) yönlendirir. Dizin zaten varsa hata mesajını bastırır.
 
@@ -1082,7 +1106,7 @@ for /r C:\Projeler %%f in (*.java) do (
 
 ---
 
-### 🔨 Uygulama 5 — Sistem Raporu Batch Dosyası
+### Uygulama 5 — Sistem Raporu Batch Dosyası
 
 Aşağıdaki batch dosyasını `sistem_raporu.bat` olarak kaydedin ve çalıştırın:
 
@@ -1105,7 +1129,7 @@ echo --- IP YAPILANDIRMASI ---              >> "%RAPOR%"
 ipconfig                                    >> "%RAPOR%"
 
 echo. >> "%RAPOR%"
-echo --- AKTIF BAGLENTILAR ---              >> "%RAPOR%"
+echo --- AKTIF BAGLANTILAR ---              >> "%RAPOR%"
 netstat -an | find "ESTABLISHED"            >> "%RAPOR%"
 
 echo. >> "%RAPOR%"
@@ -1114,7 +1138,7 @@ tasklist /fi "memusage gt 50000"            >> "%RAPOR%"
 
 echo. >> "%RAPOR%"
 echo --- DISK KULLANIMI ---                 >> "%RAPOR%"
-wmic logicaldisk get name,size,freespace    >> "%RAPOR%"
+powershell -NoProfile -Command "Get-CimInstance Win32_LogicalDisk | Format-Table DeviceID,Size,FreeSpace -AutoSize" >> "%RAPOR%"
 
 echo.
 echo Rapor olusturuldu: %RAPOR%
@@ -1123,9 +1147,11 @@ pause >nul
 type "%RAPOR%" | more
 ```
 
-Bu dosya, sisteminizin anlık bir fotoğrafını çeker. Gerçek dünyada sistem yöneticileri (system administrators) bu tür scriptleri zamanlanmış görevlerle (scheduled tasks) otomatik çalıştırırlar.
+Bu dosya, sisteminizin anlık bir fotoğrafını çeker. Gerçek dünyada sistem yöneticileri (system administrators) bu tür betikleri zamanlanmış görevlerle (scheduled tasks) otomatik çalıştırırlar; komut satırından görev tanımlamak için `schtasks` komutu kullanılır.
 
-`wmic` (Windows Management Instrumentation Command-line), Windows'un yönetim altyapısına komut satırından erişim sağlar. `logicaldisk` mantıksal diskleri, `get name,size,freespace` ise disk adı, toplam boyut ve boş alan bilgilerini çeker.
+Disk bilgisi için batch dosyasının içinden kısa bir PowerShell komutu çağrılmıştır. `Get-CimInstance Win32_LogicalDisk`, Windows'un yönetim altyapısı WMI (Windows Management Instrumentation) üzerinden mantıksal diskleri sorgular; `DeviceID`, `Size` ve `FreeSpace` alanları disk adı, toplam boyut ve boş alanı verir.
+
+> **Not:** Eski kaynaklarda aynı iş için `wmic logicaldisk get name,size,freespace` komutu kullanılır. `wmic` aracı Windows 10 21H1'den beri kullanımdan kaldırılma sürecindedir ve Windows 11 24H2 ile yapılan yeni kurulumlarda varsayılan olarak bulunmaz. Bu nedenle yeni betiklerde PowerShell'in `Get-CimInstance` komutu tercih edilmelidir.
 
 ---
 
@@ -1163,10 +1189,17 @@ C:\>fc /n dosya1.txt dosya2.txt
 ### `shutdown` — Kapatma ve Yeniden Başlatma
 
 ```
-C:\>shutdown /s /t 60         REM 60 saniye sonra kapat
-C:\>shutdown /r /t 0          REM Hemen yeniden başlat
-C:\>shutdown /a                REM Planlanmış kapatmayı iptal et
-C:\>shutdown /l                REM Oturumu kapat (logoff)
+REM 60 saniye sonra kapat
+C:\>shutdown /s /t 60
+
+REM Hemen yeniden başlat
+C:\>shutdown /r /t 0
+
+REM Planlanmış kapatmayı iptal et
+C:\>shutdown /a
+
+REM Oturumu kapat (logoff)
+C:\>shutdown /l
 ```
 
 | Parametre | Anlam |
@@ -1282,7 +1315,7 @@ Derste ele alınan tüm komutların özet tablosu:
 
 ---
 
-## 🔨 Uygulama 6 — Kapsamlı Final Uygulaması
+## Uygulama 6 — Kapsamlı Final Uygulaması
 
 Bu uygulamada öğrenilen komutların çoğunu bir arada kullanacaksınız. Her adımı sırayla uygulayın.
 
@@ -1361,7 +1394,7 @@ echo --- DNS Sorgusu --- >> output\rapor.txt
 nslookup google.com >> output\rapor.txt
 
 echo. >> output\rapor.txt
-echo --- Aktif Baglentilar --- >> output\rapor.txt
+echo --- Aktif Baglantilar --- >> output\rapor.txt
 netstat -an | find "ESTABLISHED" >> output\rapor.txt
 
 echo.

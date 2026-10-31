@@ -1,7 +1,21 @@
-
 # PowerShell
 
-PowerShell, Microsoft tarafından geliştirilen, .NET platformu üzerine inşa edilmiş bir **komut satırı kabuğu** (command-line shell) ve **betik dili**dir (scripting language). Windows, macOS ve Linux üzerinde çalışır.
+PowerShell, Microsoft tarafından geliştirilen, .NET platformu üzerine inşa edilmiş bir **komut satırı kabuğu** (command-line shell) ve **betik dili**dir (scripting language). Windows'la birlikte gelen sürümü yalnızca Windows'ta, açık kaynaklı yeni sürümü ise Windows, macOS ve Linux üzerinde çalışır.
+
+> **Windows PowerShell 5.1 mi, PowerShell 7 mi?** Bugün iki ayrı PowerShell ailesi bir arada kullanılmaktadır:
+>
+> | Özellik | Windows PowerShell 5.1 | PowerShell 7 |
+> | --- | --- | --- |
+> | Program adı | `powershell.exe` | `pwsh.exe` |
+> | Kurulum | Windows 10/11 ile hazır gelir | Ayrıca kurulur (`winget install Microsoft.PowerShell`) |
+> | Platform | Yalnızca Windows | Windows, macOS, Linux |
+> | Altyapı | .NET Framework | .NET (Core) |
+> | `Get-EventLog`, `Get-WmiObject` | Var | Kaldırıldı (yerine `Get-WinEvent`, `Get-CimInstance`) |
+> | `Get-Process -ComputerName` | Var | Kaldırıldı (yerine `Invoke-Command`) |
+> | `Test-Connection` | `-ComputerName`, `-Count`, `-Quiet` | `-TargetName`, `-Count`, `-Quiet`, `-TimeoutSeconds` |
+> | `&&` ve `\|\|` zincirleme | Yok | Var |
+>
+> Hangi sürümün çalıştığını görmek için `$PSVersionTable.PSVersion` yazılır. Bu notta aksi belirtilmedikçe komutlar her iki sürümde de çalışır; farklı olan yerlerde iki yazım da verilmiştir.
 
 ## Kabuk (Shell) Kavramı
 
@@ -26,7 +40,7 @@ PowerShell komutlarına **cmdlet** (*command-let*, "küçük komut" anlamında) 
 | `Stop-Process` | Süreci durdur |
 | `Start-Service` | Sistem hizmetini başlat |
 
-Bu adlandırma standardı öğrenildiğinde, daha önce hiç karşılaşılmamış bir cmdlet adı tahmin edilebilir hale gelir. "Hizmetleri nasıl listelerim?" sorusunun yanıtı `Get-Service`'tir; denemeden önce bile bilinebilir. Desen bir kez oturdu mu, binlerce cmdlet kendiliğinden anlamlıdır.
+Bu adlandırma standardı öğrenildiğinde, daha önce hiç karşılaşılmamış bir cmdlet adı tahmin edilebilir hale gelir. "Hizmetleri nasıl listelerim?" sorusunun yanıtı `Get-Service`'tir; denemeden önce bile bilinebilir. Bu desen bir kez kavrandığında binlerce cmdlet'in adı kendiliğinden anlam kazanır.
 
 ![Cmdlet Verb-Noun Yapısı](images/ps-cmdlet-yapi.svg)
 
@@ -106,7 +120,7 @@ Get-Process -Name "chrome","code"
 | --- | --- | --- |
 | `-Name` *(konumsal, 1. sıra)* | Metin dizisi | Süreç adı. Joker karakter kabul eder: `"ch*"` ifadesi "chrome", "chkdsk" gibi `ch` ile başlayan tüm süreçleri getirir. |
 | `-Id` | Tam sayı | PID (Process ID — Süreç Kimlik Numarası). İşletim sisteminin her çalışan sürece atadığı benzersiz numaradır. |
-| `-ComputerName` | Metin dizisi | Uzak bir bilgisayardaki süreçleri sorgular. |
+| `-ComputerName` | Metin dizisi | Uzak bir bilgisayardaki süreçleri sorgular. Yalnızca Windows PowerShell 5.1'de vardır; PowerShell 7'de uzak sorgu için `Invoke-Command` kullanılır. |
 
 ---
 
@@ -484,7 +498,7 @@ Get-CimInstance -ClassName Win32_OperatingSystem |
 | Parametre | Değer | Açıklama |
 | --- | --- | --- |
 | `-ClassName` *(konumsal, 1. sıra)* | `Win32_OperatingSystem` | Sorgulanacak CIM sınıfı. `Win32_*` önekiyle başlayan sınıflar Windows'a özgüdür. |
-| `-ComputerName` | Metin dizisi | Uzak bilgisayarda sorgu yapar. WinRM gerektirmez; eski DCOM üzerinden çalışır. |
+| `-ComputerName` | Metin dizisi | Uzak bilgisayarda sorgu yapar. Varsayılan olarak WS-Man (WinRM) protokolünü kullanır; bu nedenle hedefte WinRM etkin olmalıdır. Eski DCOM protokolü gerekiyorsa `New-CimSessionOption -Protocol Dcom` ile bir oturum açılır. |
 | `-Filter` | Metin | WQL (WMI Query Language — WMI Sorgu Dili) filtresi. SQL WHERE cümlesine benzer: `"DriveType = 3"` |
 
 ### Disk Alanı İzleme
@@ -501,7 +515,7 @@ Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DriveType = 3" |
 
 `@{Name="..."; Expression={...}}` sözdizimi **hesaplanmış özellik** (calculated property) tanımlar: var olan bir özelliğin adını ve/veya değerini dönüştürür. `1GB` PowerShell'in yerleşik sabiti — 1073741824 bayta karşılık gelir; `1MB`, `1KB` de aynı şekilde kullanılabilir.
 
-`DriveType = 3` sabit diskleri seçer (1 = bilinmiyor, 2 = çıkarılabilir, 3 = yerel, 4 = ağ, 5 = CD-ROM).
+`DriveType = 3` sabit diskleri seçer (0 = bilinmiyor, 1 = kök dizin yok, 2 = çıkarılabilir, 3 = yerel disk, 4 = ağ sürücüsü, 5 = CD/DVD, 6 = RAM disk).
 
 ### İşlemci ve Bellek Bilgisi
 
@@ -524,18 +538,25 @@ Get-CimInstance -ClassName Win32_PhysicalMemory |
 ### Bağlantı Testi
 
 ```powershell
+# Windows PowerShell 5.1 (Windows ile hazır gelen sürüm)
+Test-Connection -ComputerName "google.com" -Count 4
+Test-Connection -ComputerName "192.168.1.1" -Count 1 -Quiet
+
+# PowerShell 7
 Test-Connection -TargetName "google.com" -Count 4
-Test-Connection -TargetName "192.168.1.1" -Count 1 -Quiet
+Test-Connection -TargetName "192.168.1.1" -Count 1 -Quiet -TimeoutSeconds 2
 ```
+
+Hedef konumsal parametre olduğu için her iki sürümde de adı yazmadan `Test-Connection google.com -Count 4` biçimi çalışır.
 
 **`Test-Connection` — Parametreler:**
 
 | Parametre | Değer | Açıklama |
 | --- | --- | --- |
-| `-TargetName` *(konumsal, 1. sıra)* | `"google.com"` | Hedef sunucu adı veya IP adresi |
+| `-ComputerName` (5.1) / `-TargetName` (7) *(konumsal, 1. sıra)* | `"google.com"` | Hedef sunucu adı veya IP adresi |
 | `-Count` | Tam sayı | Gönderilecek ICMP (ping) paketi sayısı. Varsayılan: 4 |
 | `-Quiet` | Anahtar | Ayrıntı yerine yalnızca `True` veya `False` döndürür; `if` koşullarında kullanışlıdır |
-| `-TimeoutSeconds` | Tam sayı | Her deneme için zaman aşımı süresi |
+| `-TimeoutSeconds` | Tam sayı | Her deneme için zaman aşımı süresi. Yalnızca PowerShell 7'de vardır |
 
 **Port erişilebilirliği testi** — ping'den daha anlamlıdır çünkü ICMP engellenmiş olsa bile TCP bağlantısını dener:
 
@@ -620,7 +641,7 @@ Get-WinEvent -LogName "Application" -MaxEvents 30 |
 
 | Parametre | Değer | Açıklama |
 | --- | --- | --- |
-| `-LogName` | `"System"` | Günlük adı. Yaygın adlar: `System`, `Application`, `Security` |
+| `-LogName` | `"System"` | Günlük adı. Yaygın adlar: `System`, `Application`, `Security`. `Security` günlüğünü okumak yönetici yetkisi ister. |
 | `-MaxEvents` | Tam sayı | Döndürülecek maksimum olay sayısı. Belirtilmezse tüm günlük okunur — büyük günlüklerde yavaş olur. |
 | `-ComputerName` | Metin | Uzak bilgisayarın günlüklerini okur |
 
@@ -674,7 +695,7 @@ Get-Service | Export-Csv -Path "C:\rapor\servisler.csv" -NoTypeInformation -Enco
 
 | Parametre | Değer | Açıklama |
 | --- | --- | --- |
-| `-Path` *(konumsal, 2. sıra)* | `"C:\rapor.csv"` | Hedef dosya yolu |
+| `-Path` *(konumsal, 1. sıra)* | `"C:\rapor.csv"` | Hedef dosya yolu |
 | `-NoTypeInformation` | Anahtar | Dosyanın başına `#TYPE ...` satırının yazılmasını engeller; Excel'de açılırken bu satır karışıklık yaratır |
 | `-Encoding` | `UTF8`, `Unicode`... | Dosya kodlaması. Türkçe karakter içeriyorsa `UTF8` kullanın |
 | `-Append` | Anahtar | Mevcut dosyaya üstüne yazmak yerine ekler |
@@ -724,7 +745,7 @@ Get-Service -Name "Spooler" | Format-List *    # Nesnenin tüm özelliklerini li
 | --- | --- |
 | `Format-Table` | Sütunlu tablo görünümü |
 | `Format-List` | Her özelliği ayrı satırda listeler; tek bir nesneyi incelemek için idealdir |
-| `Format-Wide` | Yalnızca tek sütun; dizin listeleme gibi geniş görünümler için |
+| `Format-Wide` | Her nesnenin yalnızca tek bir özelliğini, yan yana birden çok sütunda gösterir (`-Column 4` ile sütun sayısı belirlenir); `dir /w` benzeri geniş listeler için |
 
 ---
 
@@ -841,7 +862,7 @@ finally {
 }
 ```
 
-"Try" kelimesi Latince *temptare*'den gelir: "denemek, sınamak." Kod dener (`try`); başarısız olursa yakalar (`catch`); her koşulda temizlik yapar (`finally`). Bir mutfak düşünün: yemek pişirmeyi dene, yanmışsa müdahale et, her durumda ocağı kapat.
+"Try" kelimesi Eski Fransızca *trier* ("ayıklamak, seçmek, sınamak") sözcüğünden gelir. Kod dener (`try`); başarısız olursa yakalar (`catch`); her koşulda temizlik yapar (`finally`). Bir mutfak düşünün: yemek pişirmeyi dene, yanmışsa müdahale et, her durumda ocağı kapat.
 
 **`catch` bloğunda `$_` nesnesinin özellikleri:**
 
@@ -913,3 +934,11 @@ $rapor | Format-Table -AutoSize
 ```
 
 Bu betik: uzaktaki üç sunucuya paralel bağlanır, disk bilgilerini çeker, hata durumunda boş kayıt yazar, sonucu hem ekrana hem CSV'ye gönderir.
+
+---
+
+## Devamı
+
+- [Windows Başlangıç Programları Yönetimi](2-Baslangic_prog_yonetme.md): kayıt defteri, başlangıç klasörü ve görev zamanlayıcı üzerinden otomatik başlayan programların denetimi.
+- [PowerShell Betik Uygulamaları](3-Uygulamalar.md): servis, olay günlüğü, parola, zamanlanmış görev ve CSV örnekleri.
+- Çalıştırılabilir örnek betikler: [Uygulamalar/PowerShell_App](../Uygulamalar/PowerShell_App/).

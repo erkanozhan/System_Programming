@@ -1,6 +1,6 @@
 # PowerShell Betik Uygulamaları (PowerShell Script Examples)
 
-Aşağıdaki örnekler, PowerShell'in gerçek IT senaryolarında nasıl kullanıldığını göstermektedir. Her örnek önce ne yaptığını ve neden yararlı olduğunu açıklar, ardından kodu sunar. Kodu okumadan önce açıklamayı okumak, satırların amacını daha hızlı kavramayı sağlar.
+Aşağıdaki örnekler, PowerShell'in gerçek IT senaryolarında nasıl kullanıldığını göstermektedir. Temel kavramlar için önce [PowerShell ders notu](PowerShell.md) okunmalıdır; sürüm farkları (Windows PowerShell 5.1 ve PowerShell 7) o notun girişinde özetlenmiştir. Her örnek önce ne yaptığını ve neden yararlı olduğunu açıklar, ardından kodu sunar. Kodu okumadan önce açıklamayı okumak, satırların amacını daha hızlı kavramayı sağlar.
 
 ---
 
@@ -8,10 +8,12 @@ Aşağıdaki örnekler, PowerShell'in gerçek IT senaryolarında nasıl kullanı
 
 Windows'ta bir servisi elle başlatıp durdurmak kolaydır. Asıl güç, bu işlemi koşula bağlamaktan gelir: "servis çalışıyorsa durdur, çalışmıyorsa başlat." Bu tür açma-kapama mantığına **toggle** (geçiş) denir.
 
-`wuauserv`, Windows Update'in servis adıdır. Servis adlarında büyük/küçük harf önemli değildir.
+Örnekte yazdırma kuyruğu servisi `Spooler` kullanılmıştır. Servis adlarında büyük/küçük harf önemli değildir.
+
+> **Uyarı:** Servisleri başlatmak ve durdurmak yönetici yetkisi gerektirir; betik PowerShell **Yönetici olarak** açılarak çalıştırılmalıdır. Deneme amacıyla Windows Update (`wuauserv`) veya Windows Defender gibi güvenlik açısından kritik servisleri durdurmayın: sistem güncellemeleri ve korumaları siz yeniden başlatana kadar devre dışı kalır. `Spooler` durdurulduğunda yalnızca yazdırma işlemleri geçici olarak durur.
 
 ```powershell
-$serviceName = "wuauserv"
+$serviceName = "Spooler"
 $service     = Get-Service -Name $serviceName
 
 if ($service.Status -eq "Running") {
@@ -112,7 +114,7 @@ Write-Host "Çözülmüş parola: $plainPassword"
 2. `PtrToStringAuto` → yönetilmeyen belleği düz `String`'e çevirir.
 3. `ZeroFreeBSTR` → BSTR belleğini sıfırlar ve serbest bırakır.
 
-Üçüncü adım (`ZeroFreeBSTR`) orijinal kodda eksik. Bu ihmal, parolanın düz metin olarak bellekte asılı kalmasına yol açar. Bellek temizliği güvenli kod yazımının bir parçasıdır.
+Üçüncü adım (`ZeroFreeBSTR`) atlanmamalıdır; atlanırsa parola düz metin olarak yönetilmeyen bellekte kalır. Bellek temizliği güvenli kod yazımının bir parçasıdır.
 
 > **Güvenlik Notu:** `Write-Host "Çözülmüş parola: $plainPassword"` satırı parolayı konsola yazar. Gerçek bir betik senaryosunda bu satır üretim kodunda bulunmamalıdır; yalnızca kavramı doğrulamak için yazılmıştır. Parola düz metin olarak herhangi bir günlüğe, ekrana veya dosyaya yazılmamalıdır.
 
@@ -167,7 +169,7 @@ Register-ScheduledTask -Action $action `
 | `-RunLevel` | `Highest` / `Limited` | `Highest`: yönetici (administrator) yetkileriyle çalışır |
 | `-User` | Kullanıcı adı | Görevi çalıştıracak hesap. Belirtilmezse geçerli kullanıcı. |
 
-Orijinal kodda `-Argument "-File C:\scripts\health.ps1"` yazıyor. Buna `-NonInteractive` eklemek iyi bir alışkanlıktır: arka planda çalışan betiklerde kullanıcı etkileşimi beklenmesi betiği askıya alır.
+Argümana `-NonInteractive` eklenmesinin nedeni şudur: arka planda çalışan bir betik kullanıcıdan girdi beklerse askıda kalır; bu seçenek, etkileşim gerektiren bir durumda betiğin beklemek yerine hata vererek sonlanmasını sağlar.
 
 ---
 
@@ -200,7 +202,7 @@ Invoke-Command -ComputerName "10.1.1.12","10.1.1.13" -ScriptBlock {
 } -Credential $cred
 ```
 
-Uzak makine güvenilir hostlar listesinde değilse bağlantı reddedilebilir. Etki alanı (domain) dışındaki makineler için WinRM TrustedHosts ayarı gerekebilir.
+Uzak makine güvenilir bilgisayarlar listesinde değilse bağlantı reddedilebilir. Etki alanı (domain) dışındaki makinelerde ve hedef bilgisayar adı yerine **IP adresiyle** belirtildiğinde (Kerberos kimlik doğrulaması IP adresiyle çalışmadığından) etki alanı içinde bile WinRM TrustedHosts ayarı veya HTTPS bağlantısı gerekir.
 
 ---
 
@@ -236,12 +238,14 @@ Get-ADUser -Filter * -Properties Name, Department |
 ```powershell
 $students = Import-Csv "ogrenciler.csv"
 
-$passed = $students | Where-Object { $_.Not -ge 50 }
+$passed = $students | Where-Object { [int]$_.Not -ge 50 }
 
 $passed | Export-Csv -Path "gecenler.csv" -NoTypeInformation
 ```
 
 `$_.Not` ifadesindeki `Not`, `ogrenciler.csv` dosyasının başlık satırındaki sütun adıdır — Türkçede "not" sözcüğü sınav puanını ifade eder. `Import-Csv` CSV başlığını okur ve her başlığı nesne özelliğine dönüştürür. Sütun adı farklıysa (örneğin "Puan"), `$_.Puan` yazılır.
+
+**`[int]` dönüşümü neden gerekli?** `Import-Csv` tüm hücreleri metin (string) olarak okur. Sol taraf metin olduğunda PowerShell karşılaştırmayı da metin olarak yapar ve karakterleri soldan sağa kıyaslar: `"9" -ge 50` sonucu `True` ("9", "5"ten büyüktür), `"100" -ge 50` sonucu ise `False` olur ("1", "5"ten küçüktür). `[int]` tür dönüşümü (type cast) değeri önce tam sayıya çevirir ve karşılaştırmanın sayısal yapılmasını sağlar.
 
 Örnek bir `ogrenciler.csv` içeriği:
 
@@ -265,7 +269,7 @@ Mehmet,Yıldız,90
 
 ## Örnek 9: Belirli Olay Kimliğiyle Filtreleme
 
-Her Windows olayının bir **Event ID** (Olay Kimliği) vardır. Bu numaralar Microsoft tarafından standartlaştırılmıştır: 10010, DCOM sunucusunun zamanında başlatılamaması anlamına gelir. IT yöneticisi bu numaraları arama motorunda arayarak olayın anlamını hızla öğrenebilir.
+Her Windows olayının bir **Event ID** (Olay Kimliği) vardır. Bu numaralar her olay kaynağı (provider) için ayrı tanımlanır; aynı numara farklı kaynaklarda farklı anlamlara gelebilir. Örneğin DCOM kaynağındaki 10010 numaralı olay, bir DCOM sunucusunun zamanında başlatılamadığını bildirir. IT yöneticisi bu numaraları arama motorunda arayarak olayın anlamını hızla öğrenebilir.
 
 > **Dikkat:** `Get-EventLog` yalnızca Windows PowerShell 5.1'de çalışır. Modern ve önerilen komut `Get-WinEvent`'tir.
 
@@ -273,7 +277,7 @@ Her Windows olayının bir **Event ID** (Olay Kimliği) vardır. Bu numaralar Mi
 # Windows PowerShell 5.1 (eski)
 Get-EventLog -LogName System | Where-Object { $_.InstanceID -eq 10010 }
 
-# PowerShell 7+ (önerilen — Get-WinEvent + FilterHashtable daha hızlıdır)
+# Windows PowerShell 5.1 ve PowerShell 7+ (önerilen — Get-WinEvent + FilterHashtable daha hızlıdır)
 Get-WinEvent -FilterHashtable @{ LogName = "System"; Id = 10010 }
 ```
 

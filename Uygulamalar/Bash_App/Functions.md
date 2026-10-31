@@ -14,39 +14,61 @@ function fonksiyon_adi {
 fonksiyon_adi () {
     # Fonksiyon gövdesi
 }
+```
 
-````
+Fonksiyon, adı yazılarak çağrılır; argümanlar adın ardından boşlukla ayrılarak verilir: `fonksiyon_adi arg1 arg2`. Fonksiyonun içinde bu argümanlara `$1`, `$2`, ... ile; argüman sayısına `$#` ile; tüm argümanlara `"$@"` ile erişilir.
 
-# Örnek: Kullanıcıdan Ad/Yaş Alıp Fonksiyona Geçirme
-Kullanıcıdan read komutu ile girdi alıp bu girdiyi bir fonksiyona argüman olarak geçirmek yaygın bir senaryodur. read komutunun varsayılan olarak girdiyi boşluklara göre ayırarak birden fazla değişkene atadığını unutmamak önemlidir.
+## 2. Örnek: Kullanıcıdan Yaş ve Ad Alıp Fonksiyona Geçirme
 
-``` bash
+Kullanıcıdan `read` komutu ile girdi alıp bu girdiyi bir fonksiyona argüman olarak geçirmek yaygın bir senaryodur. `read` birden fazla değişken adıyla çağrıldığında satırı boşluklardan böler: ilk sözcüğü ilk değişkene, ikinci sözcüğü ikinci değişkene atar; **son değişkene ise satırın geri kalanının tamamını** atar. Bu nedenle boşluk içerebilecek değer (örneğin "Mehmet Ali" gibi iki sözcüklü bir ad) en sona yazılır.
+
+```bash
 #!/bin/bash
 # Bu betiğin bash kabuğu ile çalıştırılacağını belirtir.
 
-# Ad ve yaş argümanlarını alan fonksiyon (Örnek 2'deki gibi)
+# Yaş ve ad argümanlarını alan fonksiyon
 bilgi_ver(){
-	echo "Ad: $1"
-	echo "Yaş: $2"
+	echo "Yaş: $1"
+	echo "Ad: $2"
 	echo "Toplam $# argüman alındı"
 	echo "Tüm argümanlar: $@"
 }
 
-# Kullanıcıdan girdiyi alırken read komutunu boşlukla ayrılmış değişkenler için kullan.
-# read komutu, kullanıcıdan alınan satırı boşluklara göre ayırarak 'ad' ve 'yas' değişkenlerine atar.
-read -p "Lütfen adınızı ve yaşınızı boşluk bırakarak girin (Örn: Ali 30): " ad yas
+# read, ilk sözcüğü 'yas' değişkenine, satırın geri kalanını 'ad' değişkenine atar.
+# "30 Mehmet Ali" girildiğinde: yas="30", ad="Mehmet Ali"
+read -p "Lütfen yaşınızı ve adınızı boşluk bırakarak girin (Örn: 30 Mehmet Ali): " yas ad
 
 echo "--------------------"
 echo "Girilen değerler (read sonrası):"
-echo "Ad değişkeni: '$ad'"
 echo "Yaş değişkeni: '$yas'"
+echo "Ad değişkeni: '$ad'"
 echo "--------------------"
 
-# Fonksiyonu, alınan ad ve yaş değişkenlerinin değerlerini AYRI AYRI argüman olarak çağır.
-# Çift tırnaklar ("$ad", "$yas"), değişken değerlerinde boşluk olsa bile
-# bunların tek bir argüman olarak kalmasını sağlar (örneğin, "Mehmet Ali" adı).
-bilgi_ver "$ad" "$yas"
+# Fonksiyonu, yaş ve ad değerlerini AYRI AYRI argüman olarak vererek çağır.
+# Çift tırnaklar ("$yas", "$ad"), değişken değerinde boşluk olsa bile
+# değerin tek bir argüman olarak kalmasını sağlar: "Mehmet Ali" tek argümandır.
+# Tırnaksız yazılsaydı (bilgi_ver $yas $ad) fonksiyon 3 argüman alırdı.
+bilgi_ver "$yas" "$ad"
 
 echo "--------------------"
 echo "Fonksiyon çağrısı tamamlandı."
+```
+
+"30 Mehmet Ali" girildiğinde çıktı şöyledir:
+
+```text
+--------------------
+Girilen değerler (read sonrası):
+Yaş değişkeni: '30'
+Ad değişkeni: 'Mehmet Ali'
+--------------------
+Yaş: 30
+Ad: Mehmet Ali
+Toplam 2 argüman alındı
+Tüm argümanlar: 30 Mehmet Ali
+--------------------
+Fonksiyon çağrısı tamamlandı.
+```
+
+Dönüş değerleri (`return` ve komut ikamesi), yerel değişkenler (`local`) ve özyinelemeli fonksiyonlar için [Linux terminal ders notunun 8.11 Fonksiyonlar bölümüne](../../linux-mate-terminal-ders-notu.md#811-fonksiyonlar-functions) bakılabilir.
 

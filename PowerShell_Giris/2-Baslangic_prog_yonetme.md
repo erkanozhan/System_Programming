@@ -9,7 +9,7 @@ Windows'ta başlangıç programları birden fazla konumdan devreye girebilir:
 - **Kayıt Defteri** (Windows Registry) — en yaygın yöntem
 - **Başlangıç Klasörü** (Startup Folder) — kısayol dosyası yöntemi
 - **Görev Zamanlayıcı** (Task Scheduler) — görünmez kalabilen yöntem
-- **Sistem Servisleri** (Services) — yönetim bölümünde ele alındı
+- **Sistem Servisleri** (Services) — [PowerShell ders notunun Servis Yönetimi bölümünde](PowerShell.md#servis-yönetimi-service-management) ele alındı
 
 ![Başlangıç Program Konumları](images/ps-baslangic-konumlari.svg)
 
@@ -43,6 +43,8 @@ Otomatik başlayan programlar çoğunlukla şu iki anahtarda kayıtlıdır:
 | `HKLM:\Software\Microsoft\Windows\CurrentVersion\Run` | Tüm kullanıcılar | **Evet** |
 
 Her değer (value), bir programın adını ve çalıştırılacak dosya yolunu tutar.
+
+> **Not:** 64 bit Windows'ta 32 bit programların tüm kullanıcılar için yaptığı başlangıç kayıtları ayrı bir dalda tutulur: `HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Run`. Ayrıca yalnızca bir sonraki açılışta bir kez çalışacak girdiler için aynı yollarda `RunOnce` anahtarı bulunur. Kapsamlı bir denetimde bu anahtarlara da bakılmalıdır.
 
 ![Kayıt Defteri Yol Yapısı](images/ps-kayit-defteri-yapisi.svg)
 
@@ -87,12 +89,13 @@ Get-ChildItem "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\Startup"
 ```powershell
 $konumlar = @(
     "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run",
-    "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"
+    "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run",
+    "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Run"
 )
 
 foreach ($konum in $konumlar) {
     Write-Output "`n=== $konum ==="
-    Get-ItemProperty $konum |
+    Get-ItemProperty $konum -ErrorAction SilentlyContinue |
         Select-Object * -ExcludeProperty PSPath, PSParentPath, PSChildName, PSDrive, PSProvider
 }
 ```

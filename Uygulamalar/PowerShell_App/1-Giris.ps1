@@ -1,11 +1,12 @@
 $name=Read-Host "Adınızı Girin"
 [int]$age=Read-Host "Yaşınızı Girin"
 if ($age -lt 18) {
-Write-Output "Çocuk"
+    Write-Output "$name, çocuk yaş grubundasınız."
 } else {
-    Write-Output "Yetişkin"
+    Write-Output "$name, yetişkin yaş grubundasınız."
 }
 
-# PowerShell'i Yönetici olarak çalıştırıp, aşağıdaki komutları çalıştırırsanız,
-# güvenlik ayarlarını değiştirebilirsiniz.
-# `Set-ExecutionPolicy RemoteSigned -Scope CurrentUser`
+# Betik "çalıştırma devre dışı" hatası verirse, yürütme ilkesini yalnızca kendi
+# kullanıcı hesabınız için değiştirebilirsiniz (yönetici yetkisi gerekmez):
+# Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+# Ayrıntı: PowerShell_Giris/PowerShell.md, "Execution Policy" bölümü

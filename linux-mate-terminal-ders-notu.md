@@ -2,7 +2,7 @@
 
 ## Neden Linux ve Terminal?
 
-MS-DOS ders notunda komut satırının bilgisayar mühendisinin İngiliz anahtarı olduğundan söz etmiştik. Linux dünyasında bu araç çok daha merkezi bir konumdadır. Windows'ta komut satırı bir alternatifken, Linux'ta terminal neredeyse birincil çalışma ortamıdır. Sunucuların büyük çoğunluğu Linux çalıştırır ve bu sunucuların çoğunda grafik arayüz bile kurulu değildir. Dolayısıyla terminale hakim olmak, bir bilgisayar mühendisi için seçenek değil zorunluluktur.
+[MS-DOS ders notunda](MS-DOS.md) komut satırının bilgisayar mühendisinin İngiliz anahtarı olduğundan söz etmiştik. Linux dünyasında bu araç çok daha merkezi bir konumdadır. Windows'ta komut satırı bir alternatifken, Linux'ta terminal neredeyse birincil çalışma ortamıdır. Sunucuların büyük çoğunluğu Linux çalıştırır ve bu sunucuların çoğunda grafik arayüz bile kurulu değildir. Dolayısıyla terminale hakim olmak, bir bilgisayar mühendisi için seçenek değil zorunluluktur.
 
 ---
 
@@ -41,12 +41,14 @@ Windows'taki `C:\Users\Kullanici>` satırının Linux karşılığı budur; ama 
 
 Terminal bir penceredir; asıl komutları yorumlayan program **shell** (kabuk) adını taşır. Linux'ta en yaygın shell **Bash** (Bourne Again SHell — "Yeniden Doğan Bourne Kabuğu") olup, Stephen Bourne'un 1979'daki orijinal sh kabuğunun modern devamıdır. MATE Terminal varsayılan olarak Bash kullanır.
 
-Hangi shell kullandığınızı görmek için:
+Oturum açtığınızda başlatılan varsayılan kabuğu (login shell) görmek için:
 
 ```bash
 echo $SHELL
 /bin/bash
 ```
+
+`$SHELL` değişkeni, kullanıcının `/etc/passwd` dosyasında kayıtlı oturum kabuğunu gösterir; o anda çalışan kabuğu değil. Terminalde başka bir kabuk (örneğin `zsh`) başlatılsa bile `$SHELL` değişmez. O anda çalışan kabuğu görmek için `ps -p $$` komutu kullanılır.
 
 > **MS-DOS karşılaştırması:** Windows'ta cmd.exe ne ise, Linux'ta bash odur. Ama bash çok daha güçlüdür: değişken işlemleri, koşullar, döngüler, fonksiyonlar — hepsi doğrudan shell içinde yapılabilir.
 
@@ -63,7 +65,7 @@ Windows'ta her sürücünün bir harfi vardır: `C:\`, `D:\`. Linux'ta böyle bi
 ├── bin/          Temel komutlar (binary — çalıştırılabilir dosyalar)
 ├── boot/         Önyükleme dosyaları
 ├── dev/          Aygıt dosyaları (device)
-├── etc/          Yapılandırma dosyaları (editable text configuration)
+├── etc/          Yapılandırma dosyaları (Latince et cetera, "ve diğerleri")
 ├── home/         Kullanıcı ev dizinleri
 │   ├── ali/
 │   └── zeynep/
@@ -75,12 +77,14 @@ Windows'ta her sürücünün bir harfi vardır: `C:\`, `D:\`. Linux'ta böyle bi
 ├── root/         root kullanıcısının ev dizini
 ├── sbin/         Sistem yönetim komutları (system binary)
 ├── tmp/          Geçici dosyalar (temporary)
-├── usr/          Kullanıcı programları ve verileri (Unix System Resources)
+├── usr/          Kullanıcı programları ve verileri (user)
 │   ├── bin/
 │   ├── lib/
 │   └── share/
 └── var/          Değişken veriler (variable) — loglar, veritabanları
 ```
+
+İnternette `etc` için "editable text configuration", `usr` için "Unix System Resources" gibi açılımlarla karşılaşabilirsiniz. Bunlar sonradan yakıştırılmış açılımlardır (backronym); adların asıl kaynağı Latince *et cetera* ("ve diğerleri") ve İngilizce *user* (kullanıcı) sözcükleridir.
 
 Her dizinin bir amacı vardır. `/etc` yapılandırma dosyalarını tutar — bir binanın teknik odası gibidir. `/home` kullanıcıların kişisel alanıdır — binadaki daireler gibi. `/tmp` geçici dosyalar içindir — binanın çöp odası gibi, düzenli olarak temizlenir.
 
@@ -223,7 +227,7 @@ rm -rf Projeler
 | `-f` | Zorla (force) — onay sorma |
 | `-i` | Her dosya için onay iste (interactive) |
 
-> ⚠️ **Dikkat:** `rm -rf /` komutu, sistemdeki her şeyi silmeye çalışır. Modern Linux dağıtımları `--no-preserve-root` olmadan buna izin vermez, ama yine de `rm -rf` komutunu yazmadan önce iki kere, hatta üç kere kontrol edin. Özellikle değişken kullanırken: `rm -rf $DIZIN/` yazıp `$DIZIN` boşsa, bu komut `rm -rf /` haline gelir. Bu hatayı yapan deneyimli sistem yöneticileri bile vardır.
+> **Uyarı:** `rm -rf /` komutu, sistemdeki her şeyi silmeye çalışır. Modern Linux dağıtımları `--no-preserve-root` olmadan buna izin vermez, ama yine de `rm -rf` komutunu yazmadan önce iki kere, hatta üç kere kontrol edin. Özellikle değişken kullanırken: `rm -rf $DIZIN/` yazıp `$DIZIN` boşsa, bu komut `rm -rf /` haline gelir. Bu hatayı yapan deneyimli sistem yöneticileri bile vardır.
 
 ---
 
@@ -262,7 +266,7 @@ Kısayol: **Ctrl + L** aynı işi yapar ve daha hızlıdır. Parmaklarınız zam
 
 ---
 
-### 🔨 Uygulama 1 — Dizin Yapısı Oluşturma ve Gezinme
+### Uygulama 1 — Dizin Yapısı Oluşturma ve Gezinme
 
 ```bash
 # 1. Çalışma dizini oluştur
@@ -521,7 +525,7 @@ Küme parantezi (`{}`) özelliği Bash'e özgüdür ve Windows cmd'de yoktur. Bi
 
 ---
 
-### 🔨 Uygulama 2 — Dosya İşlemleri Pratiği
+### Uygulama 2 — Dosya İşlemleri Pratiği
 
 ```bash
 # 1. Çalışma alanı oluştur
@@ -551,9 +555,10 @@ ls -l Yedek/
 mv dosya1.txt ana_dosya.txt
 ls
 
-# 8. Sembolik bağlantı oluştur
-ln -s ~/DosyaPratik/ana_dosya.txt ~/Masaustu/kisayol.txt
-ls -l ~/Masaustu/kisayol.txt
+# 8. Sembolik bağlantı oluştur (masaüstü klasörünün adı sistem diline göre değişir)
+MASAUSTU="$(xdg-user-dir DESKTOP)"     # Türkçe sistemde: /home/kullanici/Masaüstü
+ln -s ~/DosyaPratik/ana_dosya.txt "$MASAUSTU/kisayol.txt"
+ls -l "$MASAUSTU/kisayol.txt"
 
 # 9. Bir dosyayı sil (onaylı)
 rm -i dosya3.txt
@@ -563,6 +568,8 @@ tree ~/DosyaPratik
 ```
 
 `&&` operatörü Windows'taki gibi çalışır: birinci komut başarılıysa ikinciyi çalıştırır.
+
+`xdg-user-dir DESKTOP` komutu, masaüstü klasörünün gerçek yolunu verir. Türkçe kurulumlarda bu klasörün adı `Masaüstü`, İngilizce kurulumlarda `Desktop` olduğundan yolu elle yazmak yerine bu komutu kullanmak betiği taşınabilir kılar.
 
 ---
 
@@ -603,7 +610,7 @@ grep "^$" dosya.txt          # Boş satırlar
 grep -E "[0-9]{3}" log.txt   # Üç basamaklı sayı içeren satırlar
 ```
 
-`-E` parametresi genişletilmiş düzenli ifadeleri (Extended Regular Expression) etkinleştirir. `grep -E` yerine `egrep` de yazılabilir.
+`-E` parametresi genişletilmiş düzenli ifadeleri (Extended Regular Expression) etkinleştirir. Eski kaynaklarda görülen `egrep` komutu artık kullanımdan kaldırılmaktadır; GNU grep 3.8 ve sonrası bu komut için uyarı verir. Bu nedenle her zaman `grep -E` yazılmalıdır.
 
 > **MS-DOS karşılığı:** `grep` Windows'taki `findstr` komutunun çok daha güçlü bir versiyonudur. Bir İsviçre çakısı gibidir — metin işlemenin hemen her aşamasında karşınıza çıkar.
 
@@ -629,9 +636,11 @@ wc -c dosya.txt    # Sadece bayt sayısı (characters/bytes)
 Pipe ile birleştirildiğinde çok kullanışlı olur:
 
 ```bash
-ls -l | wc -l       # Dizindeki dosya/dizin sayısı
+ls -A | wc -l       # Dizindeki dosya/dizin sayısı (gizliler dahil)
 grep "hata" log.txt | wc -l  # "hata" içeren satır sayısı
 ```
+
+`ls -l | wc -l` yazmak yaygın bir hatadır: `ls -l` çıktısının ilk satırı olan "toplam" satırı da sayıldığından sonuç bir fazla çıkar.
 
 ---
 
@@ -715,7 +724,9 @@ awk '{toplam += $1} END {print toplam}' sayilar.txt  # Toplam hesapla
 
 ### Boru Hatları (Pipes) — Komutları Zincirleme
 
-Linux'un felsefesi "tek bir işi iyi yapan küçük araçlar"dır. Bu araçlar `|` (pipe) ile birbirine bağlanarak karmaşık işlemler yapılır.
+![Boru Hattı (Pipe) Zinciri](images/pipe-chain.svg)
+
+Linux'un felsefesi "tek bir işi iyi yapan küçük araçlar"dır. Bu araçlar `|` (pipe — boru) ile birbirine bağlanarak karmaşık işlemler yapılır. Bir komutun stdout'u, bir sonraki komutun stdin'ine bağlanır.
 
 ```bash
 # En çok disk kullanan 5 dizini bul
@@ -724,8 +735,10 @@ du -sh /var/* 2>/dev/null | sort -rh | head -5
 # Sistemdeki kullanıcıları alfabetik listele
 cut -d ":" -f 1 /etc/passwd | sort
 
-# Log dosyasında en çok tekrar eden hata mesajını bul
-grep "ERROR" /var/log/syslog | awk '{print $6}' | sort | uniq -c | sort -rn | head -5
+# Log dosyasında en çok hata üreten 5 programı bul
+# (klasik syslog biçiminde 5. alan, kaydı üreten programdır;
+#  tarih biçimi farklı olan sistemlerde alan numarası değişebilir)
+grep "ERROR" /var/log/syslog | awk '{print $5}' | sort | uniq -c | sort -rn | head -5
 
 # Çalışan süreçleri bellek kullanımına göre sırala
 ps aux | sort -k 4 -rn | head -10
@@ -735,7 +748,7 @@ Her `|` bir borunun bağlantı noktasıdır. Bir komutun çıktısı, bir sonrak
 
 ---
 
-### 🔨 Uygulama 3 — Metin İşleme Pratiği
+### Uygulama 3 — Metin İşleme Pratiği
 
 ```bash
 # 1. Örnek veri dosyası oluştur
@@ -870,6 +883,20 @@ Yaygın izin kalıpları:
 | `700` | rwx------ | Özel dizinler |
 | `600` | rw------- | Hassas dosyalar (anahtarlar, parolalar) |
 
+> **Sık yapılan hata — `chmod 777`:** "Permission denied" hatası alındığında `chmod 777` yazmak sorunu çözüyor gibi görünür, ancak dosyayı sistemdeki herkesin okuyup değiştirebileceği ve çalıştırabileceği hale getirir. Bu, evin kapısı açılmıyor diye kilidi tamamen sökmeye benzer. Doğru yol, hatanın kimden kaynaklandığını (`ls -l` ve `id` ile) bulmak ve yalnızca gereken izni, yalnızca gereken kişiye vermektir: örneğin bir betik için `chmod u+x betik.sh`.
+
+**Kısa alıştırma:** Aşağıdaki izin dizgilerinin sayısal (octal) karşılığını yazın, ardından `touch deneme && chmod <sayı> deneme && ls -l deneme` ile sonucu doğrulayın.
+
+| İzin dizgisi | Sayısal karşılık |
+|--------------|------------------|
+| `rwxr-x---` | ? |
+| `rw-rw-r--` | ? |
+| `r--------` | ? |
+| `rwx--x--x` | ? |
+| `rw-r-----` | ? |
+
+(Yanıtlar: 750, 664, 400, 711, 640)
+
 ---
 
 ### `chown` — Sahiplik Değiştir
@@ -884,7 +911,7 @@ sudo chown -R ali:ali ~/Projeler/  # Özyinelemeli
 
 ---
 
-### 🔨 Uygulama 4 — İzin Pratiği
+### Uygulama 4 — İzin Pratiği
 
 ```bash
 # 1. Test dosyaları oluştur
@@ -983,7 +1010,7 @@ Dosyasistemi    Boyut Kull. Boş  Kull% Bağ-noktası
 tmpfs             4G  200M  3.8G    5% /tmp
 ```
 
-`-h` (human-readable) boyutları GB, MB cinsinden gösterir. Windows'taki `wmic logicaldisk` komutunun karşılığıdır ama çok daha okunabilir.
+`-h` (human-readable) boyutları GB, MB cinsinden gösterir. PowerShell'deki `Get-CimInstance Win32_LogicalDisk` komutunun (eski Windows sürümlerindeki `wmic logicaldisk` komutunun) karşılığıdır ama çok daha okunabilirdir.
 
 ---
 
@@ -1084,7 +1111,7 @@ killall firefox
 
 ---
 
-### 🔨 Uygulama 5 — Sistem İzleme
+### Uygulama 5 — Sistem İzleme
 
 ```bash
 # 1. Sistem bilgilerini topla
@@ -1224,9 +1251,11 @@ ss -tunap             # Tüm bağlantılar, süreç bilgisiyle
 | `-p` | Süreç bilgisi (process) |
 
 ```bash
-ss -tuln | grep 80       # 80 numaralı portu kullanan servisi bul
-ss -tunap | grep ssh     # SSH bağlantılarını göster
+sudo ss -tlnp 'sport = :80'   # 80 numaralı portu dinleyen servisi bul
+ss -tunap | grep ssh          # SSH bağlantılarını göster
 ```
+
+`ss -tuln | grep 80` biçimindeki yaygın kullanım yanıltıcıdır: `grep 80` yalnızca 80 numaralı portu değil, `8080` veya `180` gibi içinde "80" geçen her satırı yakalar. Ayrıca `-p` parametresi olmadan portu hangi sürecin kullandığı görünmez; başka kullanıcılara ait süreçleri görmek için de `sudo` gerekir. Süzgeç ifadesi (`'sport = :80'`) yalnızca kaynak portu tam olarak 80 olan soketleri getirir.
 
 > **netstat kullanımı:** Eski sistemlerde veya alışkanlıkla `netstat` de kullanılabilir:
 >
@@ -1260,7 +1289,7 @@ curl -s https://api.github.com/users/torvalds | head -20
 
 ---
 
-### 🔨 Uygulama 6 — Ağ Teşhisi
+### Uygulama 6 — Ağ Teşhisi
 
 ```bash
 # 1. IP yapılandırması
@@ -1365,7 +1394,7 @@ Kabuk programlama her işe uygun değildir. Aşağıdaki durumlarda başka araç
 
 ![Kabuk ve derlenen dil karşılaştırması](images/shell-vs-compiled.svg)
 
-Kabuk betiğini mutfaktaki yazılı reçeteye benzetmek yerindedir. Usta aynı yemeği her seferinde aynı düzende çıkarmak istediğinde talimatı yazar. Betik de çekirdeğe hangi adımların hangi sırayla uygulanacağını söyleyen bu yazılı düzenin sayısal karşılığıdır.
+Kabuk betiğini mutfaktaki yazılı reçeteye benzetmek yerindedir. Usta aynı yemeği her seferinde aynı düzende çıkarmak istediğinde talimatı yazar. Betik de kabuğa hangi adımların hangi sırayla uygulanacağını söyleyen bu yazılı düzenin sayısal karşılığıdır.
 
 ---
 
@@ -1401,7 +1430,11 @@ sh ilk_betik.sh
 ./ilk_betik.sh
 ```
 
-En doğal kullanım `./ilk_betik.sh` biçimidir. Çünkü bu çağrı, dosyanın başındaki yorumlayıcı satırına uyar. `sh < betik.sh` biçimi ise genellikle tercih edilmez; betiğin standart girdisini (Standard Input, stdin) kendi üzerine kapatabildiği için `read` gibi yapılarda beklenmeyen sonuç üretebilir.
+En doğal kullanım `./ilk_betik.sh` biçimidir. Çünkü bu çağrı, dosyanın başındaki yorumlayıcı satırına uyar.
+
+> **Uyarı:** `sh ilk_betik.sh` çağrısı betiği Bash ile değil, sistemin `sh` programıyla çalıştırır. Ubuntu ve Debian tabanlı sistemlerde `sh`, Bash değil daha yalın bir kabuk olan `dash` programıdır. Bu durumda `[[ ]]`, diziler ve `$'...'` gibi Bash'e özgü yapılar hata verir. Bash özellikleri kullanan bir betik `bash betik.sh` veya `./betik.sh` biçiminde çalıştırılmalıdır.
+
+Betiği `sh < betik.sh` biçiminde standart girdiden okutmak ise genellikle tercih edilmez; betiğin standart girdisini (Standard Input, stdin) kendi üzerine kapatabildiği için `read` gibi yapılarda beklenmeyen sonuç üretebilir.
 
 ---
 
@@ -1481,7 +1514,7 @@ echo "Tum parametreler: $@"
 
 `"$@"` ile `"$*"` arasındaki fark küçük görünür ama önemlidir. `"$@"` her parametreyi ayrı kelime olarak korur. Fonksiyon çağrılarında ve döngülerde daha güvenli seçim odur.
 
-Gençler, tablodaki bu özel değişkenleri (Special Variables) ve özellikle `"$@"` ile `"$*"` arasındaki farkı somutlaştırmak için bir kargo dağıtım merkezi benzetmesi kullanalım. 
+Tablodaki özel değişkenleri ve özellikle `"$@"` ile `"$*"` arasındaki farkı somutlaştırmak için bir kargo dağıtım merkezi benzetmesinden yararlanılabilir.
 
 Bir komut satırından betiği çalıştırdığınızda, işletim sistemine bir iş emri vermiş olursunuz. Parametreler (Parameter - Eski Yunanca *para* "yanında" ve *metron* "ölçü" kelimelerinden gelir; yan ölçüt, belirleyici) bu iş emrinin detaylarıdır.
 
@@ -1489,9 +1522,7 @@ Bunu bir nakliye kamyonunun depoya yanaşması gibi düşünün. Kamyonun bir pl
 
 Eğer kasaların tamamını tek bir büyük brandanın içine sarıp devasa tek bir paket haline getirirseniz, bu `"$*"` olur. Ancak her bir kasayı kendi ayrı paketinde, bağımsız birer birim olarak indirirseniz, bu da `"$@"` yapısına karşılık gelir. Fonksiyon çağrılarında veya döngülerde, kasaların birbirine karışmamasını, örneğin adında boşluk olan bir dosyanın iki ayrı dosya gibi algılanmamasını istiyorsak her zaman `"$@"` kullanırız.
 
-Aşağıdaki koda ve diyagrama bakalım.
-
-!Özel Değişkenler ve Parametre Aktarımı
+Bu farkı aşağıdaki betik üzerinde inceleyelim.
 
 ```bash
 #!/usr/bin/env bash
@@ -1534,7 +1565,7 @@ echo "Hatalı işlemin çıkış kodu (Exit Code - \$?): $?"
 # Çıkış kodu 0'dan farklı (genellikle 2) olacaktır.
 ```
 
-Bu betiği çalıştırdığımızda işletim sistemi, bash yorumlayıcısına (Interpreter) hafızada yeni bir süreç (Process) alanı açar. `$$` bu alanın sistemdeki adresidir. İşletim sistemi her işlemin ardından bir durum raporu (Exit Status) üretir; `$?` bu raporun sayısal özetidir. Sıfır değeri "sorun yok, işlem başarılı" anlamına gelirken, sıfır dışındaki değerler sistemin bize "bir şeyler ters gitti" deme şeklidir.
+Bu betiği çalıştırdığımızda işletim sistemi, bash yorumlayıcısı için bellekte yeni bir süreç (Process) oluşturur. `$$` bu sürecin sistemdeki kimlik numarasıdır (PID); bir bellek adresi değildir. İşletim sistemi her işlemin ardından bir durum raporu (Exit Status) üretir; `$?` bu raporun sayısal özetidir. Sıfır değeri "sorun yok, işlem başarılı" anlamına gelirken, sıfır dışındaki değerler sistemin bize "bir şeyler ters gitti" deme şeklidir.
 
 #### 8.3.2 Ortam Değişkenleri (Environment Variables)
 
@@ -1552,7 +1583,7 @@ Sistemin hazır olarak sağladığı önemli ortam değişkenleri şunlardır:
 echo "$HOME"    # Kullanıcının ev dizini: /home/ali
 echo "$PATH"    # Çalıştırılabilir dosyaların arandığı dizin listesi
 echo "$USER"    # Oturum açmış kullanıcı adı
-echo "$SHELL"   # Aktif kabuk programının tam yolu: /bin/bash
+echo "$SHELL"   # Oturum açma kabuğunun (login shell) tam yolu: /bin/bash
 echo "$PWD"     # Geçerli çalışma dizini (Present Working Directory)
 echo "$OLDPWD"  # Bir önceki çalışma dizini; cd - komutu bunu kullanır
 echo "$LANG"    # Sistem dili ve karakter kodlaması: tr_TR.UTF-8
@@ -1596,18 +1627,19 @@ echo "  SIRKET_ADI   : $SIRKET_ADI"
 echo "  PROJE_KOK    : $PROJE_KOK"
 echo
 
-# ─── 2. ALT KABUK DAVRANIŞI ──────────────────────────────────────
+# ─── 2. ALT SÜREÇ DAVRANIŞI ──────────────────────────────────────
 
-# ( ) parantezleri bir alt kabuk (subshell) başlatır.
-# Üst sürecin ortam tablosu devralınır; yerel değişkenler devralınmaz.
+# bash -c yeni bir bash programı, yani gerçek bir alt süreç (child process) başlatır.
+# Yeni süreç yalnızca ortam tablosunu devralır; yerel değişkenleri göremez.
+# Tek tırnak, değişkenlerin üst kabukta değil alt süreçte açılmasını sağlar.
 
-echo "=== Alt Kabuk (Subshell / Child Process) ==="
-(
-    # ${DEG:-'metin'} kalıbı: DEG tanımsız ya da boşsa 'metin'i döndürür.
-    echo "  SIRKET_ADI   [export edildi]  : ${SIRKET_ADI:-'(tanımsız)'}"
-    echo "  PROJE_KOK    [export edildi]  : ${PROJE_KOK:-'(tanımsız)'}"
-    echo "  YEREL_NOT    [export edilmedi]: ${YEREL_NOT:-'(tanımsız)'}"
-)
+echo "=== Alt Süreç (Child Process) ==="
+bash -c '
+    # ${DEG:-metin} kalıbı: DEG tanımsız ya da boşsa "metin" döndürür.
+    echo "  SIRKET_ADI   [export edildi]  : ${SIRKET_ADI:-(tanımsız)}"
+    echo "  PROJE_KOK    [export edildi]  : ${PROJE_KOK:-(tanımsız)}"
+    echo "  YEREL_NOT    [export edilmedi]: ${YEREL_NOT:-(tanımsız)}"
+'
 echo
 
 # ─── 3. SİSTEM DEĞİŞKENLERİ ─────────────────────────────────────
@@ -1627,9 +1659,7 @@ export -n SIRKET_ADI
 
 echo "=== export -n Sonrası ==="
 echo "  Üst kabukta hâlâ erişilir : $SIRKET_ADI"
-(
-    echo "  Alt kabukta artık görünmez : ${SIRKET_ADI:-'(tanımsız)'}"
-)
+bash -c 'echo "  Alt süreçte artık görünmez: ${SIRKET_ADI:-(tanımsız)}"'
 echo
 
 # ─── 5. TÜM ORTAMI LİSTELEMEK ───────────────────────────────────
@@ -1646,7 +1676,7 @@ Betiği çalıştırdığınızda terminalde şuna benzer bir çıktı görürs�
   SIRKET_ADI   : TechLab
   PROJE_KOK    : /home/ali/projeler/demo
 
-=== Alt Kabuk (Subshell / Child Process) ===
+=== Alt Süreç (Child Process) ===
   SIRKET_ADI   [export edildi]  : TechLab
   PROJE_KOK    [export edildi]  : /home/ali/projeler/demo
   YEREL_NOT    [export edilmedi]: (tanımsız)
@@ -1660,10 +1690,23 @@ Betiği çalıştırdığınızda terminalde şuna benzer bir çıktı görürs�
 
 === export -n Sonrası ===
   Üst kabukta hâlâ erişilir : TechLab
-  Alt kabukta artık görünmez : (tanımsız)
+  Alt süreçte artık görünmez: (tanımsız)
 ```
 
-`${DEG:-'varsayılan'}` sözdizimi burada ilk kez karşımıza çıktı. Değişken tanımsız ya da boşsa belirtilen varsayılan değeri döndürür; aksi hâlde asıl değeri gösterir. Bu kalıba **parametre genişlemesi** (parameter expansion) denir ve ilerleyen bölümde ayrıntılı ele alınır.
+**Neden `( )` değil de `bash -c` kullandık?** `( )` parantezleri de bir alt kabuk (subshell) başlatır; ancak bu alt kabuk, üst kabuğun `fork` ile çıkarılmış bir kopyasıdır ve export edilmemiş değişkenler dahil **tüm** değişkenleri görür. Örnekte `( )` kullanılsaydı `YEREL_NOT` da görünürdü ve `export -n` farkı gözlenemezdi. Ortam tablosunun kalıtımını görmek için gerçekten yeni bir program başlatmak gerekir; `bash -c`, başka bir betik veya `python3` gibi herhangi bir program bu işi görür.
+
+Aşağıdaki tablo, sık karışan dört yapının değişkenlere bakışını özetler:
+
+| Yapı | Yeni süreç açılır mı? | Yerel (export edilmemiş) değişkeni görür mü? | Export edilmiş değişkeni görür mü? | İçerideki değişiklik dışarı taşınır mı? |
+|------|------------------------|---------------------------------------------|-----------------------------------|----------------------------------------|
+| `( komutlar )` — alt kabuk | Evet (kopya) | Evet | Evet | Hayır |
+| `bash -c '...'`, `./betik.sh` — alt süreç | Evet (yeni program) | Hayır | Evet | Hayır |
+| `{ komutlar; }` — komut grubu | Hayır | Evet | Evet | Evet |
+| `source betik.sh` veya `. betik.sh` | Hayır | Evet | Evet | Evet |
+
+Bunu bir belgeyle çalışmaya benzetebiliriz: alt kabuk, belgenin tam bir fotokopisi üzerinde çalışmaktır; fotokopiye ne yazılırsa yazılsın asıl belge değişmez. Alt süreç ise yalnızca panoya asılmış duyuruları (export edilmiş değişkenleri) görebilen başka bir çalışandır. Komut grubu ve `source` ise doğrudan asıl belgenin üzerinde çalışır.
+
+`${DEG:-varsayılan}` sözdizimi burada ilk kez karşımıza çıktı. Değişken tanımsız ya da boşsa belirtilen varsayılan değeri döndürür; aksi hâlde asıl değeri gösterir. Bu kalıba **parametre genişlemesi** (parameter expansion) denir ve ilerleyen bölümde ayrıntılı ele alınır.
 
 Bir satırda geçici olarak belirli bir değişken tanımlamak da mümkündür. Bu yöntemle değişken yalnızca o komutun ortamına eklenir, kalıcı olarak export edilmez:
 
@@ -1706,7 +1749,7 @@ done < rapor.txt
 
 `IFS=` ifadesi yalnızca bu `read` komutunun süresince geçerlidir; döngü bittiğinde IFS eski değerine döner. Kabuğun geri kalanını etkilemez.
 
-`-r` bayrağı ise ters eğik çizginin (`\`) kaçış karakteri (escape character) olarak yorumlanmasını engeller. `-r` olmadan `\n` kabuk tarafından "yeni satır" anlamına çevrilir; `-r` ile olduğu gibi iki karakter (`\` ve `n`) kalır. Özellikle dosya yollarını ve düzenli ifadeleri (regular expressions) işlerken bu fark kritiktir.
+`-r` bayrağı ise ters eğik çizginin (`\`) kaçış karakteri (escape character) olarak yorumlanmasını engeller. `-r` olmadan `read` ters eğik çizgiyi siler ve ardından gelen karakteri düz karakter olarak bırakır: `a\nb` satırı `anb` olarak okunur; satır sonundaki `\` ise bir sonraki satırla birleştirme anlamına gelir. `-r` ile satır olduğu gibi (`a\nb`) okunur. Özellikle dosya yollarını ve düzenli ifadeleri (regular expressions) işlerken bu fark kritiktir.
 
 Pratik kullanım: CSV ayrıştırma
 
@@ -1728,16 +1771,13 @@ Hasan,Koç,50,45
 Merve,Aydın,91,95
 ```
 
-Birinci satır başlık (header) satırıdır. `read` ile önce onu okuyup atlıyoruz, ardından veri satırlarını işliyoruz:
+Birinci satır başlık (header) satırıdır. `tail -n +2` ile bu satırı atlayıp yalnızca veri satırlarını işliyoruz:
 
 ```bash
 #!/usr/bin/env bash
 # csv_oku.sh — notlar.csv dosyasını satır satır ayrıştırır
 
 DOSYA="notlar.csv"
-
-# Başlık satırını oku ve görmezden gel
-IFS=',' read -r _ _ _ _ < "$DOSYA"
 
 # tail -n +2: dosyanın 2. satırından itibaren okur (başlığı atlar)
 tail -n +2 "$DOSYA" | while IFS=',' read -r AD SOYAD VIZE FINAL; do
@@ -1809,14 +1849,16 @@ unset GECICI           # değişkeni bellekten siler
 echo ""
 echo "unset Sonrası:"
 
-# ${DEG:+'var'} kalıbı: DEG tanımlı ve doluysa 'var' döndürür
-echo "  GECICI tanımlı mı? : '${GECICI:+var}'"  # boş → tanımsız
-echo "  BASKA  tanımlı mı? : '${BASKA:+var}'"   # boş → boş string
+# ${DEG+var} kalıbı (iki nokta yok): DEG tanımlıysa, boş olsa bile "var" döndürür
+echo "  GECICI tanımlı mı? : '${GECICI+var}'"  # '' → tanımsız
+echo "  BASKA  tanımlı mı? : '${BASKA+var}'"   # 'var' → tanımlı ama boş
 
-# Tanımsız değişkene güvenli erişim için :-  kalıbı
-echo "  GECICI değeri : ${GECICI:-'(tanımsız)'}"
-echo "  BASKA  değeri : ${BASKA:-'(boş ya da tanımsız)'}"
+# Tanımsız ya da boş değişkene güvenli erişim için :- kalıbı
+echo "  GECICI değeri : ${GECICI:-(tanımsız)}"
+echo "  BASKA  değeri : ${BASKA:-(boş ya da tanımsız)}"
 ```
+
+Burada iki nokta işaretinin varlığı belirleyicidir: `${DEG:+var}` "tanımlı **ve dolu** mu?" sorusunu, `${DEG+var}` ise yalnızca "tanımlı mı?" sorusunu sorar. Boş bir değişken ile hiç tanımlanmamış bir değişkeni ayırt etmek için iki noktasız biçim (veya `[[ -v DEG ]]` testi) kullanılmalıdır.
 
 Çalıştırıldığında:
 
@@ -1826,8 +1868,8 @@ Başlangıç:
   BASKA  : ''
 
 unset Sonrası:
-  GECICI tanımlı mı? :           ← boş; değişken artık yok
-  BASKA  tanımlı mı? :           ← boş; değişken var ama değeri yok
+  GECICI tanımlı mı? : ''        ← değişken artık yok
+  BASKA  tanımlı mı? : 'var'     ← değişken var ama değeri yok
   GECICI değeri : (tanımsız)
   BASKA  değeri : (boş ya da tanımsız)
 ```
@@ -1984,9 +2026,10 @@ tail -n +2 "$DOSYA" | while IFS=',' read -r AD SOYAD VIZE FINAL; do
     # scale=2 → virgülden sonra 2 basamak göster
     AGIRLIKLI=$(echo "scale=2; ($VIZE * $VIZE_AGIRLIK + $FINAL * $FINAL_AGIRLIK) / 100" | bc)
 
-    # printf "%.0f" standart yuvarlama uygular (0.5 ve üzeri → yukarı)
-    # Örnek: 81.10 → 81,  48.40 → 48,  74.50 → 75
-    YUVARLANMIS=$(printf "%.0f" "$AGIRLIKLI")
+    # awk ile "0.5 ve üzeri yukarı" kuralına göre yuvarlama
+    # Örnek: 81.10 → 81,  48.40 → 48,  58.50 → 59
+    # LC_ALL=C: ondalık ayırıcının nokta olarak okunmasını garanti eder
+    YUVARLANMIS=$(LC_ALL=C awk -v x="$AGIRLIKLI" 'BEGIN { printf "%d", x + 0.5 }')
 
     # Geçti/Kaldı kararı: tam sayıya yuvarlanmış değer üzerinden yapılır;
     # $(( )) ile tam sayı karşılaştırması artık güvenle kullanılabilir
@@ -2017,6 +2060,12 @@ Beklenen çıktı:
   Final (%70): 91
   Ağırlıklı  : 90.10  →  Yuvarlanmış: 90  →  GEÇTİ
   -----------
+Öğrenci      : Mehmet Demir
+  Vize  (%30): 55
+  Final (%70): 60
+  Ağırlıklı  : 58.50  →  Yuvarlanmış: 59  →  GEÇTİ
+  -----------
+...
 Öğrenci      : Emre Arslan
   Vize  (%30): 40
   Final (%70): 52
@@ -2024,7 +2073,12 @@ Beklenen çıktı:
   -----------
 ```
 
-> **Not:** `bc` çıktısı metin (`string`) döndürür; `$(( ))` ile doğrudan kullanılamaz. `printf "%.0f"` yuvarlama yaptıktan sonra tam sayıya dönüştürür; bu sayede `$(( ))` ile güvenli karşılaştırma yapılabilir (`awk` gerekmez).
+> **Not:** `bc` çıktısı metin (`string`) döndürür; `$(( ))` ile doğrudan kullanılamaz. Önce tam sayıya yuvarlamak gerekir. Bu iş için akla ilk gelen `printf "%.0f"` iki nedenle güvenilir değildir:
+>
+> 1. GNU C kütüphanesi (glibc) yarımda **çift sayıya** yuvarlar (banker's rounding): `printf "%.0f" 58.50` çıktısı `58`, `printf "%.0f" 74.50` çıktısı `74` olur. Not hesabında bu, öğrencinin aleyhine sonuç doğurur.
+> 2. `LANG=tr_TR.UTF-8` gibi ondalık ayırıcısı virgül olan bir yerelde `printf "%.0f" 81.10` komutu "invalid number" hatası verir.
+>
+> Bu nedenle yuvarlama `LC_ALL=C awk` ile yapılır: `x + 0.5` değerinin tam sayı kısmı alınarak "0.5 ve üzeri yukarı" kuralı uygulanır.
 
 ```bash
 SONUC=$(echo "scale=2; 7 / 2" | bc)   # SONUC = "3.50"  (metin)
@@ -2032,8 +2086,8 @@ SONUC=$(echo "scale=2; 7 / 2" | bc)   # SONUC = "3.50"  (metin)
 # Hatalı kullanım — bc çıktısı metin olduğundan $(( )) hata verir:
 # echo $(( SONUC > 3 ))   # bash: 3.50: syntax error
 
-# Doğru kullanım — önce printf ile tam sayıya yuvarlayıp sonra karşılaştır:
-YUVARLANMIS=$(printf "%.0f" "$SONUC")  # YUVARLANMIS = 4  (3.50 → yukarı yuvarlandı)
+# Doğru kullanım — önce awk ile tam sayıya yuvarlayıp sonra karşılaştır:
+YUVARLANMIS=$(LC_ALL=C awk -v x="$SONUC" 'BEGIN { printf "%d", x + 0.5 }')  # 4 (3.50 → yukarı)
 
 if (( YUVARLANMIS > 3 )); then
     echo "$SONUC yuvarlanınca $YUVARLANMIS oldu, 3'ten büyük"
@@ -2070,7 +2124,7 @@ Bir metin dizgisinin içerisinden belirli bir bölümü almak veya değiştirmek
 ```bash
 DOSYA="/home/kullanici/belgeler/rapor.txt"
 
-echo ${#DOSYA}           # 38 — uzunluk
+echo ${#DOSYA}           # 34 — uzunluk
 echo ${DOSYA##*/}        # rapor.txt — son / sonrası (basename işlevi)
 echo ${DOSYA%/*}         # /home/kullanici/belgeler — son / öncesi (dirname)
 echo ${DOSYA##*.}        # txt — uzantı
@@ -2099,7 +2153,7 @@ Bash'te iki tür dizi vardır. **İndisli dizi** (indexed array), sıfırdan ba�
 
 İndisli diziyi, üstünde numara bulunan gözlere sahip bir meyve kasası gibi düşünebiliriz. `MEYVELER` etiketi kasanın tamamını temsil eder; her gözün numarası 0'dan başlar ve o gözün içinde de ilgili değer bulunur. "2 numaralı gözden getir" demek `${MEYVELER[2]}` yazmakla eşdeğerdir.
 
-Bilgisayar biliminde dizilerin 0'dan başlaması evrensel bir standarttır. Bunun sezgisel açıklaması şudur: indis, dizinin başından o elemana kadar kaç adım atılacağını gösterir. İlk elemana ulaşmak için sıfır adım yeterlidir, dolayısıyla indisi 0'dır.
+Dizilerin 0'dan başlaması C dili ve ondan etkilenen dillerde (Bash, Java, Python) yaygın bir gelenektir; ancak evrensel değildir. R, MATLAB, Fortran, Lua ve `awk` gibi dillerde indisler 1'den başlar. Sıfırdan başlamanın sezgisel açıklaması şudur: indis, dizinin başından o elemana kadar kaç adım atılacağını gösterir. İlk elemana ulaşmak için sıfır adım yeterlidir, dolayısıyla indisi 0'dır.
 
 ![İndisli Dizi Bellek Düzeni](images/indexed-array-layout.svg)
 
@@ -2210,10 +2264,12 @@ declare -A NOTLAR
 
 # Anahtar: "Ad Soyad" (tam isim metin), Değer: ağırlıklı not (vize %30 + final %70)
 # tail -n +2 başlık satırını atlar; IFS=',' virgülden böler
-tail -n +2 notlar.csv | while IFS=',' read -r AD SOYAD VIZE FINAL; do
+# < <(...) süreç ikamesi (process substitution): döngü ana kabukta çalışır,
+# böylece diziye yazılan değerler döngü bittikten sonra da kalır
+while IFS=',' read -r AD SOYAD VIZE FINAL; do
     AGIRLIKLI=$(echo "scale=2; ($VIZE * 30 + $FINAL * 70) / 100" | bc)
     NOTLAR["$AD $SOYAD"]=$AGIRLIKLI
-done
+done < <(tail -n +2 notlar.csv)
 
 # Tek değer okuma — anahtar tam isimdir
 echo "Ali Yılmaz: ${NOTLAR["Ali Yılmaz"]}"    # 81.10
@@ -2230,14 +2286,19 @@ for ogrenci in "${!NOTLAR[@]}"; do
 done
 ```
 
+> **Sık yapılan hata — boru hattına bağlanan `while` döngüsü:** Aynı döngü `tail -n +2 notlar.csv | while ...; do ...; done` biçiminde yazılsaydı dizi döngüden sonra **boş** kalırdı. Bash, boru hattının her parçasını ayrı bir alt kabukta çalıştırır; `while` döngüsü de bu alt kabuklardan birinde çalışır ve değişkenlere yaptığı atamalar ana kabuğa geri dönmez. Bu durum bir belgenin fotokopisi üzerinde düzeltme yapmaya benzer: fotokopi düzelir ama asıl belge değişmeden kalır. Çözüm, girdiyi `done < <(komut)` biçiminde süreç ikamesiyle (process substitution) vermek ya da doğrudan bir dosyadan `done < dosya` ile okumaktır. Döngü yalnızca ekrana yazı yazıyorsa (önceki `csv_oku.sh` örneğinde olduğu gibi) boru hattı kullanmakta sakınca yoktur.
+
 İlişkisel dizilerde anahtar sırası garanti değildir. Bash bu yapıyı dahili olarak bir hash tablosu (hash table) üzerinde tutar; ekleme sırasına göre değil, hash fonksiyonunun ürettiği konuma göre bellekte yer alır. Sıralı çıktı gerekiyorsa `sort` ile sıralamanız gerekir:
 
 ```bash
 # Öğrenci adlarını alfabetik sıraya diz, sonra notları yazdır
-for ogrenci in $(echo "${!NOTLAR[@]}" | tr ' ' '\n' | sort); do
+# printf '%s\n' her anahtarı ayrı satıra yazar; read -r satırı bölmeden okur
+while IFS= read -r ogrenci; do
     echo "  $ogrenci: ${NOTLAR[$ogrenci]}"
-done
+done < <(printf '%s\n' "${!NOTLAR[@]}" | sort)
 ```
+
+Anahtarlar "Ali Yılmaz" gibi boşluk içerdiğinden `for ogrenci in $(echo "${!NOTLAR[@]}" | sort)` biçimi yanlış sonuç verir: kabuk her boşlukta keser ve "Ali" ile "Yılmaz" iki ayrı anahtar gibi işlenir. Satır satır okuyan `while IFS= read -r` döngüsü bu sorunu ortadan kaldırır.
 
 Bir anahtarın dizide var olup olmadığını kontrol etmek:
 
@@ -2269,9 +2330,9 @@ Karşılaştırma özeti:
 
 #### Dosya Tanımlayıcıları (File Descriptors)
 
-İşletim sistemi bir süreci (Process) belleğe yerleştirip çalıştırdığında, o sürecin çevresiyle iletişim kurabilmesi için üç adet varsayılan akış (Stream) kanalı açar. Sistem programlama terminolojisinde bu numaralandırılmış donanım erişim noktalarına Dosya Tanımlayıcı (File Descriptor - FD) adı verilir.
+İşletim sistemi bir süreci (Process) belleğe yerleştirip çalıştırdığında, o sürecin çevresiyle iletişim kurabilmesi için üç adet varsayılan akış (Stream) kanalı açar. Sistem programlama terminolojisinde bu kanalları gösteren küçük tam sayılara Dosya Tanımlayıcı (File Descriptor - FD) adı verilir. Dosya tanımlayıcı bir donanım adresi değildir; çekirdeğin her süreç için tuttuğu açık dosyalar tablosundaki sıra numarasıdır. Bu numaranın arkasında bir dosya, terminal, boru hattı veya ağ bağlantısı bulunabilir.
 
-Bu yapıyı bir su tesisatına benzetebiliriz: 0 numaralı ana hattan binaya temiz su (veri) girer, 1 numaralı hattan işlenmiş temiz su binayı terk eder, 2 numaralı kanal ise sistemde oluşan atıkları ve sızıntıları (hataları) tahliye etmek için ayrılmış özel bir haktır.
+Bu yapıyı bir su tesisatına benzetebiliriz: 0 numaralı ana hattan binaya temiz su (veri) girer, 1 numaralı hattan işlenmiş temiz su binayı terk eder, 2 numaralı kanal ise sistemde oluşan atıkları ve sızıntıları (hataları) tahliye etmek için ayrılmış özel bir hattır.
 
 | FD | Ad | Varsayılan Hedef |
 |----|----|----|
@@ -2288,7 +2349,7 @@ komut > dosya.txt          # stdout'u dosyaya yaz (üzerine)
 komut >> dosya.txt         # stdout'u dosyaya ekle (sonuna)
 komut 2> hatalar.txt       # stderr'i dosyaya yaz
 komut > log.txt 2>&1       # stderr akışını, stdout akışının olduğu konuma bağla
-komut < girdi.txt          # stdout akışına girdi.txt içeriğini yönlendir
+komut < girdi.txt          # stdin akışını girdi.txt dosyasından besle
 komut &> birlikte.log      # stdout ve stderr'i birlikte yönlendir
 komut > /dev/null 2>&1     # Tüm çıktıları işletim sisteminin kara deliğine (/dev/null) gönder
 ```
@@ -2297,7 +2358,9 @@ komut > /dev/null 2>&1     # Tüm çıktıları işletim sisteminin kara deliği
 
 `/dev/null`, işletim sisteminin boşaltım kutusu gibidir. Oraya giden veri yazılır ama saklanmaz.
 
+#### Belge İçi Girdi (Here Document)
 
+Here document (`<<`), birden çok satırlık metni bir dosya oluşturmadan doğrudan komutun stdin akışına verir. Metin, başta belirtilen etiket (örneğin `EOF`) tek başına bir satırda yeniden görülene kadar sürer. Etiket tırnaksız yazılırsa metindeki değişkenler ve komut ikameleri açılır; tek tırnak içinde yazılırsa metin olduğu gibi aktarılır.
 
 ```bash
 # Değişken genişlemesi olan (EOF tırnaksız)
@@ -2319,12 +2382,14 @@ DEBUG=false
 EOF
 ```
 
-Etiket herhangi bir kelime olabilir — `EOF` (End of File — Dosya Sonu) bir konvansiyondur.
+Etiket herhangi bir kelime olabilir — `EOF` (End of File — Dosya Sonu) bir gelenektir.
 
+#### Satır İçi Girdi (Here String)
 
+Here string (`<<<`), tek bir metin değerini komutun stdin akışına verir. Kısa bir değeri işlemek için `echo ... |` yazmaya göre daha kısadır ve boru hattı kurmadığı için alt kabuk açmaz.
 
 ```bash
-grep "linux" <<< "Linux bir isletim sistemidir"
+grep -i "linux" <<< "Linux bir isletim sistemidir"
 wc -w <<< "bir iki uc dort bes"    # 5
 ```
 
@@ -2379,7 +2444,7 @@ Bash'te üç farklı test mekanizması vardır:
 | `-e dosya` | Dosya / Dizin | Exists | Belirtilen yolda bir dosyanın veya dizinin var olup olmadığını kontrol eder. | `[ -e "/etc/passwd" ]` |
 | `-f dosya` | Dosya | File | Belirtilen nesnenin var olup olmadığını ve normal bir dosya olup olmadığını kontrol eder. | `[ -f "rapor.txt" ]` |
 | `-d dosya` | Dizin | Directory | Belirtilen nesnenin var olup olmadığını ve bir klasör (dizin) olup olmadığını kontrol eder. | `[ -d "/home/user/Belgeler" ]` |
-| `-l dosya` | Dosya | Link | Belirtilen nesnenin var olup olmadığını ve sembolik bir bağlantı olup olmadığını kontrol eder. | `[ -l "sembolik_link" ]` |
+| `-L dosya` (veya `-h`) | Dosya | Link | Belirtilen nesnenin var olup olmadığını ve sembolik bir bağlantı olup olmadığını kontrol eder. | `[ -L "sembolik_link" ]` |
 | `-r dosya` | Dosya İzni | Readable | Dosyanın var olduğunu ve mevcut kullanıcı için okuma izni (read permission) olduğunu kontrol eder. | `[ -r "gizli_veri.txt" ]` |
 | `-w dosya` | Dosya İzni | Writable | Dosyanın var olduğunu ve mevcut kullanıcı için yazma izni (write permission) olduğunu kontrol eder. | `[ -w "ayar.conf" ]` |
 | `-x dosya` | Dosya İzni | Executable | Dosyanın var olduğunu ve çalıştırılabilir (executable) olduğunu kontrol eder. | `[ -x "script.sh" ]` |
@@ -2391,8 +2456,10 @@ Bash'te üç farklı test mekanizması vardır:
 | Operatör | Kategori | İngilizce Açılımı | Açıklama | Örnek Kullanım |
 |----------|----------|-------------------|----------|----------------|
 | `!` | Mantıksal | NOT (Değil) | Kendisinden sonra gelen koşulun tersini alır. Doğruyu yanlış, yanlışı doğru yapar. | `[ ! -f "dosya.txt" ]` (Dosya yoksa) |
-| `-a` (veya `&&`) | Mantıksal | AND (Ve) | İki koşulun her ikisinin de doğru olup olmadığını kontrol eder. | `[ $sayi -gt 0 -a $sayi -lt 10 ]` |
-| `-o` (veya `||`) | Mantıksal | OR (Veya) | İki koşuldan en az birinin doğru olup olmadığını kontrol eder. | `[ $kullanici = "admin" -o $kullanici = "root" ]` |
+| `&&` | Mantıksal | AND (Ve) | İki koşulun her ikisinin de doğru olup olmadığını kontrol eder. `[ ]` içinde kullanılamaz; iki ayrı test arasına ya da `[[ ]]` içine yazılır. | `[ "$sayi" -gt 0 ] && [ "$sayi" -lt 10 ]` |
+| `\|\|` | Mantıksal | OR (Veya) | İki koşuldan en az birinin doğru olup olmadığını kontrol eder. Kullanım kuralı `&&` ile aynıdır. | `[[ $kullanici = "admin" \|\| $kullanici = "root" ]]` |
+
+> **Not:** Eski betiklerde `[ ... -a ... ]` ve `[ ... -o ... ]` biçimleri de görülür. POSIX standardı bu iki operatörü eskimiş (obsolescent) kabul eder; belirsiz sonuçlar üretebildikleri için yeni betiklerde yukarıdaki biçimler tercih edilmelidir.
 
 #### `[[ ]]` ile Genişletilmiş Test
 
@@ -2407,9 +2474,11 @@ Bash'te üç farklı test mekanizması vardır:
 
 #### if / elif / else
 
-Gençler, yazdığımız programların veya betiklerin (script) sadece yukarıdan aşağıya körü körüne çalışan metin yığınları olmaktan çıkıp, duruma göre karar verebilen yapılara dönüşmesi gerekir. Bir programın belirli durumlarda farklı tepkiler vermesini sağlayan bu yapıya literatürde Control Flow (Kontrol Akışı) diyoruz.
+Yazılan programların veya betiklerin (script) yalnızca yukarıdan aşağıya sırayla çalışan komut dizileri olmaktan çıkıp duruma göre karar verebilen yapılara dönüşmesi gerekir. Bir programın belirli durumlarda farklı tepkiler vermesini sağlayan bu yapıya literatürde kontrol akışı (Control Flow) adı verilir.
 
-Bir fabrikadaki kalite kontrol bandını düşünün. Üretim bandından geçen bir parça sensörler tarafından ölçülür. Sensörden gelen veri referans değerlerine uyuyorsa parça paketlemeye gider; uymuyorsa ıskartaya ayrılır veya yeniden işlenmek üzere başka bir hatta yönlendirilir. İşte programlamada bu sensör ve yönlendirme işlevini gören mekanizma if-else (eğer-değilse) kalıbıdır.
+Bir fabrikadaki kalite kontrol bandını düşünün. Üretim bandından geçen bir parça sensörler tarafından ölçülür. Sensörden gelen veri referans değerlerine uyuyorsa parça paketlemeye gider; uymuyorsa ıskartaya ayrılır veya yeniden işlenmek üzere başka bir hatta yönlendirilir. Programlamada bu sensör ve yönlendirme işlevini gören mekanizma if-else (eğer-değilse) kalıbıdır.
+
+![if / elif / else karar akışı](images/if-elif-else-logic.svg)
 
 **if-else Temel Sözdizimi (Syntax)**
 Kabuk programlamada (Shell Scripting) bir `if` kalıbı kurgularken kullandığımız yapı şu şekildedir:
@@ -2511,11 +2580,11 @@ fi
 
 #### case
 
-Gençler, bir önceki konumuzda program akışını `if-else` bloklarıyla nasıl yönlendireceğimizi gördük. Ancak bazen elimizdeki tek bir değişkenin alabileceği onlarca farklı değer olabilir. Bir terminal menüsü tasarladığınızı veya sistemden gelen birçok farklı hata kodunu yakalamaya çalıştığınızı düşünün. Her bir ihtimal için peş peşe `elif` yazmak, kodu okumayı zorlaştırır ve çalışma zamanında (run-time) performans kaybına neden olabilir.
+Bir önceki konuda program akışının `if-else` bloklarıyla nasıl yönlendirildiği görüldü. Ancak bazen tek bir değişkenin alabileceği onlarca farklı değer olabilir. Bir terminal menüsü tasarlandığını veya sistemden gelen birçok farklı hata kodunun yakalanmaya çalışıldığını düşünün. Her olasılık için peş peşe `elif` yazmak kodu uzatır ve okumayı zorlaştırır.
 
 İşte böyle durumlarda, literatürde Desen Eşleştirme (Pattern Matching) olarak bilinen ve birçok derlemeli programlama dilinde Switch-Case olarak karşımıza çıkan `case` yapısını kullanırız. "Case" kelimesi, Latince bir olay, düşüş veya durum anlamına gelen *casus* kökünden gelir; sistem programlamada ise bir değişkenin "içine düştüğü durum" olarak değerlendirilir.
 
-Bu yapıyı devasa bir kargo ayırma tesisine (sorting center) benzetebiliriz. Banttan gelen bir paketin (değişkenin) üzerinde bir posta kodu yazar. Mekanik sistem bu paketi alıp sırayla "Bu Ankara mı? Hayır. Bu İzmir mi? Hayır." diye her şehre tek tek sormak yerine, posta kodunu okur ve paketi doğrudan o koda ait kuyuya (oluğa) bırakır. Paketin gideceği yer tanımsızsa, en sondaki "Diğerleri" kuyusuna düşer.
+Bu yapıyı bir kargo ayırma bandına (sorting line) benzetebiliriz. Banttan gelen paketin (değişkenin) üzerinde bir adres yazar. Paket, bant boyunca dizilmiş oluklardan sırayla geçer: ilk oluğun önündeki görevli "Bu paket Ankara'ya mı?" diye bakar; değilse paket ikinci oluğa, "İzmir'e mi?" sorusuna geçer. Paket, adresine uyan **ilk** oluğa düşer ve banttan çıkar; hiçbir oluğa uymazsa bandın sonundaki "Diğerleri" kutusuna düşer. Bash'te `case` da desenleri tam olarak bu şekilde, yukarıdan aşağıya sırayla dener ve ilk eşleşmede durur. `case` yapısının `elif` zincirine üstünlüğü hız değil, okunabilirlik ve desen eşleştirme kolaylığıdır.
 
 **case Yapısının Sözdizimi (Syntax)**
 Kabuk (Shell) ortamında bir `case` bloğu tasarlarken izlediğimiz iskelet şu şekildedir:
@@ -2543,7 +2612,7 @@ Bu yapıda dikkatinizi çekmesi gereken özel semboller ve mekanizmalar vardır:
 -   `esac`: Tıpkı `if` bloğunun `fi` ile kapatılması geleneği gibi, `case` kelimesinin tersten yazılmasıyla blok sonlandırılır.
 
 **Örnek: Sistem Servis Yönetim Betiği**
-Bir sunucu üzerindeki web servisini başlatıp durduracak basit bir kontrol betiği (script) yazalım. Kullanıcının terminalden gireceği parametreye göre (start, stop, vb.) işlem yapacak bir yapı kurgulayalım:
+Bir sunucu üzerindeki web servisini başlatıp durduracak basit bir kontrol betiği (script) yazalım. Kullanıcının terminalden gireceği seçime göre (baslat, durdur, yeniden_baslat) işlem yapacak bir yapı kurgulayalım:
 
 ```bash
 #!/bin/bash
@@ -2590,9 +2659,9 @@ case "$cevap" in
         ;;
 esac
 ```
-Burada köşeli parantez `[ ]` kullanımı da bir başka güçlü desen eşleştirme tekniğidir. Köşeli parantez içindeki karakterler, o haneye yazılabilecek alternatif harfleri belirtir. Bu, Düzenli İfadeler (Regex - Regular Expressions) mantığının kabuk üzerindeki temel uygulamalarından biridir.
+Burada köşeli parantez `[ ]` kullanımı da bir başka güçlü desen eşleştirme tekniğidir. Köşeli parantez içindeki karakterler, o haneye yazılabilecek alternatif harfleri belirtir. `case` desenleri, Bölüm 2'deki joker karakterlerle aynı kurallara uyan **glob desenleridir**; düzenli ifade (regex) değildir. Örneğin `*` globda "herhangi bir karakter dizisi" anlamına gelirken regex'te "önceki karakterin sıfır veya daha fazla tekrarı" anlamına gelir.
 
-Aşağıda, not örneği üzerinden `case` yapısının bir başka kullanımını görebilirsiniz:
+Aşağıda, bir menü örneği üzerinden `case` yapısının bir başka kullanımını görebilirsiniz:
 
 ```bash
 #!/bin/bash
@@ -2626,13 +2695,14 @@ esac
 
 ### 8.10 Döngüler ve Alt Kabuklar (Loops and Subshells)
 
-Gençler, şu ana kadar yazdığımız betikler (scripts) yukarıdan aşağıya doğru bir kez çalışıp sonlanıyordu. `if-else` ve `case` ile programın yönünü değiştirmeyi öğrendik ancak aynı işlemi tekrar tekrar yapmamız gerektiğinde bu yapılar yetersiz kalır. Bir dizindeki binlerce dosyanın uzantısını değiştirmek veya bir log dosyasındaki her satırı tek tek okumak için aynı kodu bin defa alt alta yazamayız.
+Şu ana kadar yazılan betikler yukarıdan aşağıya doğru bir kez çalışıp sonlanıyordu. `if-else` ve `case` ile programın yönü değiştirilebilir; ancak aynı işlemin tekrar tekrar yapılması gerektiğinde bu yapılar yetersiz kalır. Bir dizindeki binlerce dosyanın uzantısını değiştirmek veya bir log dosyasındaki her satırı tek tek okumak için aynı kodu bin defa alt alta yazamayız.
 
-Tıpkı bir fabrikadaki üretim bandının (assembly line) dönmesi gibi, bilgisayar bilimlerinde de tekrar eden işlemleri otomatize etmek için döngü (loop) mekanizmalarını kullanırız. İşletim sistemleri, bu tekrarları donanım seviyesindeki atlama (jump) komutlarıyla oldukça verimli bir şekilde gerçekleştirir.
+Tıpkı bir fabrikadaki üretim bandının (assembly line) dönmesi gibi, bilgisayar bilimlerinde de tekrar eden işlemleri otomatize etmek için döngü (loop) mekanizmalarını kullanırız. Derlenen dillerde döngüler, işlemcinin atlama (jump) komutlarına çevrilir; Bash'te ise döngüyü kabuk yorumlayıcısı satır satır işleyerek yürütür.
 
 Kabuk ortamında (Shell Environment) en çok kullanacağımız üç temel döngü yapısı vardır: `for`, `while` ve `until`.
 
-**1. `for` Döngüsü: Liste Üzerinde Gezinme**
+#### 1. for Döngüsü: Liste Üzerinde Gezinme
+
 `for` döngüsü, belirli bir liste veya dizi (array) içindeki elemanları tek tek alıp, her biri için belirli komutları çalıştırmak üzere tasarlanmıştır. Kaç kere döneceği baştan bellidir. Bir bahçedeki ağaçları sırayla suladığınızı düşünün; bahçedeki ağaç listesi bitene kadar hortumu bir sonrakine taşırsınız.
 
 Temel Sözdizimi (Syntax):
@@ -2643,11 +2713,11 @@ do
     # Her eleman için çalışacak komutlar
 done
 ```
-Dikkatinizi çekerim, `if` bloğu `fi` ile kapatılıyordu. Döngüler ise "yap" anlamına gelen `do` ile başlar, "yapıldı/bitti" anlamına gelen `done` ile sonlandırılır.
+Dikkat edilirse `if` bloğu `fi` ile kapatılıyordu. Döngüler ise "yap" anlamına gelen `do` ile başlar, "yapıldı/bitti" anlamına gelen `done` ile sonlandırılır.
 
-##### Örnek: Dosya İsimlerini Değiştirme
+##### Örnek: Dosyaların Yedek Kopyasını Almak
 
-Diyelim ki klasörümüzde bir sürü `.txt` uzantılı dosya var ve biz bunların sonuna "_yedek" eklemek istiyoruz:
+Klasörde çok sayıda `.txt` uzantılı dosya olduğunu ve her birinin adının sonuna "_yedek" eklenmiş bir kopyasının oluşturulmak istendiğini düşünelim:
 
 ```bash
 #!/bin/bash
@@ -2655,13 +2725,18 @@ Diyelim ki klasörümüzde bir sürü `.txt` uzantılı dosya var ve biz bunlar�
 # Bulunan tüm .txt dosyalarını sırayla 'dosya' değişkenine ata
 for dosya in *.txt
 do
-    echo "$dosya işleniyor..."
-    # mv komutu ile dosyanın adını değiştir
-    mv "$dosya" "${dosya%.txt}_yedek.txt"
+    # Klasörde .txt dosyası yoksa desen olduğu gibi ("*.txt") kalır; bu durumu atla
+    [[ -e "$dosya" ]] || continue
+    # Daha önce alınmış yedekleri yeniden yedekleme
+    [[ "$dosya" == *_yedek.txt ]] && continue
+
+    echo "$dosya kopyalanıyor..."
+    # cp asıl dosyayı korur; mv kullanılsaydı yalnızca ad değişir, yedek oluşmazdı
+    cp -- "$dosya" "${dosya%.txt}_yedek.txt"
 done
 echo "Tüm yedekleme işlemleri tamamlandı."
 ```
-Buradaki `${dosya%.txt}` ifadesi, değişkenin sonundaki ".txt" kısmını kırpar. Bu da kabuk programlamanın pratik özelliklerinden biridir.
+Buradaki `${dosya%.txt}` ifadesi, değişkenin sonundaki ".txt" kısmını kırpar. Bu da kabuk programlamanın pratik özelliklerinden biridir. `cp` ile `mv` arasındaki fark burada kritiktir: `mv` dosyanın yalnızca adını değiştirir; ortada ikinci bir kopya olmadığı için bu bir yedekleme değildir.
 
 ##### Örnek: Dosya İsimlerine Tarih Eklemek
 
@@ -2686,7 +2761,7 @@ done
 echo "Dosya isimlerine tarih ekleme işlemi tamamlandı."
 ```
 
-#### for Döngüsü — C Tarzı
+##### C Tarzı for Döngüsü
 
 ```bash
 for ((i=0; i<10; i++)); do
@@ -2890,9 +2965,11 @@ Bash özyinelemeyi destekler ama her çağrı yeni bir alt süreç oluşturduğu
 
 ### 8.12 Hata Yönetimi (Error Handling)
 
-#### Çıkış Kodları (Exit Kodları)
+#### Çıkış Kodları (Exit Codes)
 
 Linux ve Unix sistemlerinde, çalışan her komut veya program işini bitirdiğinde işletim sistemine gizli bir "durum raporu" bırakır. Bu rapora **Çıkış Kodu (Exit Code)** denir.
+
+![Çıkış kodları](images/exit-code-infographic.svg)
 
 Bu sistemin evrensel kuralı şudur:
 * **`0` (Sıfır):** "Her şey yolunda, görev başarıyla tamamlandı."
@@ -2948,17 +3025,24 @@ set -euo pipefail
 
 **`set -u` neden kritik:**
 
-```bash
-# set -u olmadan
-rm -rf "$HEDEF_DIZIN"/   # HEDEF_DIZIN tanimli degilse bos gibi davranabilir
+> **Uyarı:** Aşağıdaki satırlar yalnızca okunmak içindir; başlarındaki `#` işaretini kaldırıp çalıştırmayın.
 
-# set -u ile
-rm -rf "$HEDEF_DIZIN"/   # Hata: unbound variable — betik durur
+```bash
+# set -u olmadan:
+# rm -rf "$HEDEF_DIZIN"/   # HEDEF_DIZIN tanımlı değilse komut "rm -rf /" haline gelir
+
+# set -u ile:
+# rm -rf "$HEDEF_DIZIN"/   # Hata: unbound variable — betik durur
+
+# Daha da güvenli yazım: değişken boş veya tanımsızsa hata mesajı verip dur
+# rm -rf "${HEDEF_DIZIN:?HEDEF_DIZIN tanımlı değil}"/
 ```
+
+`${DEG:?mesaj}` kalıbı, `set -u` açık olmasa bile değişken boş veya tanımsızsa komutu çalıştırmadan betiği durdurur. Silme komutlarında değişken kullanırken bu kalıp alışkanlık haline getirilmelidir.
 
 #### Sinyal Yakalama (Signal Handling) ve trap Komutu
 
-Gençler, bir sistem programcısı olarak yazdığımız kodun her zaman ideal koşullarda, başından sonuna kadar kesintisiz çalışacağını varsayamayız. Çalışan bir betik (script) aniden dışarıdan bir kesme (interrupt) alabilir. Örneğin, kullanıcı işlemin uzun sürmesinden sıkılıp **Ctrl+C** tuşlarına basabilir veya sistem yöneticisi süreci `kill` komutuyla zorla sonlandırmak isteyebilir.
+Bir sistem programcısı, yazdığı kodun her zaman ideal koşullarda, başından sonuna kadar kesintisiz çalışacağını varsayamaz. Çalışan bir betik (script) aniden dışarıdan bir kesme (interrupt) alabilir. Örneğin, kullanıcı işlemin uzun sürmesinden sıkılıp **Ctrl+C** tuşlarına basabilir veya sistem yöneticisi süreci `kill` komutuyla zorla sonlandırmak isteyebilir.
 
 Bu tür dış müdahalelere ve sistem bildirimlerine **Sinyal (Signal)** diyoruz. Sinyalleri, yoğun bir mutfakta çalışan aşçıbaşına gelen acil durum anonslarına benzetebiliriz. Eğer mutfakta yangın alarmı çalarsa (bir sinyal gelirse), aşçıbaşı elindeki bıçağı olduğu gibi tezgaha bırakıp mutfaktan kaçmamalıdır. Çıkmadan önce ocağın altını kapatmalı (açık dosyaları kapatmalı) ve tezgahı güvenli bir şekilde bırakmalıdır (geçici dosyaları temizlemelidir).
 
@@ -2994,11 +3078,18 @@ Yukarıdaki kodda yer alan `$$` ifadesi betiğin **Süreç Kimliği (PID - Proce
 
 | Sinyal | Kodu | Anlamı |
 |--------|------|--------|
-| `EXIT` | — | İşletim sistemine geri dönüş (Betik bittiğinde veya `exit` çağrıldığında tetiklenir) |
-| `INT` | 2 | **Int**errupt (Kesme) — Genellikle **Ctrl+C** ile tetiklenir. |
-| `TERM` | 15 | **Term**inate (Sonlandır) — `kill` komutunun varsayılan, işlemi sonlandırma isteğidir. |
-| `ERR` | — | `set -e` açıkken bir komutun başarısız olması durumunda fırlatılır. |
 | `HUP` | 1 | **H**ang**up** — Terminal penceresi kapatıldığında veya SSH bağlantısı koptuğunda gelir. |
+| `INT` | 2 | **Int**errupt (Kesme) — Genellikle **Ctrl+C** ile tetiklenir. |
+| `KILL` | 9 | Süreci anında sonlandırır. Yakalanamaz; `trap` ile bu sinyale tepki tanımlanamaz. |
+| `TERM` | 15 | **Term**inate (Sonlandır) — `kill` komutunun varsayılan, işlemi sonlandırma isteğidir. |
+| `TSTP` | 20 | Terminalden durdurma isteği — **Ctrl+Z** ile tetiklenir (bkz. 8.14). |
+
+**Bash'e özgü sözde sinyaller (pseudo-signals):** Aşağıdakiler çekirdeğin gönderdiği gerçek sinyaller değildir; `trap` komutunun tanıdığı, Bash'in kendi ürettiği olaylardır. Bu yüzden numaraları yoktur.
+
+| Ad | Ne zaman tetiklenir? |
+|----|----------------------|
+| `EXIT` | Betik nasıl sonlanırsa sonlansın (son satıra ulaşıldığında, `exit` çağrıldığında veya bir sinyalle kesildiğinde) çıkıştan hemen önce. |
+| `ERR` | Sıfırdan farklı çıkış kodu döndüren her komuttan sonra. `set -e` açık olmasa da çalışır; `if`/`while` koşulundaki komutlar ve `&&`/`\|\|` zincirinin son komut dışındaki halkaları için tetiklenmez. |
 
 ---
 
@@ -3039,7 +3130,7 @@ bash -x betik.sh
 Sonuc: 60
 ```
 
-![Bash Debugging Şeffaflığı](images/bash-debugging-transparent.svg)
+![Bash Debugging Şeffaflığı](images/bash-debugging.svg)
 
 #### Sözdizimi Kontrolü (Syntax Check)
 
@@ -3067,6 +3158,8 @@ Sistem programlamada donanım kaynaklarını ve zamanı verimli kullanmak öncel
 Bu durumu bir otomobil fabrikasındaki montaj hattı yerine, birbirinden bağımsız çalışan robot kollara benzetebiliriz. Kapıları takan robot ile camları takan robotun birbirini beklemesine gerek yoktur; her ikisi de aynı anda çalışabilir. Ancak kalite kontrol noktasına gelindiğinde, iki işlemin de bitmiş olması gerekir.
 
 Bash'te çalıştırılan bir komutun veya sürecin sonuna `&` işareti koymak, o işi arka planda (background) başlatır. `wait` komutu ise bu işlemlerin tümünün bitmesini beklemek için bir senkronizasyon (synchronization) noktası oluşturur.
+
+![Paralel iş denetimi: & ve wait](images/job-control.svg)
 
 ```bash
 # Uzun süren bir veritabanı yedeğini arka planda başlatıyoruz
@@ -3117,11 +3210,37 @@ done
 echo "Ana Betik: Tüm paralel islemler sorunsuz tamamlandi."
 ```
 
-*Not:* Yukarıdaki kodda kullanılan `RANDOM`, Bash'in içerisinde yerleşik olarak bulunan ve her çağrıldığında 0 ile 32767 arasında sözde rastgele (pseudo-random) bir sayı üreten bir ortam değişkenidir.
+*Not:* Yukarıdaki kodda kullanılan `RANDOM`, Bash'in içerisinde yerleşik olarak bulunan ve her okunduğunda 0 ile 32767 arasında sözde rastgele (pseudo-random) bir sayı üreten bir kabuk değişkenidir. Ortam değişkeni değildir; export edilmediği için alt süreçlere aktarılmaz.
+
+#### Ön Plan, Arka Plan ve Durdurulmuş İşler (jobs, fg, bg)
+
+Etkileşimli kabukta başlatılan her komut bir **iş** (job) olarak izlenir. Bir iş üç durumdan birinde bulunabilir: ön planda (foreground) çalışıyor, arka planda (background) çalışıyor veya durdurulmuş (stopped). Bunu bir mutfaktaki ocak gözlerine benzetebiliriz: aşçı aynı anda yalnızca bir tencereyle doğrudan ilgilenir (ön plan), diğer tencereler kısık ateşte kendi kendine pişer (arka plan), bazı tencereler ise ocaktan alınıp bekletilir (durdurulmuş).
+
+| Komut / Kısayol | İşlevi |
+|-----------------|--------|
+| `komut &` | Komutu doğrudan arka planda başlatır. |
+| **Ctrl + Z** | Ön plandaki işi **durdurur** (SIGTSTP). İş bellekte kalır ama çalışmaz. |
+| `jobs` | Kabuğun izlediği işleri numaralarıyla listeler. |
+| `bg %N` | Durdurulmuş N numaralı işi arka planda çalıştırmaya devam ettirir. |
+| `fg %N` | N numaralı işi ön plana alır. |
+| `kill %N` | N numaralı işe SIGTERM gönderir. |
+
+Ctrl+Z bir işi arka plana göndermez, yalnızca durdurur. Durdurulmuş bir işin arka planda çalışmaya devam etmesi için ayrıca `bg` komutu verilmelidir.
+
+**Kısa alıştırma:**
+
+```bash
+sleep 300          # Ön planda başlar; terminal meşgul olur
+# Ctrl + Z tuşlarına basın → "[1]+ Durdu  sleep 300" benzeri bir satır görülür
+jobs               # [1]+ Durdu   sleep 300
+bg %1              # İş arka planda çalışmaya devam eder
+jobs               # [1]+ Çalışıyor   sleep 300 &
+fg %1              # İş yeniden ön plana gelir; Ctrl + C ile sonlandırın
+```
 
 ---
 
-### Uygulama 8 — Log Analiz Betiği
+### Uygulama 7 — Log Analiz Betiği
 
 Aşağıdaki betiği `log_analiz.sh` olarak kaydedin:
 
@@ -3137,7 +3256,12 @@ TARIH=$(date '+%Y%m%d_%H%M%S')
 RAPOR="$RAPOR_DIZINI/log_analiz_${TARIH}.txt"
 
 temizle() {
-    [[ -f "$RAPOR" && ! -s "$RAPOR" ]] && rm -f "$RAPOR"
+    # Rapor oluşturulduysa ama boş kaldıysa sil.
+    # (if kullanılır: "[[ ... ]] && rm" biçimi koşul yanlışken 1 döndürür
+    #  ve betiğin çıkış kodunu gereksiz yere 1 yapar.)
+    if [[ -f "$RAPOR" && ! -s "$RAPOR" ]]; then
+        rm -f "$RAPOR"
+    fi
 }
 trap temizle EXIT
 
@@ -3164,13 +3288,17 @@ fi
     echo ""
 
     echo "--- OZET ---"
-    printf "ERROR : %d\n" "$(grep -c -i "error"   "$LOG_DOSYASI" || echo 0)"
-    printf "WARN  : %d\n" "$(grep -c -i "warning" "$LOG_DOSYASI" || echo 0)"
-    printf "INFO  : %d\n" "$(grep -c -i "info"    "$LOG_DOSYASI" || echo 0)"
+    # grep -c eşleşme yoksa "0" yazar ama çıkış kodu 1 olur;
+    # || true, set -e'nin betiği bu noktada durdurmasını engeller
+    printf "ERROR : %d\n" "$(grep -c -i "error"   "$LOG_DOSYASI" || true)"
+    printf "WARN  : %d\n" "$(grep -c -i "warning" "$LOG_DOSYASI" || true)"
+    printf "INFO  : %d\n" "$(grep -c -i "info"    "$LOG_DOSYASI" || true)"
     echo ""
 
     echo "--- EN FAZLA HATA URETEN KAYNAKLAR (Ilk 10) ---"
-    grep -i "error" "$LOG_DOSYASI" \
+    # pipefail açık olduğundan, hiç "error" satırı yoksa grep'in 1 kodu
+    # tüm boru hattını başarısız sayar; { ... || true; } bunu önler
+    { grep -i "error" "$LOG_DOSYASI" || true; } \
         | awk '{print $5}' \
         | sort \
         | uniq -c \
@@ -3179,7 +3307,7 @@ fi
     echo ""
 
     echo "--- SON 20 HATA SATIRI ---"
-    grep -i "error" "$LOG_DOSYASI" | tail -20
+    { grep -i "error" "$LOG_DOSYASI" || true; } | tail -20
 
 } > "$RAPOR"
 
@@ -3195,6 +3323,8 @@ chmod +x log_analiz.sh
 ```
 
 `{ } > "$RAPOR"` yapısı birden fazla komutun çıktısını gruplayıp tek bir yönlendirmeyle dosyaya yazar. Her satıra ayrı ayrı `>> "$RAPOR"` yazmaktan çok daha temiz ve hızlıdır.
+
+**`set -euo pipefail` ile `grep` birlikte kullanılırken dikkat:** `grep` eşleşme bulamadığında 1 koduyla çıkar. Bu bir hata değil, "aranan bulunamadı" bilgisidir; ancak `set -e` ve `pipefail` bunu hata sayar ve betiği sessizce durdurur. Bu nedenle sonucu "bulunamadı" olabilecek `grep` çağrıları `|| true` ile korunur. `grep -c ... || echo 0` biçimi ise yanlıştır: eşleşme yoksa `grep -c` zaten "0" yazdığı için çıktı iki satır ("0" ve "0") olur ve `printf` "invalid number" hatası verir.
 
 ---
 
@@ -3237,11 +3367,16 @@ find . -empty                               # Boş dosya ve dizinler
 
 ```bash
 # 30 günden eski log dosyalarını temizle
-find /var/log -name "*.log" -mtime +30 -exec rm -f {} +
+# Önce yalnızca listeleyin, silinecek dosyaları gözle kontrol edin:
+find "$HOME/raporlar" -name "*.txt" -mtime +30 -print
+# Liste doğruysa aynı komutu -delete ile çalıştırın:
+find "$HOME/raporlar" -name "*.txt" -mtime +30 -delete
 
 # Büyük dosyaları bul ve boyutlarıyla raporla
-find "$HOME" -size +100M -exec du -sh {} \; | sort -rh
+find "$HOME" -size +100M -exec du -sh {} + | sort -rh
 ```
+
+> **Uyarı:** `-delete` veya `-exec rm` içeren bir `find` komutunu çalıştırmadan önce aynı komutu `-print` ile deneyip listeyi kontrol etmek gerekir; silinen dosyalar çöp kutusuna gitmez. `/var/log` altındaki sistem günlüklerini elle silmek yerine bu işi yapmak için tasarlanmış `logrotate` aracı kullanılmalıdır; bu dizindeki dosyalar zaten yalnızca root tarafından silinebilir.
 
 ---
 
@@ -3299,11 +3434,13 @@ $ whereis python3
 python3: /usr/bin/python3 /usr/lib/python3 /usr/share/man/man1/python3.1.gz
 
 $ type ls
-ls, `/usr/bin/ls' icin takma addır
+ls, `ls --color=auto' için takma addır
 
 $ type cd
 cd bir yerlesik kabuk komutudur
 ```
+
+Ubuntu'da `ls`, renkli çıktı için `~/.bashrc` içinde `ls --color=auto` takma adıyla tanımlıdır; `type` bunu gösterir. Takma adı olmayan bir komutta `type` doğrudan dosya yolunu verir (örneğin `type cp`, komutun `/usr/bin/cp` dosyası olduğunu bildirir).
 
 `which` çalıştırılabilir dosyanın yolunu gösterir. `whereis` kaynak kodu ve kılavuz sayfasını da bulur. `type` ise komutun ne olduğunu — alias, function, builtin, ya da harici dosya — açıklar.
 
@@ -3378,7 +3515,7 @@ Geçmiş dosyası `~/.bash_history`'de saklanır. `HISTSIZE` bellekte, `HISTFILE
 
 ### `cron` — Zamanlanmış Görevler (Scheduled Tasks)
 
-`cron`, belirli zamanlarda otomatik komut çalıştıran bir servis programıdır (daemon — arka plan servisi). Latince daemonlar gibi arka planda sessizce çalışır; görünmez ama iş yapar. Windows'taki Görev Zamanlayıcı'nın (Task Scheduler) terminal karşılığıdır.
+`cron`, belirli zamanlarda otomatik komut çalıştıran bir servis programıdır (daemon — arka plan servisi). "Daemon" sözcüğü, Eski Yunanca *daimōn* (görünmeden iş gören yardımcı ruh) kökünden gelir; bu programlar da arka planda sessizce çalışır, görünmez ama iş yapar. Windows'taki Görev Zamanlayıcı'nın (Task Scheduler) terminal karşılığıdır.
 
 ```bash
 crontab -e    # Cron görevlerini düzenle
@@ -3403,7 +3540,7 @@ crontab -r    # Tüm görevleri sil (dikkatli!)
 
 ```
 # Her gece 02:00'de yedek al
-0 2 * * * /home/kullanici/yedekle.sh >> /var/log/yedek.log 2>&1
+0 2 * * * /home/kullanici/yedekle.sh >> /home/kullanici/yedek.log 2>&1
 
 # Her 15 dakikada kontrol et
 */15 * * * * /home/kullanici/kontrol.sh
@@ -3418,8 +3555,10 @@ crontab -r    # Tüm görevleri sil (dikkatli!)
 Cron görevlerinin çıktısını log dosyasına yönlendirmek iyi bir alışkanlıktır:
 
 ```
-0 2 * * * /home/kullanici/yedekle.sh >> /var/log/yedek.log 2>&1
+0 2 * * * /home/kullanici/yedekle.sh >> /home/kullanici/yedek.log 2>&1
 ```
+
+Kullanıcının kendi crontab'ında (`crontab -e`) çalışan görevler o kullanıcının yetkileriyle çalışır; normal bir kullanıcı `/var/log` dizinine yazamaz. Bu nedenle günlük dosyası ev dizininde tutulur. Cron, kabuğun aksine `~` kısaltmasını ve kullanıcının `PATH` ayarlarını her zaman tanımadığından, crontab satırlarında tam yol yazmak en güvenli yoldur.
 
 ---
 
@@ -3447,28 +3586,9 @@ source ~/.bashrc    # Değişiklikleri hemen uygula
 
 ---
 
-### Boru Hatları (Pipes) — Komutları Zincirleme
-
-![Boru Hattı (Pipe) Zinciri](images/pipe-chain.svg)
-
-Linux'un felsefesi "tek bir işi iyi yapan küçük araçlar"dır. Bu araçlar `|` (pipe — boru) ile birbirine bağlanarak karmaşık işlemler gerçekleştirilir. Bir komutun stdout'u, bir sonraki komutun stdin'ine bağlanır.
-
-```bash
-# En çok disk kullanan 5 dizini bul
-du -sh /var/* 2>/dev/null | sort -rh | head -5
-
-# Sistemdeki kullanıcıları alfabetik listele
-cut -d ":" -f 1 /etc/passwd | sort
-
-# Log'da en çok tekrar eden hata kaynağını bul
-grep "ERROR" /var/log/syslog | awk '{print $5}' | sort | uniq -c | sort -rn | head -10
-```
-
-Her `|` bir montaj hattının bağlantı noktasıdır. Fabrikada her istasyon bir işlem yapar ve ürünü bir sonrakine geçirir. Pipe zincirlerinde de her komut veriyi işler ve sonucu bir sonraki komuta aktarır.
-
----
-
 ## Komut Referans Tablosu — MS-DOS ve Linux Karşılaştırması
+
+Windows tarafındaki komutların ayrıntıları için [MS-DOS ders notuna](MS-DOS.md) ve [PowerShell ders notuna](PowerShell_Giris/PowerShell.md) bakılabilir.
 
 | İşlev | MS-DOS / cmd | Linux / Bash |
 |-------|-------------|--------------|
@@ -3502,13 +3622,14 @@ Her `|` bir montaj hattının bağlantı noktasıdır. Fabrikada her istasyon bi
 | Yardım | `komut /?` | `man komut` / `komut --help` |
 | Yorum satırı | `REM` | `#` |
 | Batch/Script | `.bat` | `.sh` |
-| Disk kullanımı | `wmic logicaldisk` | `df -h` |
+| Disk kullanımı | `fsutil volume diskfree C:` / PowerShell: `Get-CimInstance Win32_LogicalDisk` | `df -h` |
 | Kapatma | `shutdown /s` | `shutdown -h now` / `poweroff` |
 | Yeniden başlat | `shutdown /r` | `shutdown -r now` / `reboot` |
-| Dosya izinleri | `attrib` | `chmod` / `chown` |
-| Paket kurma | (yok — .exe indirme) | `apt install` |
-| Arşivleme | (yok — harici araç) | `tar` |
-| Zamanlanmış görev | Görev Zamanlayıcı (GUI) | `cron` / `crontab` |
+| Dosya öznitelikleri | `attrib` | `chattr` / `lsattr` |
+| Dosya izinleri | `icacls` | `chmod` / `chown` |
+| Paket kurma | `winget install` (Windows 10/11) | `apt install` |
+| Arşivleme | `tar` (Windows 10 1803 ve sonrası) | `tar` |
+| Zamanlanmış görev | `schtasks` / Görev Zamanlayıcı | `cron` / `crontab` |
 
 ---
 
@@ -3517,8 +3638,8 @@ Her `|` bir montaj hattının bağlantı noktasıdır. Fabrikada her istasyon bi
 | Kısayol | İşlev |
 |---------|-------|
 | **Tab** | Otomatik tamamlama (dosya, dizin, komut) |
-| **Ctrl + C** | Çalışan komutu durdur |
-| **Ctrl + Z** | Komutu arka plana gönder (duraklat) |
+| **Ctrl + C** | Çalışan komutu sonlandır (SIGINT) |
+| **Ctrl + Z** | Çalışan komutu durdur (askıya al); arka planda sürdürmek için `bg` |
 | **Ctrl + D** | Oturumu kapat (exit) |
 | **Ctrl + L** | Ekranı temizle (clear) |
 | **Ctrl + R** | Komut geçmişinde ara |
@@ -3548,7 +3669,7 @@ Bir sonraki adım olarak şu konular önerilir:
 - **Ansible:** Büyük ölçekli sistem otomasyonu — birden fazla sunucuya aynı anda betik uygulamak
 - **Docker ve konteyner yönetimi:** Shell bilgisi Dockerfile ve konteyner orkestrasyon betiklerinde doğrudan kullanılır
 - **Git hooks:** Commit, push gibi git olaylarında otomatik betik çalıştırma — kod kalitesini otomatik denetleme
-- **Systemd unit dosyaları:** Servisleri systemd ile yönetme — cron'un modern alternatifi
+- **Systemd unit dosyaları:** Servisleri systemd ile yönetme; zamanlanmış işler için cron'un modern alternatifi olan systemd zamanlayıcıları (timer)
 - **Advanced Bash Scripting Guide (TLDP):** Kapsamlı, ücretsiz açık kaynaklı referans
 
 Komutları bir ağaç gibi düşünün: kökleri sağlam oturursa — süreç, dosya, akış, izin gibi temel kavramlar — dallar kendiliğinden anlamlı hale gelir. Her yeni komut öğrenildiğinde "bu nereye oturur, hangi problemi çözer?" diye sormak, ezber yerine anlayışla öğrenmeyi getirir.
